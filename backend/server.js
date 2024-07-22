@@ -19,11 +19,13 @@ app.listen(PORT, () => {
 })
 
 // Check the initial connection
-db.connect((err) => {
-  if (err) {
+;(async () => {
+  try {
+    // Perform a simple query to check the connection
+    const [rows] = await db.query("SELECT 1")
+    console.log("Database connection is working.")
+  } catch (err) {
     console.error("Error connecting to the database:", err)
     process.exit(1)
-  } else {
-    console.log("Connected to the MySQL database.")
   }
-})
+})()
