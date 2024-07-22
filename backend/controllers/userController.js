@@ -136,6 +136,26 @@ const hardDeleteUser = async (req, res) => {
   }
 }
 
+// Controller function to handle user login
+const loginUser = async (req, res) => {
+  const { username, password } = req.body
+
+  try {
+    const user = await UserModel.findUserByCredentials(username, password)
+
+    if (user) {
+      // User found and password matches
+      res.status(200).send("Login successful")
+    } else {
+      // User not found or password incorrect
+      res.status(401).send("Invalid username or password")
+    }
+  } catch (err) {
+    console.error("Error logging in:", err)
+    res.status(500).send("Server error")
+  }
+}
+
 module.exports = {
   createUser,
   getAllUsers,
@@ -146,4 +166,5 @@ module.exports = {
   setUserStatus,
   softDeleteUser,
   hardDeleteUser,
+  loginUser,
 }

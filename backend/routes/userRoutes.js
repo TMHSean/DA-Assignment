@@ -2,6 +2,9 @@ const express = require("express")
 const router = express.Router()
 const userController = require("../controllers/userController")
 
+// // Login user route
+router.post("/login", userController.loginUser)
+
 // Create a new user
 router.post("/create", userController.createUser)
 

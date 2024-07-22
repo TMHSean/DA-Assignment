@@ -1,4 +1,16 @@
 const db = require("../config/db") // Path to your db configuration
+const bcrypt = require("bcryptjs")
+
+// Function to hash the password
+const hashPassword = async (password) => {
+  const saltRounds = 10
+  return bcrypt.hash(password, saltRounds)
+}
+
+// Function to compare passwords
+const comparePasswords = async (password, hashedPassword) => {
+  return bcrypt.compare(password, hashedPassword)
+}
 
 // Get all users
 const getAllUsers = async () => {
@@ -26,10 +38,15 @@ const getUserById = async (id) => {
 
 // Create a new user
 const createUser = async (username, password, email, disabled = 0) => {
-  const [result] = await db.query(
-    "INSERT INTO user (username, password, email, disabled) VALUES (?, ?, ?, ?)",
-    [username, password, email, disabled]
-  )
+  const hashedPassword = await hashPassword(password)
+  const query =
+    "INSERT INTO user (username, password, email, disabled) VALUES (?, ?, ?, ?)"
+  const [result] = await db.query(query, [
+    username,
+    hashedPassword,
+    email,
+    disabled,
+  ])
   return result.insertId
 }
 
@@ -67,6 +84,21 @@ const hardDeleteUser = async (id) => {
   await db.query("DELETE FROM user WHERE id = ?", [id])
 }
 
+// Find user by credentials
+const findUserByCredentials = async (username, password) => {
+  const query = "SELECT * FROM user WHERE username = ?"
+  const [rows] = await db.query(query, [username])
+
+  if (!rows || rows.length === 0) {
+    // No user found with the given username
+    return null
+  }
+
+  const user = rows[0]
+  const isMatch = await comparePasswords(password, user.password)
+  return isMatch ? user : null
+}
+
 module.exports = {
   getAllUsers,
   getActiveUsers,
@@ -77,4 +109,5 @@ module.exports = {
   setUserStatus,
   softDeleteUser,
   hardDeleteUser,
+  findUserByCredentials,
 }
