@@ -18,18 +18,18 @@ router.get("/active", userController.getActiveUsers)
 router.get("/inactive", userController.getInactiveUsers)
 
 // Get specific user
-router.get("/:id", userController.getUserById)
+router.get("/:username", userController.getUserByUsername)
 
 // Update user details (password and/or email)
-router.put("/update/:id", userController.updateUser)
+router.put("/update/:username", userController.updateUser)
 
 // Set user active or inactive
-router.put("/status/:id", userController.setUserStatus)
+router.put("/status/:username", userController.setUserStatus)
 
 // Soft delete a user
-router.put("/disable/:id", userController.softDeleteUser)
+router.put("/disable/:username", userController.softDeleteUser)
 
 // Hard delete a user (only for testing purposes)
-router.delete("/:id", userController.hardDeleteUser)
+router.delete("/:username", userController.hardDeleteUser)
 
 module.exports = router

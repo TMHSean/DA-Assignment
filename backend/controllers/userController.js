@@ -6,13 +6,13 @@ const createUser = async (req, res) => {
 
   try {
     // Check if the username already exists
-    const existingUser = await UserModel.getUserById(username)
+    const existingUser = await UserModel.getUserByUsername(username)
     if (existingUser) {
       return res.status(400).send("Username already exists")
     }
 
-    const id = await UserModel.createUser(username, password, email, disabled)
-    res.status(201).send({ id })
+    const user = await UserModel.createUser(username, password, email, disabled)
+    res.status(201).json(user)
   } catch (err) {
     console.error("Error creating user:", err)
     res.status(500).send("Server error")
@@ -53,11 +53,11 @@ const getInactiveUsers = async (req, res) => {
 }
 
 // Get specific user
-const getUserById = async (req, res) => {
-  const { id } = req.params
+const getUserByUsername = async (req, res) => {
+  const { username } = req.params
 
   try {
-    const user = await UserModel.getUserById(id)
+    const user = await UserModel.getUserByUsername(username)
     if (!user) {
       return res.status(404).send("User not found")
     }
@@ -70,7 +70,7 @@ const getUserById = async (req, res) => {
 
 // Update user details (password and/or email)
 const updateUser = async (req, res) => {
-  const { id } = req.params
+  const { username } = req.params
   const { password, email } = req.body
 
   if (!password && !email) {
@@ -80,7 +80,7 @@ const updateUser = async (req, res) => {
   }
 
   try {
-    await UserModel.updateUser(id, password, email)
+    await UserModel.updateUser(username, password, email)
     res.send("User updated successfully")
   } catch (err) {
     console.error("Error updating user:", err)
@@ -90,7 +90,7 @@ const updateUser = async (req, res) => {
 
 // Set user active or inactive
 const setUserStatus = async (req, res) => {
-  const { id } = req.params
+  const { username } = req.params
   const { disabled } = req.body
 
   if (typeof disabled !== "number" || (disabled !== 0 && disabled !== 1)) {
@@ -100,7 +100,7 @@ const setUserStatus = async (req, res) => {
   }
 
   try {
-    await UserModel.setUserStatus(id, disabled)
+    await UserModel.setUserStatus(username, disabled)
     res.send(
       `User ${disabled === 1 ? "deactivated" : "activated"} successfully`
     )
@@ -112,10 +112,10 @@ const setUserStatus = async (req, res) => {
 
 // Soft delete a user
 const softDeleteUser = async (req, res) => {
-  const { id } = req.params
+  const { username } = req.params
 
   try {
-    await UserModel.softDeleteUser(id)
+    await UserModel.softDeleteUser(username)
     res.send("User disabled successfully")
   } catch (err) {
     console.error("Error disabling user:", err)
@@ -125,10 +125,10 @@ const softDeleteUser = async (req, res) => {
 
 // Hard delete a user
 const hardDeleteUser = async (req, res) => {
-  const { id } = req.params
+  const { username } = req.params
 
   try {
-    await UserModel.hardDeleteUser(id)
+    await UserModel.hardDeleteUser(username)
     res.send("User deleted successfully")
   } catch (err) {
     console.error("Error deleting user:", err)
@@ -161,7 +161,7 @@ module.exports = {
   getAllUsers,
   getActiveUsers,
   getInactiveUsers,
-  getUserById,
+  getUserByUsername,
   updateUser,
   setUserStatus,
   softDeleteUser,

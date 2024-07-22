@@ -30,9 +30,11 @@ const getInactiveUsers = async () => {
   return results
 }
 
-// Get specific user
-const getUserById = async (id) => {
-  const [results] = await db.query("SELECT * FROM user WHERE id = ?", [id])
+// Get specific user by username
+const getUserByUsername = async (username) => {
+  const [results] = await db.query("SELECT * FROM user WHERE username = ?", [
+    username,
+  ])
   return results[0]
 }
 
@@ -41,21 +43,17 @@ const createUser = async (username, password, email, disabled = 0) => {
   const hashedPassword = await hashPassword(password)
   const query =
     "INSERT INTO user (username, password, email, disabled) VALUES (?, ?, ?, ?)"
-  const [result] = await db.query(query, [
-    username,
-    hashedPassword,
-    email,
-    disabled,
-  ])
-  return result.insertId
+  await db.query(query, [username, hashedPassword, email, disabled])
+  return { username, email, disabled } // Return the created user details
 }
 
 // Update user details (password and/or email)
-const updateUser = async (id, password, email) => {
+const updateUser = async (username, password, email) => {
   let query = "UPDATE user SET"
   const params = []
 
   if (password) {
+    const hashedPassword = await hashPassword(password)
     query += " password = ?,"
     params.push(password)
   }
@@ -63,25 +61,36 @@ const updateUser = async (id, password, email) => {
     query += " email = ?,"
     params.push(email)
   }
-  query = query.slice(0, -1) + " WHERE id = ?"
-  params.push(id)
+  query = query.slice(0, -1) + " WHERE username = ?"
+  params.push(username)
 
-  await db.query(query, params)
+  try {
+    console.log(query)
+    console.log(params)
+    await db.query(query, params)
+    console.log("User updated successfully")
+  } catch (error) {
+    console.error("Error updating user:", serror)
+    throw error // Or handle error as needed
+  }
 }
 
 // Set user active or inactive
-const setUserStatus = async (id, disabled) => {
-  await db.query("UPDATE user SET disabled = ? WHERE id = ?", [disabled, id])
+const setUserStatus = async (username, disabled) => {
+  await db.query("UPDATE user SET disabled = ? WHERE username = ?", [
+    disabled,
+    username,
+  ])
 }
 
 // Soft delete a user
-const softDeleteUser = async (id) => {
-  await db.query("UPDATE user SET disabled = 1 WHERE id = ?", [id])
+const softDeleteUser = async (username) => {
+  await db.query("UPDATE user SET disabled = 1 WHERE username = ?", [username])
 }
 
 // Hard delete a user
-const hardDeleteUser = async (id) => {
-  await db.query("DELETE FROM user WHERE id = ?", [id])
+const hardDeleteUser = async (username) => {
+  await db.query("DELETE FROM user WHERE username = ?", [username])
 }
 
 // Find user by credentials
@@ -103,7 +112,7 @@ module.exports = {
   getAllUsers,
   getActiveUsers,
   getInactiveUsers,
-  getUserById,
+  getUserByUsername,
   createUser,
   updateUser,
   setUserStatus,
