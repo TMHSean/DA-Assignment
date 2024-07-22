@@ -42,7 +42,7 @@ router.post("/create", (req, res) => {
 
 // Get all users
 router.get("/", (req, res) => {
-  db.query("SELECT * FROM user WHERE disabled IS 0", (err, results) => {
+  db.query("SELECT * FROM user", (err, results) => {
     if (err) {
       console.error("Error fetching users:", err)
       res.status(500).send("Server error")
@@ -53,8 +53,8 @@ router.get("/", (req, res) => {
 })
 
 // Get all active users
-router.get("/", (req, res) => {
-  db.query("SELECT * FROM user WHERE disabled IS 0", (err, results) => {
+router.get("/active", (req, res) => {
+  db.query("SELECT * FROM user WHERE disabled = 0", (err, results) => {
     if (err) {
       console.error("Error fetching users:", err)
       res.status(500).send("Server error")
@@ -65,8 +65,8 @@ router.get("/", (req, res) => {
 })
 
 // Get all inactive users
-router.get("/", (req, res) => {
-  db.query("SELECT * FROM user WHERE disabled IS 1", (err, results) => {
+router.get("/inactive", (req, res) => {
+  db.query("SELECT * FROM user WHERE disabled = 1", (err, results) => {
     if (err) {
       console.error("Error fetching users:", err)
       res.status(500).send("Server error")
