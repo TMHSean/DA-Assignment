@@ -1,11 +1,29 @@
+require("dotenv").config()
 const express = require("express")
-const app = express()
-const PORT = 3000
+const bodyParser = require("body-parser")
+const db = require("./config/db") // Ensure the path to db.js is correct
 
-app.get("/api/data", (req, res) => {
-  res.json({ message: "Hello from Node.js backend!" })
-})
+const app = express()
+app.use(bodyParser.json())
+
+const PORT = process.env.PORT || 3000
+
+// Import routes
+const userRoutes = require("./routes/userRoutes")
+
+// Use routes
+app.use("/users", userRoutes)
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`)
+  console.log(`Server is running on port ${PORT}`)
+})
+
+// Check the initial connection
+db.connect((err) => {
+  if (err) {
+    console.error("Error connecting to the database:", err)
+    process.exit(1)
+  } else {
+    console.log("Connected to the MySQL database.")
+  }
 })
