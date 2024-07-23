@@ -9,7 +9,6 @@ const { authenticateToken } = require("./middleware/authMiddleware")
 // Initialize Express app
 const app = express()
 
-app.use(cookieParser())
 app.use(bodyParser.json())
 
 // CORS configuration
@@ -21,6 +20,7 @@ const corsOptions = {
 }
 
 app.use(cors(corsOptions)) // Use the cors middleware
+app.use(cookieParser())
 
 const PORT = process.env.PORT || 3000
 

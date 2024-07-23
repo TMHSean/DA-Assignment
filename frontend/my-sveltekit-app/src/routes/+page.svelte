@@ -10,5 +10,5 @@
   }
 </style>
 
-<h1>Welcome to the Application</h1>
+<h1>Applications</h1>
 <p>0 applications</p>

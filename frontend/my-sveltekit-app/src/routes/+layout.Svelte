@@ -6,25 +6,25 @@
 
   let isAdmin = false;
 
-  onMount(async () => {
-    try {
-      // Perform the API request to check user status
-      const response = await authAPI.get('/check', {
-        // Ensure cookies are included in the request
-        withCredentials: true
-      });
+  // onMount(async () => {
+  //   try {
+  //     // Perform the API request to check user status
+  //     const response = await authAPI.get('/check', {
+  //       // Ensure cookies are included in the request
+  //       withCredentials: true
+  //     });
 
-      if (response.status === 200) {
-        const data = response.data;
-        isAdmin = data.isAdmin; // Adjust based on your API response
-      } else {
-        goto('/login'); // Redirect to login if the check fails
-      }
-    } catch (error) {
-      console.error('Error checking session:', error);
-      goto('/login'); // Redirect to login on error
-    }
-  });
+  //     if (response.status === 200) {
+  //       const data = response.data;
+  //       isAdmin = data.isAdmin; // Adjust based on your API response
+  //     } else {
+  //       goto('/login'); // Redirect to login if the check fails
+  //     }
+  //   } catch (error) {
+  //     console.error('Error checking session:', error);
+  //     goto('/login'); // Redirect to login on error
+  //   }
+  // });
 </script>
 
 <style>

@@ -9,7 +9,7 @@ const loginUser = async (req, res) => {
   const { username, password } = req.body
 
   try {
-    const [users] = await pool.query("SELECT * FROM users WHERE username = ?", [
+    const [users] = await pool.query("SELECT * FROM user WHERE username = ?", [
       username,
     ])
     const user = users[0]
@@ -18,8 +18,13 @@ const loginUser = async (req, res) => {
       const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress
       const browser = req.headers["user-agent"]
       const token = generateToken(user, ip, browser)
-      res.cookie("jwt", token, { httpOnly: true, maxAge: 3600 * 1000 }) // put secure true if in production
-      res.status(200).send("Login successful")
+      console.log(user)
+      res.cookie("jwt", token, {
+        httpOnly: true,
+        sameSite: "strict",
+        maxAge: 3600 * 1000,
+      }) // put secure true if in production
+      res.status(200).send(token)
     } else {
       res.status(401).send("Invalid username or password")
     }

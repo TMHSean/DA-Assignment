@@ -14,7 +14,11 @@
       const response = await authAPI.post('/login', {
         username,
         password
+      }, {
+        withCredentials: true // Include this option to allow cookies to be sent and received
       });
+
+      console.log(response)
 
       // Check if the request was successful
       if (response.status === 200) {
