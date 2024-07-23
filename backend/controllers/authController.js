@@ -18,13 +18,12 @@ const loginUser = async (req, res) => {
       const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress
       const browser = req.headers["user-agent"]
       const token = generateToken(user, ip, browser)
-      console.log(user)
       res.cookie("jwt", token, {
         httpOnly: true,
         sameSite: "strict",
         maxAge: 3600 * 1000,
       }) // put secure true if in production
-      res.status(200).send(token)
+      res.status(200).send("Login Successful")
     } else {
       res.status(401).send("Invalid username or password")
     }

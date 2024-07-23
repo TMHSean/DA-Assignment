@@ -18,10 +18,10 @@ const router = express.Router()
 // Route for user login
 router.post("/login", loginUser)
 
-// // Route for user logout, requires authentication
-// router.post("/logout", authenticateToken, logoutUser)
+// Route for user logout, requires authentication
+router.post("/logout", authenticateToken, logoutUser)
 
-// // Route to check user status, requires authentication
-// router.get("/check", authenticateToken, checkUserStatus)
+// Route to check user status, requires authentication
+router.get("/check", authenticateToken, checkUserStatus)
 
 module.exports = router
