@@ -1,41 +1,52 @@
 <script>
-
-  import { userAPI } from "$lib/axiosInstances";
+  import { goto } from '$app/navigation';
+  import { authAPI } from '$lib/axiosInstances';
 
   let username = '';
   let password = '';
-  let message = '';
+  let error = '';
 
-  async function loginUser() {
+  const handleLogin = async (event) => {
+    event.preventDefault();
+
     try {
-      const response = await userAPI.post('/login', {
+      // Make the login request with Axios
+      const response = await authAPI.post('/login', {
         username,
         password
       });
 
+      // Check if the request was successful
       if (response.status === 200) {
-        message = 'Login successful!';
-        // Handle successful login (e.g., redirect to another page, store token)
+        goto('/'); // Redirect to the homepage upon successful login
       } else {
-        message = 'Invalid username or password.';
+        error = 'Login failed'; // Set a generic error message
       }
     } catch (error) {
-      message = error.response?.data || 'An error occurred.';
+      console.error('Error during login:', error);
+      error = 'An error occurred. Please try again.'; // Set a user-friendly error message
     }
-  }
+  };
 </script>
 
-<h1>Login</h1>
-<form on:submit|preventDefault={loginUser}>
-  <label>
-    Username:
-    <input type="text" bind:value={username} required />
-  </label>
-  <label>
-    Password:
-    <input type="password" bind:value={password} required />
-  </label>
-  <button type="submit">Login</button>
-</form>
+<style>
+  /* Add your styles here */
+</style>
 
-<p>{message}</p>
+<main>
+  <h1>Login</h1>
+  <form on:submit|preventDefault={handleLogin}>
+    <label>
+      Username
+      <input type="text" bind:value={username} required />
+    </label>
+    <label>
+      Password
+      <input type="password" bind:value={password} required />
+    </label>
+    {#if error}
+      <p>{error}</p>
+    {/if}
+    <button type="submit">Login</button>
+  </form>
+</main>

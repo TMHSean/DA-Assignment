@@ -20,6 +20,7 @@ const getAllUsers = async () => {
 
 // Get active users
 const getActiveUsers = async () => {
+  console.log("test")
   const [results] = await db.query("SELECT * FROM user WHERE disabled = 0")
   return results
 }
