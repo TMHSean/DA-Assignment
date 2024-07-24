@@ -5,7 +5,6 @@ const createUser = async (req, res) => {
   const { username, password, email, disabled = 0 } = req.body
 
   try {
-    // Check if the username already exists
     const existingUser = await UserModel.getUserByUsername(username)
     if (existingUser) {
       return res.status(400).send("Username already exists")
@@ -23,7 +22,7 @@ const createUser = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const users = await UserModel.getAllUsers()
-    res.send(users)
+    res.json(users)
   } catch (err) {
     console.error("Error fetching users:", err)
     res.status(500).send("Server error")
@@ -34,7 +33,7 @@ const getAllUsers = async (req, res) => {
 const getActiveUsers = async (req, res) => {
   try {
     const users = await UserModel.getActiveUsers()
-    res.send(users)
+    res.json(users)
   } catch (err) {
     console.error("Error fetching active users:", err)
     res.status(500).send("Server error")
@@ -45,7 +44,7 @@ const getActiveUsers = async (req, res) => {
 const getInactiveUsers = async (req, res) => {
   try {
     const users = await UserModel.getInactiveUsers()
-    res.send(users)
+    res.json(users)
   } catch (err) {
     console.error("Error fetching inactive users:", err)
     res.status(500).send("Server error")
@@ -61,7 +60,7 @@ const getUserByUsername = async (req, res) => {
     if (!user) {
       return res.status(404).send("User not found")
     }
-    res.send(user)
+    res.json(user)
   } catch (err) {
     console.error("Error fetching user:", err)
     res.status(500).send("Server error")
@@ -144,10 +143,8 @@ const loginUser = async (req, res) => {
     const user = await UserModel.findUserByCredentials(username, password)
 
     if (user) {
-      // User found and password matches
       res.status(200).send("Login successful")
     } else {
-      // User not found or password incorrect
       res.status(401).send("Invalid username or password")
     }
   } catch (err) {

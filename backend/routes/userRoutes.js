@@ -4,7 +4,7 @@ const userController = require("../controllers/userController")
 const { authenticateToken } = require("../middleware/authMiddleware")
 
 // Create a new user (if needed for admin purposes)
-router.post("/create", authenticateToken, userController.createUser)
+router.post("/create", userController.createUser)
 
 // Get all users
 router.get("/", authenticateToken, userController.getAllUsers)

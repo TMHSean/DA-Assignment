@@ -20,7 +20,6 @@ const getAllUsers = async () => {
 
 // Get active users
 const getActiveUsers = async () => {
-  console.log("test")
   const [results] = await db.query("SELECT * FROM user WHERE disabled = 0")
   return results
 }
@@ -56,7 +55,7 @@ const updateUser = async (username, password, email) => {
   if (password) {
     const hashedPassword = await hashPassword(password)
     query += " password = ?,"
-    params.push(password)
+    params.push(hashedPassword)
   }
   if (email) {
     query += " email = ?,"
@@ -65,15 +64,7 @@ const updateUser = async (username, password, email) => {
   query = query.slice(0, -1) + " WHERE username = ?"
   params.push(username)
 
-  try {
-    console.log(query)
-    console.log(params)
-    await db.query(query, params)
-    console.log("User updated successfully")
-  } catch (error) {
-    console.error("Error updating user:", serror)
-    throw error // Or handle error as needed
-  }
+  await db.query(query, params)
 }
 
 // Set user active or inactive
@@ -96,12 +87,12 @@ const hardDeleteUser = async (username) => {
 
 // Find user by credentials
 const findUserByCredentials = async (username, password) => {
-  const query = "SELECT * FROM user WHERE username = ?"
-  const [rows] = await db.query(query, [username])
+  const [rows] = await db.query("SELECT * FROM user WHERE username = ?", [
+    username,
+  ])
 
-  if (!rows || rows.length === 0) {
-    // No user found with the given username
-    return null
+  if (!rows.length) {
+    return null // No user found
   }
 
   const user = rows[0]

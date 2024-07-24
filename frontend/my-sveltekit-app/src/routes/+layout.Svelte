@@ -16,7 +16,7 @@
     <a href="/">Home </a>
     <a href="/profile">Profile</a>
     {#if adminStatus}
-      <a href="/user-management">User Management</a>
+      <a href="/userManagement">User Management</a>
     {/if}
     <a href="/logout">Logout</a>
   </nav>

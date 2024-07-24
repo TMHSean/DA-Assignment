@@ -27,11 +27,14 @@ const PORT = process.env.PORT || 3000
 // Import routes
 const authRoutes = require("./routes/authRoutes")
 const userRoutes = require("./routes/userRoutes")
+const groupRoutes = require("./routes/groupRoutes")
 
 // Use routes
 app.use("/api/auth", authRoutes)
 // app.use("/api/users", userRoutes)
 app.use("/api/users", authenticateToken, userRoutes)
+// app.use("/api/groups", groupRoutes)
+app.use("/api/groups", authenticateToken, groupRoutes)
 
 // Start the server
 app.listen(PORT, () => {
