@@ -28,15 +28,7 @@ router.delete(
 
 router.get("/allrecords", authenticateToken, GroupController.getAllRecords)
 router.get("/all", GroupController.getAllGroups)
-router.get(
-  "/checkusers/:groupName",
-  authenticateToken,
-  GroupController.getUsersInGroup
-)
-router.get(
-  "/checkgroups/:username",
-  authenticateToken,
-  GroupController.checkUserGroup
-)
+router.get("/checkusers", authenticateToken, GroupController.getUsersInGroup)
+router.get("/checkgroups", authenticateToken, GroupController.checkUserGroup)
 
 module.exports = router

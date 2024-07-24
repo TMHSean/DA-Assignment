@@ -80,26 +80,9 @@ const getAllRecords = async (req, res) => {
   }
 }
 
-// Get all users by group name
-const getUsersByGroup = async (req, res) => {
-  const { groupName } = req.params
-
-  try {
-    const users = await GroupModel.getUsersByGroup(groupName)
-    if (users.length === 0) {
-      return res.status(404).send("No users found in this group")
-    }
-    res.send(users)
-  } catch (err) {
-    console.error("Error fetching users by group:", err)
-    res.status(500).send("Server error")
-  }
-}
-
 // Get users in a specific group
 const getUsersInGroup = async (req, res) => {
-  const { groupName } = req.params
-
+  const { groupName } = req.body
   try {
     const users = await GroupModel.getUsersInGroup(groupName)
     res.send(users)
@@ -111,7 +94,7 @@ const getUsersInGroup = async (req, res) => {
 
 // Check which groups a user belongs to
 const checkUserGroup = async (req, res) => {
-  const { username } = req.params
+  const { username } = req.body
 
   try {
     const groups = await GroupModel.checkUserGroup(username)
@@ -128,7 +111,6 @@ module.exports = {
   removeUserFromGroup,
   getAllGroups,
   getAllRecords,
-  getUsersByGroup,
   getUsersInGroup,
   checkUserGroup,
 }

@@ -38,22 +38,13 @@ const getAllRecords = async () => {
   return results
 }
 
-// Get all users by group name
-const getUsersByGroup = async (groupName) => {
-  const [results] = await db.query(
-    "SELECT * FROM usergroup WHERE group_name = ?",
-    [groupName]
-  )
-  return results
-}
-
 // Get users in a specific group
 const getUsersInGroup = async (groupName) => {
   const [results] = await db.query(
     "SELECT username FROM usergroup WHERE group_name = ?",
     [groupName]
   )
-  return results
+  return results.map((row) => row.username)
 }
 
 // Check which group a user belongs to
@@ -72,6 +63,5 @@ module.exports = {
   getAllGroups,
   getAllRecords,
   getUsersInGroup,
-  getUsersByGroup,
   checkUserGroup,
 }
