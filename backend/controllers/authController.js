@@ -47,13 +47,15 @@ const registerUser = async (req, res) => {
 // Controller function to check user status
 const checkUserStatus = async (req, res) => {
   try {
+    console.log("Hello")
     const user = req.user // User details from the token
-    const dbUser = await UserModel.getUserByUsername(user.username)
+    console.log(user)
+    const dbUser = await userModel.getUserByUsername(user.username)
 
     if (dbUser) {
       res.json({
         username: dbUser.username,
-        isAdmin: dbUser.username === "admin", // Adjust if you have a specific admin field
+        isAdmin: dbUser.username == "admin", // Adjust if you have a specific admin field
       })
     } else {
       res.status(404).send("User not found")

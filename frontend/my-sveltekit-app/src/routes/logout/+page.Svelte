@@ -1,6 +1,7 @@
 <script>
   import { goto } from '$app/navigation';
   import { authAPI } from '$lib/axiosInstances';
+  
 
   const handleLogout = async () => {
     try {
@@ -11,7 +12,7 @@
       });
 
       // Redirect to the login page after successful logout
-      goto('/login');
+      goto('/');
     } catch (error) {
       console.error('Error during logout:', error);
     }

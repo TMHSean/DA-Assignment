@@ -27,6 +27,8 @@
         withCredentials: true // Include this option to allow cookies to be sent and received
       });
 
+      console.log(response)
+
       // Check if the request was successful
       if (response.status === 200) {
         goto('/application'); // Redirect to the homepage upon successful login
