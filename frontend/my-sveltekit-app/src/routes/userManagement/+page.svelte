@@ -45,7 +45,7 @@
         console.log(allGroups)
       }
     } else {
-      goto('/login'); // Redirect to login if not authenticated
+      goto('/'); // Redirect to login if not authenticated
     }
 
     if (!isAdmin) {

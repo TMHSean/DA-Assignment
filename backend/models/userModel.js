@@ -49,6 +49,8 @@ const createUser = async (username, password, email, disabled = 0) => {
 
 // Update user details (password and/or email)
 const updateUser = async (username, password, email) => {
+  console.log(username)
+  console.log("Aboce")
   let query = "UPDATE user SET"
   const params = []
 

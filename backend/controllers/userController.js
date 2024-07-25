@@ -71,7 +71,6 @@ const getUserByUsername = async (req, res) => {
 const updateUser = async (req, res) => {
   const { username } = req.params
   const { password, email } = req.body
-
   if (!password && !email) {
     return res
       .status(400)

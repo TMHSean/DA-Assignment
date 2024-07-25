@@ -1,0 +1,87 @@
+<script>
+  import { onMount } from 'svelte';
+  import { checkUserStatus, updateUser } from '$lib/api';
+  import { goto } from '$app/navigation';
+
+  let email = '';
+  let password = '';
+  let currentEmail = '';
+
+  onMount(async () => {
+    const userStatus = await checkUserStatus();
+    if (userStatus) {
+      console.log(userStatus)
+      currentEmail = userStatus.email; // Assuming the response has an email field
+      email = currentEmail;
+    } else {
+      // Redirect to login if not authenticated
+      goto('/');
+    }
+  });
+
+  const handleUpdateProfile = async () => {
+    try {
+      const userStatus = await checkUserStatus();
+      const userData = { email, password };
+      const checkUpdates = await updateUser(userStatus.username, userData);
+      alert('Profile updated successfully');
+      // Update email to reflect the new value
+      currentEmail = email; // Update currentEmail to reflect the new value
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile');
+    }
+  };
+</script>
+
+<main>
+  <h1>Profile</h1>
+  <form on:submit|preventDefault={handleUpdateProfile}>
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" id="email" bind:value={email} />
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" bind:value={password} placeholder="New Password" />
+    </div>
+    <button type="submit">Update Profile</button>
+  </form>
+</main>
+
+<style>
+  main {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  label {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
+  input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+  }
+  button {
+    padding: 0.5rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+</style>
