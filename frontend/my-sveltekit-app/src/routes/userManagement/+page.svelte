@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { checkUserStatus, createGroup, getAllUsers, createUser, updateUser, checkUserGroup, getAllGroups, insertUserToGroup } from '$lib/api';
+  import { checkUserStatus, createGroup, getAllUsers, createUser, updateUser, checkUserGroup, getAllGroups, insertUserToGroup, handleRemovedGroup } from '$lib/api';
   import MultiSelect from 'svelte-multiselect';
 	
   let isAdmin = false;
@@ -10,6 +10,7 @@
   // let userGroups = [];
   let allGroups = [];
   let userGroups = {};
+  let initialGroups = [];
   let formattedGroups = []; // Array to hold formatted groups for MultiSelect
 
   // New user fields
@@ -76,6 +77,7 @@
     editableEmail = users[index].email;
     editablePassword = ''; // Clear password field for security reasons
     editableGroups = await getUserGroups(users[index].username);
+    initialGroups = [...editableGroups];
     editableStatus = users[index].status;
   };
 
@@ -87,10 +89,22 @@
       status: editableStatus
     };
 
+    // Determine which groups were added or removed
+    const removedGroups = initialGroups.filter(group => !editableGroups.includes(group));
+    const addedGroups = editableGroups.filter(group => !initialGroups.includes(group));
+
     // Update the user data in the backend
     await updateUser(users[index].username, updatedUser);
-    console.log(updatedUser.groups[0].value)
-    await insertUserToGroup(users[index].username, updatedUser.groups)
+
+    // Remove user from removed groups
+    if (removedGroups.length > 0) {
+      await handleRemovedGroup(users[index].username, removedGroups);
+    }
+
+    // Add user to added groups
+    if (addedGroups.length > 0) {
+      await insertUserToGroup(users[index].username, addedGroups);
+    }
     
 
     // Refresh the user list
@@ -156,7 +170,7 @@
             </td>
             <td>
               {#if editableUserIndex === index}
-                <MultiSelect bind:selected={editableGroups} options={formattedGroups} />
+                <MultiSelect bind:selected={editableGroups} options={formattedGroups}/>
               {:else}
                 {#if userGroups[user.username] && Array.isArray(userGroups[user.username])}
                   {#if userGroups[user.username].length > 0}

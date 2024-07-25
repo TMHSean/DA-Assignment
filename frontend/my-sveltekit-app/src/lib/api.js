@@ -89,3 +89,16 @@ export const insertUserToGroup = async (username, groups) => {
 		return [];
 	}
 };
+
+export const handleRemovedGroup = async (username, groups) => {
+	try {
+		const response = await groupAPI.delete('/removeuser', {
+			params: { username, groups }, // Send username as a query parameter
+			withCredentials: true
+		});
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching groups:', error);
+		return [];
+	}
+};

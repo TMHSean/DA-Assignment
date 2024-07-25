@@ -31,7 +31,7 @@ const addUserToGroup = async (req, res) => {
       return res.status(404).send("User not found")
     }
 
-    const userGroups = await checkUserGroup(username)
+    const userGroups = await getUserGroups(username)
     // Add user to each group
     for (const groupName of groups) {
       if (!userGroups.includes(groupName)) {
@@ -48,16 +48,24 @@ const addUserToGroup = async (req, res) => {
 
 // Remove a user from a group
 const removeUserFromGroup = async (req, res) => {
-  const { username, groupName } = req.body
-
+  const { username, groups } = req.query
+  console.log(username)
+  console.log(groups)
   try {
     // Ensure the user exists
     const user = await UserModel.getUserByUsername(username)
     if (!user) {
       return res.status(404).send("User not found")
     }
-
-    await GroupModel.removeUserFromGroup(username, groupName)
+    //check users current group
+    const userGroups = await getUserGroups(username)
+    // remvove user from group
+    for (const groupName of groups) {
+      console.log(userGroups.includes(groupName))
+      if (userGroups.includes(groupName)) {
+        await GroupModel.removeUserFromGroup(username, groupName)
+      }
+    }
     res.status(200).send("User removed from group successfully")
   } catch (err) {
     console.error("Error removing user from group:", err)
@@ -101,15 +109,24 @@ const getUsersInGroup = async (req, res) => {
 
 // Check which groups a user belongs to
 const checkUserGroup = async (req, res) => {
-  console.log("ALOHA")
   const { username } = req.query // Extract username from the authenticated user token
-
   try {
     const groups = await GroupModel.checkUserGroup(username)
     res.send(groups)
   } catch (err) {
     console.error("Error checking user group:", err)
     res.status(500).send("Server error")
+  }
+}
+
+// Reusable function to check which groups a user belongs to
+const getUserGroups = async (username) => {
+  try {
+    const groups = await GroupModel.checkUserGroup(username)
+    return groups
+  } catch (err) {
+    console.error("Error checking user group:", err)
+    throw new Error("Error checking user group")
   }
 }
 
@@ -121,4 +138,5 @@ module.exports = {
   getAllRecords,
   getUsersInGroup,
   checkUserGroup,
+  getUserGroups,
 }
