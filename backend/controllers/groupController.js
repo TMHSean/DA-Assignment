@@ -4,15 +4,19 @@ const UserModel = require("../models/userModel") // Ensure this is required if c
 // Create a new group
 const createGroup = async (req, res) => {
   const { groupName, username } = req.body
-
+  console.log("testtest")
   try {
+    console.log("TESTTESTTEST")
     // Check if the group already exists
     const existingGroups = await GroupModel.getAllGroups()
+    console.log("1")
+    console.log(existingGroups)
     if (existingGroups.some((group) => group.group_name === groupName)) {
       return res.status(400).send("Group already exists")
     }
-
+    console.log("2")
     await GroupModel.createGroup(groupName, username)
+    console.log("3")
     res.status(201).send("Group created successfully")
   } catch (err) {
     console.error("Error creating group:", err)

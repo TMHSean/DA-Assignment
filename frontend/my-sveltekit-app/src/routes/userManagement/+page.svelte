@@ -56,6 +56,11 @@
   const handleCreateGroup = async () => {
     await createGroup({ groupName }); // No need for withCredentials here if cookies are properly set
     // Optionally, refresh the user list or show a success message
+    allGroups = await getAllGroups();
+    formattedGroups = allGroups.map(group => ({
+          value: group.group_name,
+          label: group.group_name
+        }));
   };
 
   const handleCreateUser = async () => {

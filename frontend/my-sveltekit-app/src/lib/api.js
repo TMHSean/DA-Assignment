@@ -17,6 +17,7 @@ export async function checkUserStatus() {
 // Function to create a new group
 export const createGroup = async (groupName) => {
 	try {
+		console.log('test');
 		await groupAPI.post('/create', groupName, { withCredentials: true });
 	} catch (error) {
 		console.error('Error creating group:', error);
