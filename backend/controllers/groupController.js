@@ -22,7 +22,7 @@ const createGroup = async (req, res) => {
 
 // Add a user to a group
 const addUserToGroup = async (req, res) => {
-  const { username, groupName } = req.body
+  const { username, groups } = req.body
 
   try {
     // Ensure the user exists
@@ -31,7 +31,14 @@ const addUserToGroup = async (req, res) => {
       return res.status(404).send("User not found")
     }
 
-    await GroupModel.addUserToGroup(username, groupName)
+    const userGroups = await checkUserGroup(username)
+    // Add user to each group
+    for (const groupName of groups) {
+      if (!userGroups.includes(groupName)) {
+        await GroupModel.addUserToGroup(username, groupName.value)
+      }
+    }
+
     res.status(200).send("User added to group successfully")
   } catch (err) {
     console.error("Error adding user to group:", err)

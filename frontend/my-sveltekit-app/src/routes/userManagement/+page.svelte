@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { checkUserStatus, createGroup, getAllUsers, createUser, updateUser, checkUserGroup, getAllGroups } from '$lib/api';
+  import { checkUserStatus, createGroup, getAllUsers, createUser, updateUser, checkUserGroup, getAllGroups, insertUserToGroup } from '$lib/api';
   import MultiSelect from 'svelte-multiselect';
 	
   let isAdmin = false;
@@ -75,7 +75,7 @@
     editableUserIndex = index;
     editableEmail = users[index].email;
     editablePassword = ''; // Clear password field for security reasons
-    // editableGroups = users[index].groups; // Assuming groups are part of the user data
+    editableGroups = await getUserGroups(users[index].username);
     editableStatus = users[index].status;
   };
 
@@ -89,9 +89,15 @@
 
     // Update the user data in the backend
     await updateUser(users[index].username, updatedUser);
+    console.log(updatedUser.groups[0].value)
+    await insertUserToGroup(users[index].username, updatedUser.groups)
+    
 
     // Refresh the user list
     users = await getAllUsers();
+    for (const user of users) {
+          userGroups[user.username] = await getUserGroups(user.username);
+        }
     editableUserIndex = -1; // Exit edit mode
   };
 
