@@ -6,8 +6,10 @@
   let isAdmin = false;
   let groupName = '';
   let users = [];
-  let userGroups = [];
+  // let userGroups = [];
   let allGroups = [];
+  let userGroups = {};
+  let formattedGroups = []; // Array to hold formatted groups for MultiSelect
 
   // New user fields
   let newUsername = '';
@@ -29,6 +31,15 @@
       isAdmin = userStatus.isAdmin;
       if (isAdmin) {
         users = await getAllUsers(); // No need for withCredentials here if cookies are properly set
+        allGroups = await getAllGroups();
+        for (const user of users) {
+          userGroups[user.username] = await getUserGroups(user.username);
+        }
+        formattedGroups = allGroups.map(group => ({
+          value: group.group_name,
+          label: group.group_name
+        }));
+        console.log(allGroups)
       }
     } else {
       goto('/login'); // Redirect to login if not authenticated
@@ -57,12 +68,12 @@
     users = await getAllUsers();
     allGroups = await getAllGroups();
   };
-
+  
   const handleEdit = async (index) => {
     editableUserIndex = index;
     editableEmail = users[index].email;
     editablePassword = ''; // Clear password field for security reasons
-    editableGroups = users[index].groups; // Assuming groups are part of the user data
+    // editableGroups = users[index].groups; // Assuming groups are part of the user data
     editableStatus = users[index].status;
   };
 
@@ -89,10 +100,9 @@
   const getUserGroups = async (username) => {
     try {
       const response = await checkUserGroup(username);
-      console.log(response)
       return response;
     } catch (error) {
-      console.error('Error fetching user groups:', error);
+        console.error('Error fetching user groups:', error);
       return [];
     }
   };
@@ -138,14 +148,13 @@
             </td>
             <td>
               {#if editableUserIndex === index}
-                <MultiSelect bind:selected={editableGroups} options={allGroups} />
+                <MultiSelect bind:selected={editableGroups} options={formattedGroups} />
               {:else}
-                {#await getUserGroups(user.username) then groups}
-                  <!-- {groups.join(', ')} -->
-                   <!-- {console.log(groups)} -->
-                <!-- {:catch error} -->
-                  <span>Error fetching groups</span>
-                {/await}
+                {#if userGroups[user.username]}
+                  {userGroups[user.username].join(', ')}
+                {:else}
+                  Loading groups...
+                {/if}
               {/if}
             </td>
             <td>

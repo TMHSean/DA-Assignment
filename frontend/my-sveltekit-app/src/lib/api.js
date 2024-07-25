@@ -55,7 +55,9 @@ export const updateUser = async (username, userData) => {
 // Function to check which groups a user belongs to
 export const checkUserGroup = async (username) => {
 	try {
+		console.log('ASFASFDSA');
 		const response = await groupAPI.post('/checkgroups', username, { withCredentials: true });
+		// await userAPI.post('/create', userData, { withCredentials: true });
 		console.log('HELLO');
 		return response; // Assume response data is an array of group names
 	} catch (error) {
@@ -66,7 +68,7 @@ export const checkUserGroup = async (username) => {
 
 export const getAllGroups = async () => {
 	try {
-		const response = await groupAPI.get('/all');
+		const response = await groupAPI.get('/all', { withCredentials: true });
 		return response.data;
 	} catch (error) {
 		console.error('Error fetching groups:', error);
