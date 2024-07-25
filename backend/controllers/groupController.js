@@ -94,7 +94,7 @@ const getUsersInGroup = async (req, res) => {
 
 // Check which groups a user belongs to
 const checkUserGroup = async (req, res) => {
-  const { username } = req.body
+  const username = req.body // Extract username from the authenticated user token
 
   try {
     const groups = await GroupModel.checkUserGroup(username)

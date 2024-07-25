@@ -1,4 +1,4 @@
-import { authAPI } from './axiosInstances';
+import { authAPI, userAPI, groupAPI } from './axiosInstances';
 
 export async function checkUserStatus() {
 	try {
@@ -13,3 +13,63 @@ export async function checkUserStatus() {
 		return null;
 	}
 }
+
+// Function to create a new group
+export const createGroup = async (groupName) => {
+	try {
+		await groupAPI.post('/create', groupName, { withCredentials: true });
+	} catch (error) {
+		console.error('Error creating group:', error);
+	}
+};
+
+// Function to get all users
+export const getAllUsers = async () => {
+	try {
+		const response = await userAPI.get('/', { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching users:', error);
+		return [];
+	}
+};
+
+// Function to create a new user
+export const createUser = async (userData) => {
+	try {
+		await userAPI.post('/create', userData, { withCredentials: true });
+	} catch (error) {
+		console.error('Error creating user:', error);
+	}
+};
+
+// Function to update a user
+export const updateUser = async (username, userData) => {
+	try {
+		await userAPI.put(`/update/${username}`, userData, { withCredentials: true });
+	} catch (error) {
+		console.error('Error updating user:', error);
+	}
+};
+
+// Function to check which groups a user belongs to
+export const checkUserGroup = async (username) => {
+	try {
+		const response = await groupAPI.post('/checkgroups', username, { withCredentials: true });
+		console.log('HELLO');
+		return response; // Assume response data is an array of group names
+	} catch (error) {
+		console.error('Error checking user groups:', error);
+		return [];
+	}
+};
+
+export const getAllGroups = async () => {
+	try {
+		const response = await groupAPI.get('/all');
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching groups:', error);
+		return [];
+	}
+};

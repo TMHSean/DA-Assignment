@@ -14,8 +14,8 @@ app.use(bodyParser.json())
 // CORS configuration
 const corsOptions = {
   origin: "http://localhost:5173", // Replace with your SvelteKit frontend URL
-  methods: "GET,POST,PUT,DELETE",
-  allowedHeaders: "Content-Type,Authorization",
+  // methods: "GET,POST,PUT,DELETE",
+  // allowedHeaders: "Content-Type,Authorization",
   credentials: true, // Allow cookies to be sent with requests
 }
 
