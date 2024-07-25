@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { checkUserStatus, createGroup, getAllUsers, createUser, updateUser, checkUserGroup, getAllGroups } from '$lib/api';
   import MultiSelect from 'svelte-multiselect';
+	
   let isAdmin = false;
   let groupName = '';
   let users = [];
@@ -33,6 +34,7 @@
         users = await getAllUsers(); // No need for withCredentials here if cookies are properly set
         allGroups = await getAllGroups();
         for (const user of users) {
+          console.log(user.username)
           userGroups[user.username] = await getUserGroups(user.username);
         }
         formattedGroups = allGroups.map(group => ({
@@ -100,7 +102,7 @@
   const getUserGroups = async (username) => {
     try {
       const response = await checkUserGroup(username);
-      return response;
+      return response.data;
     } catch (error) {
         console.error('Error fetching user groups:', error);
       return [];
@@ -150,8 +152,12 @@
               {#if editableUserIndex === index}
                 <MultiSelect bind:selected={editableGroups} options={formattedGroups} />
               {:else}
-                {#if userGroups[user.username]}
-                  {userGroups[user.username].join(', ')}
+                {#if userGroups[user.username] && Array.isArray(userGroups[user.username])}
+                  {#if userGroups[user.username].length > 0}
+                    {userGroups[user.username].join(', ')}
+                  {:else}
+                    Not in any groups
+                  {/if}
                 {:else}
                   Loading groups...
                 {/if}

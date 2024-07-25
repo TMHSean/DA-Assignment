@@ -56,7 +56,10 @@ export const updateUser = async (username, userData) => {
 export const checkUserGroup = async (username) => {
 	try {
 		console.log('ASFASFDSA');
-		const response = await groupAPI.post('/checkgroups', username, { withCredentials: true });
+		const response = await groupAPI.get('/checkgroups', {
+			params: { username }, // Send username as a query parameter
+			withCredentials: true
+		});
 		// await userAPI.post('/create', userData, { withCredentials: true });
 		console.log('HELLO');
 		return response; // Assume response data is an array of group names

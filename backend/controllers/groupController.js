@@ -61,7 +61,6 @@ const removeUserFromGroup = async (req, res) => {
 // Get all groups
 const getAllGroups = async (req, res) => {
   try {
-    console.log("ASJDVAJGSDVJAVJDAVHDV")
     const groups = await GroupModel.getAllGroups()
     res.status(200).send(groups)
   } catch (err) {
@@ -96,7 +95,7 @@ const getUsersInGroup = async (req, res) => {
 // Check which groups a user belongs to
 const checkUserGroup = async (req, res) => {
   console.log("ALOHA")
-  const { username } = req.body // Extract username from the authenticated user token
+  const { username } = req.query // Extract username from the authenticated user token
 
   try {
     const groups = await GroupModel.checkUserGroup(username)
