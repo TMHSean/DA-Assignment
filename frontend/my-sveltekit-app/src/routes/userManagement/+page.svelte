@@ -3,7 +3,11 @@
   import { goto } from '$app/navigation';
   import { checkUserStatus, createGroup, getAllUsers, createUser, updateUser, checkUserGroup, getAllGroups, insertUserToGroup, handleRemovedGroup } from '$lib/api';
   import MultiSelect from 'svelte-multiselect';
-	import { updated } from '$app/stores';
+  import Popup from '$lib/components/popup.svelte';
+
+  let popupMessage = '';
+  let popupType = 'success'; // Can be 'success' or 'error'
+  let visible = false;
 	
   let isAdmin = false;
   let groupName = '';
@@ -18,7 +22,7 @@
   let newUsername = '';
   let newEmail = '';
   let newPassword = '';
-  let newGroup = '';
+  let newGroups = [];
   let newStatus = 0;
 
   // Editable fields
@@ -60,6 +64,7 @@
           value: group.group_name,
           label: group.group_name
         }));
+    groupName = ''; // Clear input field after creating group
   };
 
   const handleCreateUser = async () => {
@@ -67,13 +72,32 @@
       username: newUsername,
       email: newEmail,
       password: newPassword,
-      group: newGroup,
+      group: newGroups,
       disabled: newStatus,
     };
-    await createUser(userData); // No need for withCredentials here if cookies are properly set
-    // Refresh the user list or show a success message
-    users = await getAllUsers();
-    allGroups = await getAllGroups();
+
+    try {
+      await createUser(userData);
+      await insertUserToGroup(userData.username, userData.group);
+      popupMessage = 'User successfully created!';
+      popupType = 'success';
+    } catch (error) {
+      popupMessage = 'Failed to create user.';
+      popupType = 'error';
+    } finally {
+      visible = true;
+      users = await getAllUsers();
+      allGroups = await getAllGroups();
+      for (const user of users) {
+          userGroups[user.username] = await getUserGroups(user.username);
+      }
+      // Clear form fields
+      newUsername = '';
+      newEmail = '';
+      newPassword = '';
+      newGroups = [];
+      newStatus = 0;
+    }
   };
   
   const handleEdit = async (index) => {
@@ -136,6 +160,10 @@
 </script>
 
 <main>
+
+  <Popup {popupMessage} {popupType} {visible} />
+
+
   {#if isAdmin}
     <h1>User Management</h1>
     <div class="create-group">
@@ -194,7 +222,9 @@
                   <option value=1>Disabled</option>
                 </select>
               {:else}
-                {user.disabled === 0 ? 'Enabled' : 'Disabled'}
+                <span class:status-enabled={user.disabled === 0} class:status-disabled={user.disabled === 1}>
+                  {user.disabled === 0 ? 'Enabled' : 'Disabled'}
+                </span>
               {/if}
             </td>
             <td>
@@ -211,7 +241,8 @@
           <td><input type="text" bind:value={newUsername} placeholder="Username" /></td>
           <td><input type="text" bind:value={newEmail} placeholder="Email" /></td>
           <td><input type="password" bind:value={newPassword} placeholder="Password" /></td>
-          <td><input type="text" bind:value={newGroup} placeholder="Group" /></td>
+          <td><MultiSelect bind:selected={newGroups} options={formattedGroups}/></td>
+          
           <td>
             <select bind:value={newStatus}>
               <option value=0>Enabled</option>
@@ -252,5 +283,15 @@
 
   .edit-button, .save-button {
     cursor: pointer;
+  }
+
+  .status-enabled {
+    color: #28a745;
+    font-weight: bold;
+  }
+
+  .status-disabled {
+    color: #dc3545;
+    font-weight: bold;
   }
 </style>
