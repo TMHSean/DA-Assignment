@@ -18,7 +18,7 @@
   let newUsername = '';
   let newEmail = '';
   let newPassword = '';
-  let newGroup = '';
+  let newGroups = [];
   let newStatus = 0;
 
   // Editable fields
@@ -67,7 +67,7 @@
       username: newUsername,
       email: newEmail,
       password: newPassword,
-      group: newGroup,
+      group: newGroups,
       disabled: newStatus,
     };
     await createUser(userData); // No need for withCredentials here if cookies are properly set
@@ -211,7 +211,7 @@
           <td><input type="text" bind:value={newUsername} placeholder="Username" /></td>
           <td><input type="text" bind:value={newEmail} placeholder="Email" /></td>
           <td><input type="password" bind:value={newPassword} placeholder="Password" /></td>
-          <td><input type="text" bind:value={newGroup} placeholder="Group" /></td>
+          <td><MultiSelect bind:selected={newGroups} options={formattedGroups}/></td>
           <td>
             <select bind:value={newStatus}>
               <option value=0>Enabled</option>
