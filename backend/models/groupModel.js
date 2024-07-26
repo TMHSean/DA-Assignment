@@ -10,7 +10,6 @@ const createGroup = async (groupName, username = null) => {
   } else {
     query += ") VALUES (?)"
   }
-  console.log("4")
   await db.query(query, values)
 }
 

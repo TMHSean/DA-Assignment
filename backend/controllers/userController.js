@@ -90,7 +90,6 @@ const updateUser = async (req, res) => {
 const setUserStatus = async (req, res) => {
   const { username } = req.params
   const { disabled } = req.body
-
   if (typeof disabled !== "number" || (disabled !== 0 && disabled !== 1)) {
     return res
       .status(400)

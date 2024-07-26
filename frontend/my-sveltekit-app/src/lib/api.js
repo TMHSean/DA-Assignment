@@ -17,7 +17,6 @@ export async function checkUserStatus() {
 // Function to create a new group
 export const createGroup = async (groupName) => {
 	try {
-		console.log('test');
 		await groupAPI.post('/create', groupName, { withCredentials: true });
 	} catch (error) {
 		console.error('Error creating group:', error);
@@ -48,6 +47,7 @@ export const createUser = async (userData) => {
 export const updateUser = async (username, userData) => {
 	try {
 		await userAPI.put(`/update/${username}`, userData, { withCredentials: true });
+		await userAPI.put(`/status/${username}`, userData, { withCredentials: true });
 	} catch (error) {
 		console.error('Error updating user:', error);
 	}

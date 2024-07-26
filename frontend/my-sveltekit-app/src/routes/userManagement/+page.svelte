@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { checkUserStatus, createGroup, getAllUsers, createUser, updateUser, checkUserGroup, getAllGroups, insertUserToGroup, handleRemovedGroup } from '$lib/api';
   import MultiSelect from 'svelte-multiselect';
+	import { updated } from '$app/stores';
 	
   let isAdmin = false;
   let groupName = '';
@@ -18,12 +19,12 @@
   let newEmail = '';
   let newPassword = '';
   let newGroup = '';
-  let newStatus = '';
+  let newStatus = 0;
 
   // Editable fields
   let editableUserIndex = -1; // Track which user row is being edited
   let editableGroups = [];
-  let editableStatus = '';
+  let editableStatus = 0;
   let editableEmail = '';
   let editablePassword = '';
 
@@ -35,14 +36,12 @@
         users = await getAllUsers(); // No need for withCredentials here if cookies are properly set
         allGroups = await getAllGroups();
         for (const user of users) {
-          console.log(user.username)
           userGroups[user.username] = await getUserGroups(user.username);
         }
         formattedGroups = allGroups.map(group => ({
           value: group.group_name,
           label: group.group_name
         }));
-        console.log(allGroups)
       }
     } else {
       goto('/'); // Redirect to login if not authenticated
@@ -69,7 +68,7 @@
       email: newEmail,
       password: newPassword,
       group: newGroup,
-      status: newStatus,
+      disabled: newStatus,
     };
     await createUser(userData); // No need for withCredentials here if cookies are properly set
     // Refresh the user list or show a success message
@@ -83,7 +82,7 @@
     editablePassword = ''; // Clear password field for security reasons
     editableGroups = await getUserGroups(users[index].username);
     initialGroups = [...editableGroups];
-    editableStatus = users[index].status;
+    editableStatus = users[index].disabled;
   };
 
   const handleSave = async (index) => {
@@ -91,7 +90,7 @@
       email: editableEmail,
       password: editablePassword,
       groups: editableGroups,
-      status: editableStatus
+      disabled: parseInt(editableStatus)
     };
 
     // Determine which groups were added or removed
@@ -215,8 +214,8 @@
           <td><input type="text" bind:value={newGroup} placeholder="Group" /></td>
           <td>
             <select bind:value={newStatus}>
-              <option value="enabled">Enabled</option>
-              <option value="disabled">Disabled</option>
+              <option value=0>Enabled</option>
+              <option value=1>Disabled</option>
             </select>
           </td>
           <td><button on:click={handleCreateUser}>Create User</button></td>
