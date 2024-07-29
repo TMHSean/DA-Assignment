@@ -102,8 +102,10 @@ const removeUserFromGroup = async (req, res) => {
 // Get all groups
 const getAllGroups = async (req, res) => {
   try {
-    const groups = await GroupModel.getAllGroups()
-    res.status(200).send(groups)
+    const [results] = await db.query(
+      "SELECT DISTINCT group_name FROM usergroup"
+    )
+    res.status(200).send(results)
   } catch (err) {
     console.error("Error fetching groups:", err)
     res.status(500).send("Server error")
@@ -113,8 +115,8 @@ const getAllGroups = async (req, res) => {
 // Get all records from usergroup table
 const getAllRecords = async (req, res) => {
   try {
-    const records = await GroupModel.getAllRecords()
-    res.send(records)
+    const [results] = await db.query("SELECT * FROM usergroup")
+    res.send(results)
   } catch (err) {
     console.error("Error fetching records:", err)
     res.status(500).send("Server error")
@@ -125,7 +127,11 @@ const getAllRecords = async (req, res) => {
 const getUsersInGroup = async (req, res) => {
   const { groupName } = req.body
   try {
-    const users = await GroupModel.getUsersInGroup(groupName)
+    const [results] = await db.query(
+      "SELECT username FROM usergroup WHERE group_name = ?",
+      [groupName]
+    )
+    const users = results.map((row) => row.username)
     res.send(users)
   } catch (err) {
     console.error("Error fetching users in group:", err)
@@ -135,24 +141,17 @@ const getUsersInGroup = async (req, res) => {
 
 // Check which groups a user belongs to
 const checkUserGroup = async (req, res) => {
-  const { username } = req.query // Extract username from the authenticated user token
+  const { username } = req.query // Extract username from the query params
   try {
-    const groups = await GroupModel.checkUserGroup(username)
+    const [results] = await db.query(
+      "SELECT group_name FROM usergroup WHERE username = ?",
+      [username]
+    )
+    const groups = results.map((row) => row.group_name)
     res.send(groups)
   } catch (err) {
     console.error("Error checking user group:", err)
     res.status(500).send("Server error")
-  }
-}
-
-// Reusable function to check which groups a user belongs to
-const getUserGroups = async (username) => {
-  try {
-    const groups = await GroupModel.checkUserGroup(username)
-    return groups
-  } catch (err) {
-    console.error("Error checking user group:", err)
-    throw new Error("Error checking user group")
   }
 }
 
@@ -164,5 +163,4 @@ module.exports = {
   getAllRecords,
   getUsersInGroup,
   checkUserGroup,
-  getUserGroups,
 }
