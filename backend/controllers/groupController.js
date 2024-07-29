@@ -1,26 +1,34 @@
 const GroupModel = require("../models/groupModel")
 const UserModel = require("../models/userModel") // Ensure this is required if checking user roles
+const { validateCreateGroup } = require("../utils/validation")
 
 // Create a new group
 const createGroup = async (req, res) => {
-  const { groupName, username } = req.body
-  console.log("testtest")
+  const { groupName } = req.body
+
+  // Validate inputs
+  const errors = await validateCreateGroup(groupName)
+  if (errors.length > 0) {
+    return res.status(400).json({ errors })
+  }
+
   try {
-    console.log("TESTTESTTEST")
+    // Convert groupName to lowercase for consistency
+    const groupLower = groupName.toLowerCase()
+
     // Check if the group already exists
     const existingGroups = await GroupModel.getAllGroups()
-    console.log("1")
-    console.log(existingGroups)
-    if (existingGroups.some((group) => group.group_name === groupName)) {
-      return res.status(400).send("Group already exists")
+    if (existingGroups.some((group) => group.group_name === groupLower)) {
+      return res.status(400).json({ errors: ["Group already exists"] })
     }
-    console.log("2")
-    await GroupModel.createGroup(groupName, username)
-    console.log("3")
-    res.status(201).send("Group created successfully")
+
+    // Create the group
+    await GroupModel.createGroup(groupLower)
+
+    res.status(201).json({ message: "Group created successfully" })
   } catch (err) {
     console.error("Error creating group:", err)
-    res.status(500).send("Server error")
+    res.status(500).json({ errors: ["Server error"] })
   }
 }
 

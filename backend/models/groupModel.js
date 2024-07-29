@@ -1,16 +1,16 @@
 const db = require("../config/db") // Path to your db configuration
 
 // Create a new group
-const createGroup = async (groupName, username = null) => {
-  let query = "INSERT INTO usergroup (group_name"
+const createGroup = async (groupName) => {
+  const query = "INSERT INTO usergroup (group_name) VALUES (?)"
   const values = [groupName]
-  if (username) {
-    query += ", username) VALUES (?, ?)"
-    values.push(username)
-  } else {
-    query += ") VALUES (?)"
+
+  try {
+    await db.query(query, values)
+  } catch (err) {
+    console.error("Error creating group:", err)
+    throw err
   }
-  await db.query(query, values)
 }
 
 // Add a user to a group
@@ -55,6 +55,22 @@ const checkUserGroup = async (username) => {
   return results.map((row) => row.group_name)
 }
 
+const groupExists = async (groupName) => {
+  try {
+    const [results] = await db.query(
+      "SELECT COUNT(*) AS count FROM usergroup WHERE LOWER(group_name) = LOWER(?)",
+      [groupName]
+    )
+    if (results.length > 0) {
+      return results[0].count > 0
+    } else {
+      return false
+    }
+  } catch (err) {
+    console.error("Error checking group existence:", err)
+  }
+}
+
 module.exports = {
   createGroup,
   addUserToGroup,
@@ -63,4 +79,5 @@ module.exports = {
   getAllRecords,
   getUsersInGroup,
   checkUserGroup,
+  groupExists,
 }

@@ -53,14 +53,25 @@
   });
 
   const handleCreateGroup = async () => {
-    await createGroup({ groupName }); // No need for withCredentials here if cookies are properly set
-    // Optionally, refresh the user list or show a success message
+  const result = await createGroup(groupName);
+
+  if (result.errors) {
+    // Display all error messages
+    result.errors.forEach(error => alert(error));
+  } else {
+    alert('Group created successfully!'); // Display success message
+
+    // Refresh the group list and update the formatted groups
     allGroups = await getAllGroups();
     formattedGroups = allGroups.map(group => ({
-          value: group.group_name,
-          label: group.group_name
-        }));
-  };
+      value: group.group_name,
+      label: group.group_name
+    }));
+
+    // Clear the input field
+    groupName = '';
+  }
+};
 
   const handleCreateUser = async () => {
     const userData = {

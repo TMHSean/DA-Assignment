@@ -87,7 +87,7 @@ const validateCreateGroup = async (groupName) => {
       "Group name can only contain alphanumeric characters and underscores, with no spaces."
     )
   } else if (await GroupModel.groupExists(groupName)) {
-    errors.push("Group name must be unique.")
+    errors.push("There is already an existing group with the same group name.")
   }
 
   return errors

@@ -17,9 +17,19 @@ export async function checkUserStatus() {
 // Function to create a new group
 export const createGroup = async (groupName) => {
 	try {
-		await groupAPI.post('/create', groupName, { withCredentials: true });
+		const response = await groupAPI.post('/create', { groupName }, { withCredentials: true });
+		return response.data; // Return the response data for further handling
 	} catch (error) {
-		console.error('Error creating group:', error);
+		console.log(error);
+		if (error.response) {
+			// Check if errors are present in response
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error creating group.'
+			];
+			return { errors: errorMessages }; // Return error messages for frontend handling
+		} else {
+			return { errors: ['Network error. Please try again later.'] };
+		}
 	}
 };
 
