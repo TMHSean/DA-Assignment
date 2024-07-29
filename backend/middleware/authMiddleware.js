@@ -1,6 +1,7 @@
 // Page for authenticating JWT Tokens
 const { verifyToken } = require("../utils/auth")
 const GroupModel = require("../models/groupModel")
+const db = require("../config/db") // Path to your db configuration
 
 function authenticateToken(req, res, next) {
   const token = req.cookies.jwt
@@ -21,9 +22,25 @@ const authorizeAdmin = async (req, res, next) => {
   const user = req.user // Assuming user details are attached by authentication middleware
 
   try {
-    const userGroups = await GroupModel.checkUserGroup(user.username)
-    const isAdmin = userGroups.some((group) => group.group_name === "admin")
+    // SQL query to check if user is in the "admins" group
+    const query = `
+      SELECT group_name 
+      FROM usergroup 
+      WHERE username = ?;
+    `
 
+    // Execute query
+    const [results] = await db.query(query, [user.username])
+
+    // Extract group names from results
+    const userGroups = results.map((row) => row.group_name)
+    console.log(userGroups) // For debugging
+
+    // Check if 'admins' is in the array of group names
+    const isAdmin = userGroups.includes("admins")
+    console.log(isAdmin) // For debugging
+
+    // Check if user is an admin or has the username "admin"
     if (isAdmin || user.username === "admin") {
       next() // User is authorized
     } else {
