@@ -6,13 +6,16 @@
   const handleLogout = async () => {
     try {
       // Send a POST request to the logout endpoint
-      await authAPI.post('/logout', {}, {
-        // Ensure cookies are sent with the request
+      const response = await authAPI.post('/logout', {}, {
         withCredentials: true
       });
 
-      // Redirect to the login page after successful logout
-      goto('/');
+      // Check if the response status is 200 for successful logout
+      if (response.status === 200) {
+        goto('/?message=Logout%20successful'); // Redirect with a success message
+      } else {
+        console.error('Logout failed:', response.data);
+      }
     } catch (error) {
       console.error('Error during logout:', error);
     }

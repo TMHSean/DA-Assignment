@@ -41,7 +41,13 @@
 </script>
 
 <style>
-  /* Add your styles here */
+  .message {
+    color: green;
+    font-weight: bold;
+  }
+  .error {
+    color: red;
+  }
 </style>
 
 <main>

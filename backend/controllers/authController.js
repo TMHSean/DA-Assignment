@@ -39,11 +39,6 @@ const logoutUser = (req, res) => {
   res.status(200).send("Logout successful")
 }
 
-// Additional auth-related methods like registration, password reset, etc.
-const registerUser = async (req, res) => {
-  // Registration logic
-}
-
 // Controller function to check user status
 const checkUserStatus = async (req, res) => {
   try {

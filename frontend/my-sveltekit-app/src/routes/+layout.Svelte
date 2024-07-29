@@ -5,15 +5,11 @@
   $: navStatus = data.props?.showNavbar;
   $: adminStatus = data.props?.isAdmin;
 
-// Extract data from the `data` prop
-// let navStatus = data.props.showNavbar;
-// let adminStatus = data.props.isAdmin;;
-
 </script>
 
 {#if navStatus}
   <nav>
-    <a href="/">Home </a>
+    <a href="/application">Home </a>
     <a href="/profile">Profile</a>
     {#if adminStatus}
       <a href="/userManagement">User Management</a>
