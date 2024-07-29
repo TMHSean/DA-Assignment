@@ -221,7 +221,9 @@
                   <option value=1>Disabled</option>
                 </select>
               {:else}
-                {user.disabled === 0 ? 'Enabled' : 'Disabled'}
+                <span class={user.disabled === 0 ? 'status-enabled' : 'status-disabled'}>
+                  {user.disabled === 0 ? 'Enabled' : 'Disabled'}
+                </span>
               {/if}
             </td>
             <td>
@@ -279,5 +281,15 @@
 
   .edit-button, .save-button {
     cursor: pointer;
+  }
+
+  .status-enabled {
+    color: green;
+    font-weight: bold;
+  }
+
+  .status-disabled {
+    color: red;
+    font-weight: bold;
   }
 </style>
