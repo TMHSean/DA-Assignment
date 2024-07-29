@@ -1,7 +1,5 @@
 import { authAPI } from '$lib/axiosInstances';
 
-/** @type {import('./$types').LayoutLoad} */
-
 export async function load({ url }) {
 	console.log('URL:', url.pathname); // Log the URL for debugging
 	const isLoginPage = url.pathname === '/';

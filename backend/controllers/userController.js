@@ -1,8 +1,20 @@
-const UserModel = require("../models/userModel")
+const db = require("../config/db") // Path to your db configuration
+const bcrypt = require("bcryptjs")
 const {
   validateCreateUser,
   validateUpdateUserProfile,
 } = require("../utils/validation")
+
+// Function to hash the password
+const hashPassword = async (password) => {
+  const saltRounds = 10
+  return bcrypt.hash(password, saltRounds)
+}
+
+// Function to compare passwords
+const comparePasswords = async (password, hashedPassword) => {
+  return bcrypt.compare(password, hashedPassword)
+}
 
 // Create a new user
 const createUser = async (req, res) => {
@@ -15,9 +27,10 @@ const createUser = async (req, res) => {
   }
 
   try {
-    // Create the user
-    const user = await UserModel.createUser(username, password, email, disabled)
-    // res.status(201).json(user)
+    const hashedPassword = await hashPassword(password)
+    const query =
+      "INSERT INTO user (username, password, email, disabled) VALUES (?, ?, ?, ?)"
+    await db.query(query, [username, hashedPassword, email, disabled])
     res.status(201).json({ message: "User created successfully" })
   } catch (err) {
     console.error("Error creating user:", err)
@@ -28,8 +41,8 @@ const createUser = async (req, res) => {
 // Get all users
 const getAllUsers = async (req, res) => {
   try {
-    const users = await UserModel.getAllUsers()
-    res.json(users)
+    const [results] = await db.query("SELECT * FROM user")
+    res.json(results)
   } catch (err) {
     console.error("Error fetching users:", err)
     res.status(500).send("Server error")
@@ -39,8 +52,8 @@ const getAllUsers = async (req, res) => {
 // Get all active users
 const getActiveUsers = async (req, res) => {
   try {
-    const users = await UserModel.getActiveUsers()
-    res.json(users)
+    const [results] = await db.query("SELECT * FROM user WHERE disabled = 0")
+    res.json(results)
   } catch (err) {
     console.error("Error fetching active users:", err)
     res.status(500).send("Server error")
@@ -50,8 +63,8 @@ const getActiveUsers = async (req, res) => {
 // Get all inactive users
 const getInactiveUsers = async (req, res) => {
   try {
-    const users = await UserModel.getInactiveUsers()
-    res.json(users)
+    const [results] = await db.query("SELECT * FROM user WHERE disabled = 1")
+    res.json(results)
   } catch (err) {
     console.error("Error fetching inactive users:", err)
     res.status(500).send("Server error")
@@ -63,7 +76,10 @@ const getUserByUsername = async (req, res) => {
   const { username } = req.params
 
   try {
-    const user = await UserModel.getUserByUsername(username)
+    const [results] = await db.query("SELECT * FROM user WHERE username = ?", [
+      username,
+    ])
+    const user = results[0]
     if (!user) {
       return res.status(404).send("User not found")
     }
@@ -78,7 +94,7 @@ const getUserByUsername = async (req, res) => {
 const updateUser = async (req, res) => {
   const { username } = req.params
   const { password, email } = req.body
-  console.log(email)
+
   if (!password && !email) {
     return res
       .status(400)
@@ -92,7 +108,22 @@ const updateUser = async (req, res) => {
   }
 
   try {
-    await UserModel.updateUser(username, password, email)
+    let query = "UPDATE user SET"
+    const params = []
+
+    if (password) {
+      const hashedPassword = await hashPassword(password)
+      query += " password = ?,"
+      params.push(hashedPassword)
+    }
+    if (email) {
+      query += " email = ?,"
+      params.push(email)
+    }
+    query = query.slice(0, -1) + " WHERE username = ?"
+    params.push(username)
+
+    await db.query(query, params)
     res.status(201).json({ message: "User updated successfully" })
   } catch (err) {
     console.error("Error updating user:", err)
@@ -104,6 +135,7 @@ const updateUser = async (req, res) => {
 const setUserStatus = async (req, res) => {
   const { username } = req.params
   const { disabled } = req.body
+
   if (typeof disabled !== "number" || (disabled !== 0 && disabled !== 1)) {
     return res
       .status(400)
@@ -111,7 +143,10 @@ const setUserStatus = async (req, res) => {
   }
 
   try {
-    await UserModel.setUserStatus(username, disabled)
+    await db.query("UPDATE user SET disabled = ? WHERE username = ?", [
+      disabled,
+      username,
+    ])
     res.send(
       `User ${disabled === 1 ? "deactivated" : "activated"} successfully`
     )
@@ -126,7 +161,9 @@ const softDeleteUser = async (req, res) => {
   const { username } = req.params
 
   try {
-    await UserModel.softDeleteUser(username)
+    await db.query("UPDATE user SET disabled = 1 WHERE username = ?", [
+      username,
+    ])
     res.send("User disabled successfully")
   } catch (err) {
     console.error("Error disabling user:", err)
@@ -139,7 +176,7 @@ const hardDeleteUser = async (req, res) => {
   const { username } = req.params
 
   try {
-    await UserModel.hardDeleteUser(username)
+    await db.query("DELETE FROM user WHERE username = ?", [username])
     res.send("User deleted successfully")
   } catch (err) {
     console.error("Error deleting user:", err)
@@ -152,9 +189,17 @@ const loginUser = async (req, res) => {
   const { username, password } = req.body
 
   try {
-    const user = await UserModel.findUserByCredentials(username, password)
+    const [rows] = await db.query("SELECT * FROM user WHERE username = ?", [
+      username,
+    ])
+    if (!rows.length) {
+      return res.status(401).send("Invalid username or password")
+    }
 
-    if (user) {
+    const user = rows[0]
+    const isMatch = await comparePasswords(password, user.password)
+
+    if (isMatch) {
       res.status(200).send("Login successful")
     } else {
       res.status(401).send("Invalid username or password")

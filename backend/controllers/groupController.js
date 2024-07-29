@@ -1,5 +1,3 @@
-const GroupModel = require("../models/groupModel")
-const UserModel = require("../models/userModel") // Ensure this is required if checking user roles
 const db = require("../config/db") // Path to your db configuration
 const { validateCreateGroup } = require("../utils/validation")
 

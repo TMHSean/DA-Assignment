@@ -1,5 +1,5 @@
 <script>
-  /** @type {import('./$types').LayoutData} */
+
   export let data;
 
   $: navStatus = data.props?.showNavbar;
