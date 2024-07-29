@@ -3,8 +3,7 @@
   import { goto } from '$app/navigation';
   import { checkUserStatus, createGroup, getAllUsers, createUser, updateUser, checkUserGroup, getAllGroups, insertUserToGroup, handleRemovedGroup } from '$lib/api';
   import MultiSelect from 'svelte-multiselect';
-	import { updated } from '$app/stores';
-	
+		
   let isAdmin = false;
   let groupName = '';
   let users = [];

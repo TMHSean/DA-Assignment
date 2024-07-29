@@ -17,7 +17,7 @@ export async function load({ url }) {
 				return {
 					props: {
 						showNavbar: true,
-						isAdmin: username == 'admin'
+						isAdmin: isAdmin
 					}
 				};
 			} else {

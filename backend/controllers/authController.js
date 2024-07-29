@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken")
 const { generateToken } = require("../utils/auth")
 const pool = require("../config/db") // Ensure the path is correct
 const userModel = require("../models/userModel")
+const db = require("../config/db") // Path to your db configuration
 
 // Handle user login
 const loginUser = async (req, res) => {
@@ -47,11 +48,22 @@ const checkUserStatus = async (req, res) => {
     if (!user || !user.username) {
       return res.status(401).send("Unauthorized")
     }
-    const dbUser = await userModel.getUserByUsername(user.username)
-    if (dbUser) {
+
+    // SQL query to retrieve user details and check group membership
+    const query = `
+      SELECT u.username, u.email, 
+             EXISTS (SELECT 1 FROM usergroup ug WHERE ug.username = ? AND ug.group_name = 'admins') AS isAdmin
+      FROM user u
+      WHERE u.username = ?;
+    `
+
+    // Execute query
+    const [results] = await db.query(query, [user.username, user.username])
+    if (results.length > 0) {
+      const dbUser = results[0]
       res.json({
         username: dbUser.username,
-        isAdmin: dbUser.username === "admin", // Adjust if you have a specific admin field
+        isAdmin: dbUser.isAdmin === 1, // Convert from SQL boolean (1/0) to JavaScript boolean
         email: dbUser.email,
       })
     } else {
