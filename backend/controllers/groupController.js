@@ -1,5 +1,6 @@
 const GroupModel = require("../models/groupModel")
 const UserModel = require("../models/userModel") // Ensure this is required if checking user roles
+const db = require("../config/db") // Path to your db configuration
 const { validateCreateGroup } = require("../utils/validation")
 
 // Create a new group
@@ -16,14 +17,10 @@ const createGroup = async (req, res) => {
     // Convert groupName to lowercase for consistency
     const groupLower = groupName.toLowerCase()
 
-    // // Check if the group already exists
-    // const existingGroups = await GroupModel.getAllGroups()
-    // if (existingGroups.some((group) => group.group_name === groupLower)) {
-    //   return res.status(400).json({ errors: ["Group already exists"] })
-    // }
+    const query = "INSERT INTO usergroup (group_name) VALUES (?)"
+    const values = [groupLower]
 
-    // Create the group
-    await GroupModel.createGroup(groupLower)
+    await db.query(query, values)
 
     res.status(201).json({ message: "Group created successfully" })
   } catch (err) {
@@ -38,17 +35,23 @@ const addUserToGroup = async (req, res) => {
 
   try {
     // Ensure the user exists
-    const user = await UserModel.getUserByUsername(username)
-    if (!user) {
+    const [userResults] = await db.query(
+      "SELECT * FROM user WHERE username = ?",
+      [username]
+    )
+    if (userResults.length === 0) {
       return res.status(404).send("User not found")
     }
 
-    const userGroups = await getUserGroups(username)
     // Add user to each group
     for (const groupName of groups) {
-      if (!userGroups.includes(groupName)) {
-        await GroupModel.addUserToGroup(username, groupName.value)
-      }
+      console.log(groups)
+      console.log(groupName.value)
+      const groupLower = groupName.value.toLowerCase()
+      await db.query(
+        "INSERT INTO usergroup (username, group_name) VALUES (?, ?)",
+        [username, groupLower]
+      )
     }
 
     res.status(200).send("User added to group successfully")

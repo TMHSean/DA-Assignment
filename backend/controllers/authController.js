@@ -68,6 +68,5 @@ module.exports = { checkUserStatus }
 module.exports = {
   loginUser,
   logoutUser,
-  registerUser,
   checkUserStatus,
 }
