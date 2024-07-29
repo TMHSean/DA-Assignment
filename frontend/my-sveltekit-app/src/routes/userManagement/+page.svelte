@@ -53,50 +53,50 @@
   });
 
   const handleCreateGroup = async () => {
-    const result = await createGroup(groupName);
+  const result = await createGroup(groupName);
 
-    if (result.errors) {
-      // Display all error messages
-      result.errors.forEach(error => alert(error));
-    } else {
-      alert('Group created successfully!'); // Display success message
+  if (result.errors) {
+    // Display all error messages
+    result.errors.forEach(error => alert(error));
+  } else {
+    alert('Group created successfully!'); // Display success message
 
-      // Refresh the group list and update the formatted groups
-      allGroups = await getAllGroups();
-      formattedGroups = allGroups.map(group => ({
-        value: group.group_name,
-        label: group.group_name
-      }));
+    // Refresh the group list and update the formatted groups
+    allGroups = await getAllGroups();
+    formattedGroups = allGroups.map(group => ({
+      value: group.group_name,
+      label: group.group_name
+    }));
 
-      // Clear the input field
-      groupName = '';
-    }
+    // Clear the input field
+    groupName = '';
+  }
+};
+
+const handleCreateUser = async () => {
+  const userData = {
+    username: newUsername,
+    email: newEmail,
+    password: newPassword,
+    disabled: newStatus,
   };
+  
+  const result = await createUser(userData);
 
-  const handleCreateUser = async () => {
-    const userData = {
-      username: newUsername,
-      email: newEmail,
-      password: newPassword,
-      disabled: newStatus,
-    };
-    
-    const result = await createUser(userData);
+  if (result.errors) {
+    // Display error messages
+    alert(result.errors.join('\n'));
+  } else {
+    alert('User created successfully!'); // Display success message
 
-    if (result.errors) {
-      // Display error messages
-      alert(result.errors.join('\n'));
-    } else {
-      alert('User created successfully!'); // Display success message
-
-      // Refresh the user list and update the formatted groups
-      users = await getAllUsers();
-      allGroups = await getAllGroups();
-      for (const user of users) {
-        userGroups[user.username] = await getUserGroups(user.username);
-      }
+    // Refresh the user list and update the formatted groups
+    users = await getAllUsers();
+    allGroups = await getAllGroups();
+    for (const user of users) {
+          userGroups[user.username] = await getUserGroups(user.username);
     }
-  };
+  }
+};
 
   
   const handleEdit = async (index) => {
@@ -110,41 +110,36 @@
 
   const handleSave = async (index) => {
     const updatedUser = {
-      email: editableEmail.trim() !== "" ? editableEmail : users[index].email, // Use current email if no new email is provided,
+      email: editableEmail,
       password: editablePassword,
       groups: editableGroups,
       disabled: parseInt(editableStatus)
     };
-    console.log(updatedUser)
+
     // Determine which groups were added or removed
     const removedGroups = initialGroups.filter(group => !editableGroups.includes(group));
     const addedGroups = editableGroups.filter(group => !initialGroups.includes(group));
 
     // Update the user data in the backend
-    const result = await updateUser(users[index].username, updatedUser);
-    console.log(result)
-    if (result.errors) {
-      alert(result.errors.join('\n'));
-    } else {
-      alert('User updated successfully!');
+    await updateUser(users[index].username, updatedUser);
 
-      // Remove user from removed groups
-      if (removedGroups.length > 0) {
-        await handleRemovedGroup(users[index].username, removedGroups);
-      }
-
-      // Add user to added groups
-      if (addedGroups.length > 0) {
-        await insertUserToGroup(users[index].username, addedGroups);
-      }
-
-      // Refresh the user list
-      users = await getAllUsers();
-      for (const user of users) {
-        userGroups[user.username] = await getUserGroups(user.username);
-      }
-      editableUserIndex = -1; // Exit edit mode
+    // Remove user from removed groups
+    if (removedGroups.length > 0) {
+      await handleRemovedGroup(users[index].username, removedGroups);
     }
+
+    // Add user to added groups
+    if (addedGroups.length > 0) {
+      await insertUserToGroup(users[index].username, addedGroups);
+    }
+    
+
+    // Refresh the user list
+    users = await getAllUsers();
+    for (const user of users) {
+          userGroups[user.username] = await getUserGroups(user.username);
+        }
+    editableUserIndex = -1; // Exit edit mode
   };
 
   const handleCancel = () => {

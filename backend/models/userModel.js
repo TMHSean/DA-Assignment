@@ -69,6 +69,7 @@ const updateUser = async (username, password, email) => {
 
 // Set user active or inactive
 const setUserStatus = async (username, disabled) => {
+  console.log("test3")
   await db.query("UPDATE user SET disabled = ? WHERE username = ?", [
     disabled,
     username,

@@ -1,8 +1,5 @@
 const UserModel = require("../models/userModel")
-const {
-  validateCreateUser,
-  validateUpdateUserProfile,
-} = require("../utils/validation")
+const { validateCreateUser } = require("../utils/validation")
 
 // Create a new user
 const createUser = async (req, res) => {
@@ -15,6 +12,12 @@ const createUser = async (req, res) => {
   }
 
   try {
+    // // Check if the username already exists
+    // const existingUser = await UserModel.getUserByUsername(username)
+    // if (existingUser) {
+    //   return res.status(400).json({ errors: ["Username already exists"] })
+    // }
+
     // Create the user
     const user = await UserModel.createUser(username, password, email, disabled)
     // res.status(201).json(user)
@@ -78,23 +81,15 @@ const getUserByUsername = async (req, res) => {
 const updateUser = async (req, res) => {
   const { username } = req.params
   const { password, email } = req.body
-  console.log(email)
-
   if (!password && !email) {
     return res
       .status(400)
       .send("At least one field (password or email) is required to update.")
   }
 
-  // Validate inputs
-  const errors = await validateUpdateUserProfile(password, email)
-  if (errors.length > 0) {
-    return res.status(400).json({ errors })
-  }
-
   try {
     await UserModel.updateUser(username, password, email)
-    res.status(201).json({ message: "User updated successfully" })
+    res.send("User updated successfully")
   } catch (err) {
     console.error("Error updating user:", err)
     res.status(500).send("Server error")
