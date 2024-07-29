@@ -16,7 +16,7 @@ const validateCreateUser = async (username, password, email) => {
       "Username can only contain alphanumeric characters and underscores."
     )
   } else if (await UserModel.getUserByUsername(username)) {
-    errors.push("Username must be unique.")
+    errors.push("Username already exists.")
   }
 
   // Validate password
@@ -87,7 +87,7 @@ const validateCreateGroup = async (groupName) => {
       "Group name can only contain alphanumeric characters and underscores, with no spaces."
     )
   } else if (await GroupModel.groupExists(groupName)) {
-    errors.push("There is already an existing group with the same group name.")
+    errors.push("Group name already exists.")
   }
 
   return errors
