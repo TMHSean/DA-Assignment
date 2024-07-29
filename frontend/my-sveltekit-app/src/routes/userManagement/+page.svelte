@@ -110,7 +110,7 @@
 
   const handleSave = async (index) => {
     const updatedUser = {
-      email: editableEmail.trim() !== "" ? editableEmail : users[index].email, // Use current email if no new email is provided,
+      email: editableEmail,
       password: editablePassword,
       groups: editableGroups,
       disabled: parseInt(editableStatus)
