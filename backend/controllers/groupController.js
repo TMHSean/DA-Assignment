@@ -64,23 +64,34 @@ const addUserToGroup = async (req, res) => {
 // Remove a user from a group
 const removeUserFromGroup = async (req, res) => {
   const { username, groups } = req.query
-  console.log(username)
-  console.log(groups)
+
   try {
     // Ensure the user exists
-    const user = await UserModel.getUserByUsername(username)
-    if (!user) {
+    const [userResults] = await db.query(
+      "SELECT * FROM user WHERE username = ?",
+      [username]
+    )
+    if (userResults.length === 0) {
       return res.status(404).send("User not found")
     }
-    //check users current group
-    const userGroups = await getUserGroups(username)
-    // remvove user from group
+
+    // Check user's current groups
+    const [userGroupsResults] = await db.query(
+      "SELECT group_name FROM usergroup WHERE username = ?",
+      [username]
+    )
+    const userGroups = userGroupsResults.map((row) => row.group_name)
+
+    // Remove user from specified groups
     for (const groupName of groups) {
-      console.log(userGroups.includes(groupName))
       if (userGroups.includes(groupName)) {
-        await GroupModel.removeUserFromGroup(username, groupName)
+        await db.query(
+          "DELETE FROM usergroup WHERE username = ? AND group_name = ?",
+          [username, groupName]
+        )
       }
     }
+
     res.status(200).send("User removed from group successfully")
   } catch (err) {
     console.error("Error removing user from group:", err)
