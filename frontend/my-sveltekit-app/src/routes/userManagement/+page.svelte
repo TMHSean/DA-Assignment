@@ -73,19 +73,31 @@
   }
 };
 
-  const handleCreateUser = async () => {
-    const userData = {
-      username: newUsername,
-      email: newEmail,
-      password: newPassword,
-      group: newGroups,
-      disabled: newStatus,
-    };
-    await createUser(userData); // No need for withCredentials here if cookies are properly set
-    // Refresh the user list or show a success message
+const handleCreateUser = async () => {
+  const userData = {
+    username: newUsername,
+    email: newEmail,
+    password: newPassword,
+    disabled: newStatus,
+  };
+  
+  const result = await createUser(userData);
+
+  if (result.errors) {
+    // Display error messages
+    alert(result.errors.join('\n'));
+  } else {
+    alert('User created successfully!'); // Display success message
+
+    // Refresh the user list and update the formatted groups
     users = await getAllUsers();
     allGroups = await getAllGroups();
-  };
+    for (const user of users) {
+          userGroups[user.username] = await getUserGroups(user.username);
+    }
+  }
+};
+
   
   const handleEdit = async (index) => {
     editableUserIndex = index;

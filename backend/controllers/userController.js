@@ -1,20 +1,30 @@
 const UserModel = require("../models/userModel")
+const { validateCreateUser } = require("../utils/validation")
 
 // Create a new user
 const createUser = async (req, res) => {
   const { username, password, email, disabled = 0 } = req.body
 
-  try {
-    const existingUser = await UserModel.getUserByUsername(username)
-    if (existingUser) {
-      return res.status(400).send("Username already exists")
-    }
+  // Validate inputs
+  const errors = await validateCreateUser(username, password, email)
+  if (errors.length > 0) {
+    return res.status(400).json({ errors })
+  }
 
+  try {
+    // // Check if the username already exists
+    // const existingUser = await UserModel.getUserByUsername(username)
+    // if (existingUser) {
+    //   return res.status(400).json({ errors: ["Username already exists"] })
+    // }
+
+    // Create the user
     const user = await UserModel.createUser(username, password, email, disabled)
-    res.status(201).json(user)
+    // res.status(201).json(user)
+    res.status(201).json({ message: "User created successfully" })
   } catch (err) {
     console.error("Error creating user:", err)
-    res.status(500).send("Server error")
+    res.status(500).json({ errors: ["Server error"] })
   }
 }
 

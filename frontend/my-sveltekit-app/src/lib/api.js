@@ -20,7 +20,6 @@ export const createGroup = async (groupName) => {
 		const response = await groupAPI.post('/create', { groupName }, { withCredentials: true });
 		return response.data; // Return the response data for further handling
 	} catch (error) {
-		console.log(error);
 		if (error.response) {
 			// Check if errors are present in response
 			const errorMessages = error.response.data.errors || [
@@ -47,9 +46,18 @@ export const getAllUsers = async () => {
 // Function to create a new user
 export const createUser = async (userData) => {
 	try {
-		await userAPI.post('/create', userData, { withCredentials: true });
+		const response = await userAPI.post('/create', userData, { withCredentials: true });
+		return response.data; // Return the response data for further handling
 	} catch (error) {
-		console.error('Error creating user:', error);
+		if (error.response) {
+			// Check if errors are present in response
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error creating User.'
+			];
+			return { errors: errorMessages }; // Return error messages for frontend handling
+		} else {
+			return { errors: ['Network error. Please try again later.'] };
+		}
 	}
 };
 
