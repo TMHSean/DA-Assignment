@@ -16,12 +16,6 @@ const createGroup = async (req, res) => {
     // Convert groupName to lowercase for consistency
     const groupLower = groupName.toLowerCase()
 
-    // // Check if the group already exists
-    // const existingGroups = await GroupModel.getAllGroups()
-    // if (existingGroups.some((group) => group.group_name === groupLower)) {
-    //   return res.status(400).json({ errors: ["Group already exists"] })
-    // }
-
     // Create the group
     await GroupModel.createGroup(groupLower)
 
