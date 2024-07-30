@@ -47,7 +47,7 @@
     }
 
     if (!isAdmin) {
-      goto('/'); // Redirect to homepage if not an admin
+      goto('/logout'); // Redirect to homepage if not an admin
     }
   });
 
@@ -227,8 +227,10 @@
             </td>
             <td>
               {#if editableUserIndex === index}
-                <button on:click={() => handleSave(index)}>Save</button>
-                <button on:click={handleCancel}>Cancel</button>
+                <div class="button-group">
+                  <button class="save-button" on:click={handleCancel}>Cancel</button>
+                  <button class="cancel-button" on:click={() => handleSave(index)}>Save</button>
+                </div>
               {:else}
                 <button on:click={() => handleEdit(index)}>Edit</button>
               {/if}
@@ -301,13 +303,36 @@ input[type="text"], input[type="email"], input[type="password"], select {
 }
 
 button {
-  background-color: #000; /* Black background for buttons */
+  background-color: #007bff; 
+  color: #fff; 
+  border: none;
+  padding: 8px 12px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  font-size: 0.9rem; 
+}
+
+.button-group {
+  display: flex; /* Arrange buttons in a row */
+  gap: 8px; /* Space between buttons */
+}
+
+.cancel-button {
+  background-color: #28a745; /* Green background for Save button */
   color: #fff; /* White text color */
   border: none;
-  padding: 8px 12px; /* Padding inside buttons */
-  border-radius: 4px; /* Rounded corners for buttons */
-  cursor: pointer; /* Pointer cursor on hover */
-  font-size: 0.9rem; /* Slightly smaller font size for buttons */
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-button {
+  background-color: #dc3545; /* Red background for Cancel button */
+  color: #fff; /* White text color */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 button:hover {

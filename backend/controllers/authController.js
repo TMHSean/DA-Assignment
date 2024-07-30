@@ -26,6 +26,7 @@ const loginUser = async (req, res) => {
       }) // put secure true if in production
       res.status(200).send("Login Successful")
     } else {
+      console.log("puacb")
       res.status(401).send("Invalid username or password")
     }
   } catch (err) {

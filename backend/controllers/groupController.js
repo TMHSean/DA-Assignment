@@ -43,8 +43,6 @@ const addUserToGroup = async (req, res) => {
 
     // Add user to each group
     for (const groupName of groups) {
-      console.log(groups)
-      console.log(groupName.value)
       const groupLower = groupName.value.toLowerCase()
       await db.query(
         "INSERT INTO usergroup (username, group_name) VALUES (?, ?)",

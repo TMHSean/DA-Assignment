@@ -27,13 +27,17 @@
         withCredentials: true // Include this option to allow cookies to be sent and received
       });
 
+      console.log(response.status)
+
       // Check if the request was successful
       if (response.status === 200) {
         goto('/application'); // Redirect to the homepage upon successful login
-      } else {
-        error = 'Login failed'; // Set a generic error message
       }
     } catch (error) {
+      const errorres = error.response
+      if (errorres.status === 401) {
+        alert("Invalid username or password")
+      }
       console.error('Error during login:', error);
       error = 'An error occurred. Please try again.'; // Set a user-friendly error message
     }

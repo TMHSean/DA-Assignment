@@ -1,3 +1,5 @@
+//Utility functions related to JWT Token generation and verification
+
 const jwt = require("jsonwebtoken")
 
 const SECRET_KEY = process.env.JWT_SECRET // Replace with your actual secret key
