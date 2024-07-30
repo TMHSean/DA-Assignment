@@ -136,4 +136,11 @@ button[type="submit"]:hover {
   background: #333; /* Darker black for hover effect */
 }
 
+body {
+  height: 100%; /* Full height for both */
+  width: 100%;  /* Full width for both */
+  background-color: grey !important;
+}
+
+
 </style>

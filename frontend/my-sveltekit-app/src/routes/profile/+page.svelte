@@ -80,6 +80,7 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    width: 100%; /* Make the button fill the container width */
   }
   button:hover {
     background-color: #0056b3;
