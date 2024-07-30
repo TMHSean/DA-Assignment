@@ -23,8 +23,12 @@
     try {
       const userStatus = await checkUserStatus();
       const userData = { email, password };
-      const checkUpdates = await updateUser(userStatus.username, userData);
-      alert('Profile updated successfully');
+      const checkUpdatesResult = await updateUser(userStatus.username, userData);
+      if (checkUpdatesResult.errors) {
+        alert(checkUpdatesResult.errors.join('\n'));
+      } else {
+        alert('Profile updated successfully');
+      }
       // Update email to reflect the new value
       currentEmail = email; // Update currentEmail to reflect the new value
     } catch (error) {
