@@ -47,7 +47,7 @@
     }
 
     if (!isAdmin) {
-      goto('/logout'); // Redirect to homepage if not an admin
+      goto('/deny'); // Redirect to homepage if not an admin
     }
   });
 
