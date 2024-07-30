@@ -264,31 +264,65 @@
     margin-right: 0.5rem;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
+  /* Styles for the User Management Table */
+/* Styles for the User Management Table */
+table {
+  width: 100%;
+  border-collapse: collapse; /* Ensures no double borders between cells */
+  margin-top: 1rem;
+}
 
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-  }
+th, td {
+  border: 1px solid #ddd; /* Light gray border */
+  padding: 8px; /* Padding for spacing */
+  text-align: center; /* Align text to the left */
+}
 
-  th {
-    background-color: #f2f2f2;
-  }
+th {
+  background-color: #000; /* Black background for headers */
+  color: #fff; /* White text color for headers */
+  font-weight: bold; /* Bold text for headers */
+}
 
-  .edit-button, .save-button {
-    cursor: pointer;
-  }
+tr:nth-child(even) {
+  background-color: #f9f9f9; /* Alternate row color for better readability */
+}
 
-  .status-enabled {
-    color: green;
-    font-weight: bold;
-  }
+tr:hover {
+  background-color: #f1f1f1; /* Highlight row on hover */
+}
 
-  .status-disabled {
-    color: red;
-    font-weight: bold;
-  }
+input[type="text"], input[type="email"], input[type="password"], select {
+  width: 100%;
+  padding: 8px; /* Padding inside input fields */
+  border: 1px solid #ccc; /* Light gray border for input fields */
+  border-radius: 4px; /* Rounded corners for input fields */
+  box-sizing: border-box; /* Ensure padding is included in width */
+}
+
+button {
+  background-color: #000; /* Black background for buttons */
+  color: #fff; /* White text color */
+  border: none;
+  padding: 8px 12px; /* Padding inside buttons */
+  border-radius: 4px; /* Rounded corners for buttons */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 0.9rem; /* Slightly smaller font size for buttons */
+}
+
+button:hover {
+  background-color: #333; /* Darker black for hover effect */
+}
+
+.status-enabled {
+  color: green;
+  font-weight: bold;
+}
+
+.status-disabled {
+  color: red;
+  font-weight: bold;
+}
+
+
 </style>

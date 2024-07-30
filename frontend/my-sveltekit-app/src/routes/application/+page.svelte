@@ -4,10 +4,7 @@
 
 <style>
   /* Add your styles here */
-  h1 {
-    font-size: 2em;
-    text-align: center;
-  }
+
 </style>
 
 <h1>Applications</h1>
