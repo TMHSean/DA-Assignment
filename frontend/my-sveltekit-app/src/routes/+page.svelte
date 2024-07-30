@@ -40,16 +40,6 @@
   };
 </script>
 
-<style>
-  .message {
-    color: green;
-    font-weight: bold;
-  }
-  .error {
-    color: red;
-  }
-</style>
-
 <main>
   <h1>Login</h1>
   <form on:submit|preventDefault={handleLogin}>
@@ -70,3 +60,80 @@
     <p class="message">{message}</p>
   {/if}
 </main>
+
+<style>
+  .message {
+    color: green;
+    font-weight: bold;
+  }
+  .error {
+    color: red;
+  }
+
+  /* Styles for the login page */
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #f0f0f0; /* Light gray background to contrast with black */
+  font-family: Arial, sans-serif;
+  color: #000; /* Black text color */
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #000; /* Black color for heading */
+}
+
+form {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: #000; /* Black color for labels */
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+  border-color: #000; /* Black border on focus */
+  outline: none;
+}
+
+button[type="submit"] {
+  background: #000; /* Black background */
+  color: #fff; /* White text color */
+  border: none;
+  padding: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  width: 100%; /* Button fills the available width */
+  box-sizing: border-box;
+}
+
+button[type="submit"]:hover {
+  background: #333; /* Darker black for hover effect */
+}
+
+</style>
