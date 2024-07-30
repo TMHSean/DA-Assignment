@@ -19,8 +19,6 @@
   let newPassword = '';
   let newGroups = [];
   let newStatus = 0;
-  let editAdmin = true;
-  let superAdmin = false;
 
   // Editable fields
   let editableUserIndex = -1; // Track which user row is being edited
@@ -28,17 +26,12 @@
   let editableStatus = 0;
   let editableEmail = '';
   let editablePassword = '';
+  let isEditingSuperAdmin = false;
 
   onMount(async () => {
     const userStatus = await checkUserStatus();
     console.log(userStatus)
     if (userStatus) {
-      //to allow us to know if user logged in is superadmin
-      if (userStatus.username == "admin") {
-        superAdmin = true;
-      } else {
-        editAdmin = false;
-      }
       // to check if users belong to admin group
       isAdmin = userStatus.isAdmin;
       if (isAdmin) {
@@ -211,7 +204,8 @@
             </td>
             <td>
               {#if editableUserIndex === index}
-                <MultiSelect bind:selected={editableGroups} options={formattedGroups}/>
+                  <MultiSelect bind:selected={editableGroups} options={formattedGroups} class={(user.username === 'admin') ? 'disabled' : ''}
+                  disabled={user.username === 'admin'}/> 
               {:else}
                 {#if userGroups[user.username] && Array.isArray(userGroups[user.username])}
                   {#if userGroups[user.username].length > 0}
@@ -226,7 +220,7 @@
             </td>
             <td>
               {#if editableUserIndex === index}
-                <select bind:value={editableStatus}>
+                <select bind:value={editableStatus} disabled={user.username === 'admin'}>
                   <option value=0>Enabled</option>
                   <option value=1>Disabled</option>
                 </select>
@@ -243,9 +237,7 @@
                   <button class="cancel-button" on:click={() => handleSave(index)}>Save</button>
                 </div>
               {:else}
-                {#if superAdmin || user.username !== 'admin'}
                   <button class="primary-button" on:click={() => handleEdit(index)}>Edit</button>
-                {/if}
               {/if}
             </td>
           </tr>
@@ -368,6 +360,13 @@
     color: red;
     font-weight: bold;
   }
+
+  input[disabled], select[disabled], .disabled {
+  background-color: #e0e0e0; /* Grey out background */
+  color: #a0a0a0; /* Grey out text color */
+  cursor: not-allowed; /* Change cursor to not-allowed */
+}
+
 
 
 </style>
