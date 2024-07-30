@@ -40,27 +40,6 @@
   };
 </script>
 
-<main>
-  <h1>Login</h1>
-  <form on:submit|preventDefault={handleLogin}>
-    <label>
-      Username
-      <input type="text" bind:value={username} required />
-    </label>
-    <label>
-      Password
-      <input type="password" bind:value={password} required />
-    </label>
-    {#if error}
-      <p>{error}</p>
-    {/if}
-    <button type="submit">Login</button>
-  </form>
-  {#if message}
-    <p class="message">{message}</p>
-  {/if}
-</main>
-
 <style>
   .message {
     color: green;
@@ -136,11 +115,25 @@ button[type="submit"]:hover {
   background: #333; /* Darker black for hover effect */
 }
 
-body {
-  height: 100%; /* Full height for both */
-  width: 100%;  /* Full width for both */
-  background-color: grey !important;
-}
-
-
 </style>
+
+<main>
+  <h1>Login</h1>
+  <form on:submit|preventDefault={handleLogin}>
+    <label>
+      Username
+      <input type="text" bind:value={username} required />
+    </label>
+    <label>
+      Password
+      <input type="password" bind:value={password} required />
+    </label>
+    {#if error}
+      <p>{error}</p>
+    {/if}
+    <button type="submit">Login</button>
+  </form>
+  {#if message}
+    <p class="message">{message}</p>
+  {/if}
+</main>
