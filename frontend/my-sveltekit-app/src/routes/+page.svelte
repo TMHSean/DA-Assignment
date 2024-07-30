@@ -36,7 +36,9 @@
     } catch (error) {
       const errorres = error.response
       if (errorres.status === 401) {
-        alert("Invalid username or password")
+        alert("Invalid username or password.")
+      } else if (errorres.status === 403) {
+        alert("User account has been disabled.")
       }
       console.error('Error during login:', error);
       error = 'An error occurred. Please try again.'; // Set a user-friendly error message

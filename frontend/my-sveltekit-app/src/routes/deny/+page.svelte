@@ -1,77 +1,65 @@
 <script>
-  // Add any script logic if needed
+  // You can add any script logic here if needed
 </script>
 
-<style>
-  /* Reset default styles */
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+<main class="forbidden-page">
+  <div class="container">
+    <h1>403</h1>
+    <p>Forbidden</p>
+    <p>You don't have permission to access this page.</p>
+    <a href="/" class="home-button">Go to Homepage</a>
+  </div>
+</main>
 
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4; /* Light gray background */
-    color: #333; /* Dark gray text for better readability */
+<style>
+  .forbidden-page {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    text-align: center;
-    margin: 0;
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+    color: #333;
   }
 
   .container {
-    background-color: #fff; /* White background for the content area */
-    padding: 2rem 3rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    width: 100%;
+    text-align: center;
+    background: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
-  .error-code {
-    font-size: 8rem;
-    font-weight: bold;
-    color: #000; /* Black text color */
-    margin-bottom: 0.5rem;
+  h1 {
+    font-size: 6rem;
+    margin: 0;
+    color: #000; /* Red color for emphasis */
   }
 
-  .error-message {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #333; /* Dark gray text color */
-    margin-bottom: 1rem;
-  }
-
-  .description {
+  p {
     font-size: 1.2rem;
-    color: #666; /* Medium gray text color for description */
-    margin-bottom: 2rem;
+    margin: 0.5rem 0;
   }
 
-  .back-link {
+  .home-button {
     display: inline-block;
+    margin-top: 1rem;
     padding: 0.75rem 1.5rem;
-    font-size: 1.1rem;
-    color: #007bff; /* Modern blue color for the link */
+    font-size: 1rem;
+    color: #fff;
+    background-color: #007bff; /* Blue background */
     text-decoration: none;
-    border: 2px solid #007bff;
-    border-radius: 5px;
-    background-color: #fff;
-    transition: background-color 0.3s, color 0.3s;
+    border-radius: 4px;
+    transition: background-color 0.3s, transform 0.3s;
   }
 
-  .back-link:hover {
-    background-color: #007bff; /* Blue background on hover */
-    color: #fff; /* White text color on hover */
+  .home-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+  }
+
+  .home-button:active {
+    background-color: #003d7a; /* Even darker blue when clicked */
+    transform: translateY(0); /* Reset lift effect */
   }
 </style>
-
-<div class="container">
-  <h1 class="error-code">403</h1>
-  <p class="error-message">Forbidden</p>
-  <p class="description">You do not have permission to access this page.</p>
-  <a href="/" class="back-link">Go to Homepage</a>
-</div>

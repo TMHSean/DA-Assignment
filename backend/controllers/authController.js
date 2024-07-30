@@ -10,28 +10,42 @@ const loginUser = async (req, res) => {
   const { username, password } = req.body
 
   try {
+    // Fetch user from the database
     const [users] = await pool.query("SELECT * FROM user WHERE username = ?", [
       username,
     ])
     const user = users[0]
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress
-      const browser = req.headers["user-agent"]
-      const token = generateToken(user, ip, browser)
-      res.cookie("jwt", token, {
-        httpOnly: true,
-        sameSite: "strict",
-        maxAge: 3600 * 1000,
-      }) // put secure true if in production
-      res.status(200).send("Login Successful")
-    } else {
-      console.log("puacb")
-      res.status(401).send("Invalid username or password")
+    if (!user) {
+      // If no user found, return invalid credentials
+      return res.status(401).send("Invalid username or password")
     }
+
+    // Check if the password matches
+    const passwordMatch = await bcrypt.compare(password, user.password)
+    if (!passwordMatch) {
+      // If password does not match, return invalid credentials
+      return res.status(401).send("Invalid username or password")
+    }
+
+    // Check if the user is disabled
+    if (user.disabled === 1) {
+      return res.status(403).send("User has been disabled") // Exit after sending the response
+    }
+
+    // Generate token and send response
+    const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress
+    const browser = req.headers["user-agent"]
+    const token = generateToken(user, ip, browser)
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 3600 * 1000,
+    }) // Put secure true if in production
+    return res.status(200).send("Login Successful") // Exit after sending the response
   } catch (err) {
     console.error("Error logging in:", err)
-    res.status(500).send("Server error")
+    return res.status(500).send("Server error") // Exit after sending the response
   }
 }
 
