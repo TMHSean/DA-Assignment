@@ -24,14 +24,14 @@ export async function load({ url }) {
 			} else {
 				return {
 					status: 302,
-					redirect: '/'
+					redirect: '/deny'
 				};
 			}
 		} catch (error) {
 			console.error('Error checking authentication:', error);
 			return {
 				status: 302,
-				redirect: '/'
+				redirect: '/deny'
 			};
 		}
 	} else {

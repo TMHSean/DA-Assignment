@@ -15,7 +15,7 @@
       email = currentEmail;
     } else {
       // Redirect to login if not authenticated
-      goto('/');
+      goto('/deny');
     }
   });
 
@@ -45,7 +45,7 @@
       <label for="password">Password:</label>
       <input type="password" id="password" bind:value={password} placeholder="New Password" />
     </div>
-    <button type="submit">Update Profile</button>
+    <button class="primary-button" type="submit">Update Profile</button>
   </form>
 </main>
 
@@ -84,5 +84,15 @@
   }
   button:hover {
     background-color: #0056b3;
+  }
+
+  .primary-button {
+    background-color: #007bff; /* Blue background */
+    color: #fff; /* White text */
+  }
+
+  .primary-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly scale up on hover */
   }
 </style>

@@ -43,7 +43,7 @@
         }));
       }
     } else {
-      goto('/'); // Redirect to login if not authenticated
+      goto('/deny'); // Redirect to login if not authenticated
     }
 
     if (!isAdmin) {
@@ -166,7 +166,7 @@
     <h1>User Management</h1>
     <div class="create-group">
       <input type="text" bind:value={groupName} placeholder="Enter Group Name" />
-      <button on:click={handleCreateGroup}>+ Create Group</button>
+      <button class="primary-button" on:click={handleCreateGroup}>+ Create Group</button>
     </div>
 
     <table>
@@ -232,7 +232,7 @@
                   <button class="cancel-button" on:click={() => handleSave(index)}>Save</button>
                 </div>
               {:else}
-                <button on:click={() => handleEdit(index)}>Edit</button>
+                <button class="primary-button" on:click={() => handleEdit(index)}>Edit</button>
               {/if}
             </td>
           </tr>
@@ -248,7 +248,7 @@
               <option value=1>Disabled</option>
             </select>
           </td>
-          <td><button on:click={handleCreateUser}>Create User</button></td>
+          <td><button class="primary-button" on:click={handleCreateUser}>Create User</button></td>
         </tr>
       </tbody>
     </table>
@@ -267,87 +267,94 @@
   }
 
   /* Styles for the User Management Table */
-/* Styles for the User Management Table */
-table {
-  width: 100%;
-  border-collapse: collapse; /* Ensures no double borders between cells */
-  margin-top: 1rem;
-}
+  table {
+    width: 100%;
+    border-collapse: collapse; /* Ensures no double borders between cells */
+    margin-top: 1rem;
+  }
 
-th, td {
-  border: 1px solid #ddd; /* Light gray border */
-  padding: 8px; /* Padding for spacing */
-  text-align: center; /* Align text to the left */
-}
+  th, td {
+    border: 1px solid #ddd; /* Light gray border */
+    padding: 8px; /* Padding for spacing */
+    text-align: center; /* Align text to the left */
+  }
 
-th {
-  background-color: #000; /* Black background for headers */
-  color: #fff; /* White text color for headers */
-  font-weight: bold; /* Bold text for headers */
-}
+  th {
+    background-color: #000; /* Black background for headers */
+    color: #fff; /* White text color for headers */
+    font-weight: bold; /* Bold text for headers */
+  }
 
-tr:nth-child(even) {
-  background-color: #f9f9f9; /* Alternate row color for better readability */
-}
+  tr:nth-child(even) {
+    background-color: #f9f9f9; /* Alternate row color for better readability */
+  }
 
-tr:hover {
-  background-color: #f1f1f1; /* Highlight row on hover */
-}
+  tr:hover {
+    background-color: #f1f1f1; /* Highlight row on hover */
+  }
 
-input[type="text"], input[type="email"], input[type="password"], select {
-  width: 100%;
-  padding: 8px; /* Padding inside input fields */
-  border: 1px solid #ccc; /* Light gray border for input fields */
-  border-radius: 4px; /* Rounded corners for input fields */
-  box-sizing: border-box; /* Ensure padding is included in width */
-}
+  input[type="text"], input[type="email"], input[type="password"], select {
+    width: 100%;
+    padding: 8px; /* Padding inside input fields */
+    border: 1px solid #ccc; /* Light gray border for input fields */
+    border-radius: 4px; /* Rounded corners for input fields */
+    box-sizing: border-box; /* Ensure padding is included in width */
+  }
+  button {
+    background-color: #007bff; /* Blue background for buttons */
+    color: #fff; /* White text color */
+    border: none;
+    padding: 8px 12px; /* Padding for buttons */
+    border-radius: 4px; /* Rounded corners for buttons */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 0.9rem; /* Font size for buttons */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+  }
 
-button {
-  background-color: #007bff; 
-  color: #fff; 
-  border: none;
-  padding: 8px 12px; 
-  border-radius: 4px; 
-  cursor: pointer; 
-  font-size: 0.9rem; 
-}
+  .button-group {
+    display: flex; /* Arrange buttons in a row */
+    gap: 8px; /* Space between buttons */
+  }
 
-.button-group {
-  display: flex; /* Arrange buttons in a row */
-  gap: 8px; /* Space between buttons */
-}
+  .primary-button {
+    background-color: #007bff; /* Blue background */
+    color: #fff; /* White text */
+  }
 
-.cancel-button {
-  background-color: #28a745; /* Green background for Save button */
-  color: #fff; /* White text color */
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-}
+  .primary-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly scale up on hover */
+  }
 
-.save-button {
-  background-color: #dc3545; /* Red background for Cancel button */
-  color: #fff; /* White text color */
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-}
+  .cancel-button {
+    background-color: #28a745; /* Green background */
+    color: #fff; /* White text */
+  }
 
-button:hover {
-  background-color: #333; /* Darker black for hover effect */
-}
+  .cancel-button:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: scale(1.05); /* Slightly scale up on hover */
+  }
 
-.status-enabled {
-  color: green;
-  font-weight: bold;
-}
+  .save-button {
+    background-color: #dc3545; /* Red background */
+    color: #fff; /* White text */
+  }
 
-.status-disabled {
-  color: red;
-  font-weight: bold;
-}
+  .save-button:hover {
+    background-color: #c82333; /* Darker red on hover */
+    transform: scale(1.05); /* Slightly scale up on hover */
+  }
+
+  .status-enabled {
+    color: green;
+    font-weight: bold;
+  }
+
+  .status-disabled {
+    color: red;
+    font-weight: bold;
+  }
 
 
 </style>
