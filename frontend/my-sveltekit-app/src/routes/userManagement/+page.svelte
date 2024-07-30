@@ -19,6 +19,8 @@
   let newPassword = '';
   let newGroups = [];
   let newStatus = 0;
+  let editAdmin = true;
+  let superAdmin = false;
 
   // Editable fields
   let editableUserIndex = -1; // Track which user row is being edited
@@ -29,7 +31,15 @@
 
   onMount(async () => {
     const userStatus = await checkUserStatus();
+    console.log(userStatus)
     if (userStatus) {
+      //to allow us to know if user logged in is superadmin
+      if (userStatus.username == "admin") {
+        superAdmin = true;
+      } else {
+        editAdmin = false;
+      }
+      // to check if users belong to admin group
       isAdmin = userStatus.isAdmin;
       if (isAdmin) {
         users = await getAllUsers(); // No need for withCredentials here if cookies are properly set
@@ -167,6 +177,7 @@
     <div class="create-group">
       <input type="text" bind:value={groupName} placeholder="Enter Group Name" />
       <button class="primary-button" on:click={handleCreateGroup}>+ Create Group</button>
+
     </div>
 
     <table>
@@ -232,7 +243,9 @@
                   <button class="cancel-button" on:click={() => handleSave(index)}>Save</button>
                 </div>
               {:else}
-                <button class="primary-button" on:click={() => handleEdit(index)}>Edit</button>
+                {#if superAdmin || user.username !== 'admin'}
+                  <button class="primary-button" on:click={() => handleEdit(index)}>Edit</button>
+                {/if}
               {/if}
             </td>
           </tr>
