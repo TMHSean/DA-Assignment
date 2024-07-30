@@ -6,6 +6,7 @@
   let email = '';
   let password = '';
   let currentEmail = '';
+  let loading = true;
 
   onMount(async () => {
     const userStatus = await checkUserStatus();
@@ -13,6 +14,7 @@
       console.log(userStatus)
       currentEmail = userStatus.email; // Assuming the response has an email field
       email = currentEmail;
+      loading = false;
     } else {
       // Redirect to login if not authenticated
       goto('/deny');
@@ -39,6 +41,10 @@
 </script>
 
 <main>
+  {#if loading}
+  <!-- Show a loading indicator or nothing while checking status -->
+  <p>Loading...</p>
+  {:else}
   <h1>Profile</h1>
   <form on:submit|preventDefault={handleUpdateProfile}>
     <div class="form-group">
@@ -51,6 +57,7 @@
     </div>
     <button class="primary-button" type="submit">Update Profile</button>
   </form>
+  {/if}
 </main>
 
 <style>
