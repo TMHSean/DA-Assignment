@@ -8,7 +8,7 @@
   let currentEmail = '';
   let loading = true;
 
-  //Feedback Message
+  // Feedback Message
   let feedbackMessage = '';
   let feedbackType = '';
 
@@ -32,7 +32,7 @@
       const checkUpdatesResult = await updateUserProfile(userStatus.username, userData);
 
       if (checkUpdatesResult.errors) {
-      // Display all error messages
+        // Display all error messages
         feedbackMessage = checkUpdatesResult.errors.join('\n');
         feedbackType = 'error';
       } else {
@@ -50,8 +50,8 @@
 
 <main>
   {#if loading}
-  <!-- Show a loading indicator or nothing while checking status -->
-  <p>Loading...</p>
+    <!-- Show a loading indicator or nothing while checking status -->
+    <p>Loading...</p>
   {:else}
     <h1>Profile</h1>
     <form on:submit|preventDefault={handleUpdateProfile}>
@@ -69,7 +69,7 @@
     <!-- Feedback Message Area -->
     {#if feedbackMessage}
       <div class={`feedback-message ${feedbackType}`}>
-        Query Result: {feedbackMessage}
+        {feedbackMessage}
       </div>
     {/if}
   {/if}
@@ -79,6 +79,7 @@
   main {
     max-width: 400px;
     margin: 0 auto;
+    padding: 1rem; /* Added padding for better spacing */
   }
   form {
     display: flex;
@@ -97,7 +98,9 @@
     padding: 0.5rem;
     border: 1px solid #ddd;
     border-radius: 4px;
-    width: 100%;
+    width: 100%; /* Ensure inputs fill container width */
+    max-width: 100%; /* Ensure inputs do not exceed container width */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
   }
   button {
     padding: 0.5rem;
@@ -107,6 +110,8 @@
     border-radius: 4px;
     cursor: pointer;
     width: 100%; /* Make the button fill the container width */
+    max-width: 100%; /* Ensure button does not exceed container width */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
   }
   button:hover {
     background-color: #0056b3;
@@ -128,12 +133,13 @@
     border-radius: 4px;
     text-align: center;
     font-weight: bold;
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
   }
 
   .feedback-message.success {
-      background-color: #d4edda;
-      color: #155724;
-    }
+    background-color: #d4edda;
+    color: #155724;
+  }
 
   .feedback-message.error {
     background-color: #f8d7da;
