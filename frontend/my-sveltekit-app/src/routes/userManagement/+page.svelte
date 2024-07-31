@@ -26,7 +26,10 @@
   let editableStatus = 0;
   let editableEmail = '';
   let editablePassword = '';
-  let isEditingSuperAdmin = false;
+
+  //Feedback Message
+  let feedbackMessage = '';
+  let feedbackType = '';
 
   onMount(async () => {
     const userStatus = await checkUserStatus();
@@ -59,9 +62,11 @@
 
     if (result.errors) {
       // Display all error messages
-      result.errors.forEach(error => alert(error));
+      feedbackMessage = result.errors.join('\n');
+      feedbackType = 'error';
     } else {
-      alert('Group created successfully!'); // Display success message
+      feedbackMessage = 'Group created successfully!';
+      feedbackType = 'success';
 
       // Refresh the group list and update the formatted groups
       allGroups = await getAllGroups();
@@ -86,10 +91,12 @@
     const result = await createUser(userData);
 
     if (result.errors) {
-      // Display error messages
-      alert(result.errors.join('\n'));
+      // Display all error messages
+      feedbackMessage = result.errors.join('\n');
+      feedbackType = 'error';
     } else {
-      alert('User created successfully!'); // Display success message
+      feedbackMessage = 'User created successfully!';
+      feedbackType = 'success';
 
       // Refresh the user list and update the formatted groups
       users = await getAllUsers();
@@ -125,9 +132,12 @@
     const result = await updateUser(users[index].username, updatedUser);
     console.log(result)
     if (result.errors) {
-      alert(result.errors.join('\n'));
+      // Display all error messages
+      feedbackMessage = result.errors.join('\n');
+      feedbackType = 'error';
     } else {
-      alert('User updated successfully!');
+      feedbackMessage = 'User updated successfully!';
+      feedbackType = 'success';
 
       // Remove user from removed groups
       if (removedGroups.length > 0) {
@@ -172,6 +182,14 @@
       <button class="primary-button" on:click={handleCreateGroup}>+ Create Group</button>
 
     </div>
+
+
+    <!-- Feedback Message Area -->
+    {#if feedbackMessage}
+      <div class={`feedback-message ${feedbackType}`}>
+        Query Result: {feedbackMessage}
+      </div>
+    {/if}
 
     <table>
       <thead>
@@ -365,8 +383,24 @@
   background-color: #e0e0e0; /* Grey out background */
   color: #a0a0a0; /* Grey out text color */
   cursor: not-allowed; /* Change cursor to not-allowed */
-}
+  }
 
+.feedback-message {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+  }
 
+  .feedback-message.success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+  .feedback-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
 
 </style>
