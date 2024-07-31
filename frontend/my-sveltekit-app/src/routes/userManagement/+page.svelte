@@ -86,9 +86,12 @@
       email: newEmail,
       password: newPassword,
       disabled: newStatus,
+      groups: newGroups
     };
     
+    console.log(userData)
     const result = await createUser(userData);
+    console.log(result)
 
     if (result.errors) {
       // Display all error messages
@@ -385,7 +388,7 @@
   cursor: not-allowed; /* Change cursor to not-allowed */
   }
 
-.feedback-message {
+  .feedback-message {
     margin: 1rem 0;
     padding: 1rem;
     border-radius: 4px;

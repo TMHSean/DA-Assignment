@@ -46,8 +46,12 @@ export const getAllUsers = async () => {
 // Function to create a new user
 export const createUser = async (userData) => {
 	try {
-		const response = await userAPI.post('/create', userData, { withCredentials: true });
-		return response.data; // Return the response data for further handling
+		const userCreateresponse = await userAPI.post('/create', userData, { withCredentials: true });
+		const userGroupResponse = await groupAPI.post('/adduser', userData, { withCredentials: true });
+		return {
+			userData: userCreateresponse.data,
+			userGroupData: userGroupResponse.data
+		}; // Return the response data for further handling
 	} catch (error) {
 		console.log(error);
 		if (error.response) {
