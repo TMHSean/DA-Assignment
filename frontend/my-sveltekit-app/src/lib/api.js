@@ -49,7 +49,9 @@ export const createUser = async (userData) => {
 		const response = await userAPI.post('/create', userData, { withCredentials: true });
 		return response.data; // Return the response data for further handling
 	} catch (error) {
+		console.log(error);
 		if (error.response) {
+			console.log(error);
 			// Check if errors are present in response
 			const errorMessages = error.response.data.errors || [
 				error.response.data.message || 'Error creating User.'
@@ -64,16 +66,35 @@ export const createUser = async (userData) => {
 // Function to update a user
 export const updateUser = async (username, userData) => {
 	try {
-		const udpateResponse = await userAPI.put(`/update/${username}`, userData, {
+		const updateResponse = await userAPI.put(`/update/${username}`, userData, {
 			withCredentials: true
 		});
 		const statusResponse = await userAPI.put(`/status/${username}`, userData, {
 			withCredentials: true
 		});
 		return {
-			updateResult: udpateResponse.data,
+			updateResult: updateResponse.data,
 			statusResult: statusResponse.data
 		};
+	} catch (error) {
+		if (error.response) {
+			// Check if errors are present in response
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error updating User.'
+			];
+			return { errors: errorMessages }; // Return error messages for frontend handling
+		} else {
+			return { errors: ['Network error. Please try again later.'] };
+		}
+	}
+};
+
+export const updateUserProfile = async (username, userData) => {
+	try {
+		const updateResponse = await userAPI.put(`/update/${username}`, userData, {
+			withCredentials: true
+		});
+		return updateResponse.data;
 	} catch (error) {
 		if (error.response) {
 			// Check if errors are present in response

@@ -1,12 +1,16 @@
 <script>
   import { onMount } from 'svelte';
-  import { checkUserStatus, updateUser } from '$lib/api';
+  import { checkUserStatus, updateUserProfile } from '$lib/api';
   import { goto } from '$app/navigation';
 
   let email = '';
   let password = '';
   let currentEmail = '';
   let loading = true;
+
+  //Feedback Message
+  let feedbackMessage = '';
+  let feedbackType = '';
 
   onMount(async () => {
     const userStatus = await checkUserStatus();
@@ -25,11 +29,15 @@
     try {
       const userStatus = await checkUserStatus();
       const userData = { email, password };
-      const checkUpdatesResult = await updateUser(userStatus.username, userData);
+      const checkUpdatesResult = await updateUserProfile(userStatus.username, userData);
+
       if (checkUpdatesResult.errors) {
-        alert(checkUpdatesResult.errors.join('\n'));
+      // Display all error messages
+        feedbackMessage = checkUpdatesResult.errors.join('\n');
+        feedbackType = 'error';
       } else {
-        alert('Profile updated successfully');
+        feedbackMessage = 'Profile updated successfully!';
+        feedbackType = 'success';
       }
       // Update email to reflect the new value
       currentEmail = email; // Update currentEmail to reflect the new value
@@ -45,18 +53,25 @@
   <!-- Show a loading indicator or nothing while checking status -->
   <p>Loading...</p>
   {:else}
-  <h1>Profile</h1>
-  <form on:submit|preventDefault={handleUpdateProfile}>
-    <div class="form-group">
-      <label for="email">Email:</label>
-      <input type="email" id="email" bind:value={email} />
-    </div>
-    <div class="form-group">
-      <label for="password">Password:</label>
-      <input type="password" id="password" bind:value={password} placeholder="New Password" />
-    </div>
-    <button class="primary-button" type="submit">Update Profile</button>
-  </form>
+    <h1>Profile</h1>
+    <form on:submit|preventDefault={handleUpdateProfile}>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" bind:value={email} />
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" bind:value={password} placeholder="New Password" />
+      </div>
+      <button class="primary-button" type="submit">Update Profile</button>
+    </form>
+
+    <!-- Feedback Message Area -->
+    {#if feedbackMessage}
+      <div class={`feedback-message ${feedbackType}`}>
+        Query Result: {feedbackMessage}
+      </div>
+    {/if}
   {/if}
 </main>
 
@@ -106,4 +121,23 @@
     background-color: #0056b3; /* Darker blue on hover */
     transform: scale(1.05); /* Slightly scale up on hover */
   }
+
+  .feedback-message {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .feedback-message.success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+  .feedback-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
 </style>

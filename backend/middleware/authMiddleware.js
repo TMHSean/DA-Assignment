@@ -34,11 +34,9 @@ const authorizeAdmin = async (req, res, next) => {
 
     // Extract group names from results
     const userGroups = results.map((row) => row.group_name)
-    console.log(userGroups) // For debugging
 
     // Check if 'admins' is in the array of group names
     const isAdmin = userGroups.includes("admins")
-    console.log(isAdmin) // For debugging
 
     // Check if user is an admin or has the username "admin"
     if (isAdmin || user.username === "admin") {
