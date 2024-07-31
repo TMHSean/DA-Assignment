@@ -7,7 +7,7 @@
     <h1>403</h1>
     <p>Forbidden</p>
     <p>You don't have permission to access this page.</p>
-    <a href="/" class="home-button">Go to Homepage</a>
+    <a href="/logout" class="home-button">Go to Login</a>
   </div>
 </main>
 
