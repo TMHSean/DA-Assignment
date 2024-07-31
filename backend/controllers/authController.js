@@ -76,9 +76,10 @@ const checkUserStatus = async (req, res) => {
     const [results] = await db.query(query, [user.username, user.username])
     if (results.length > 0) {
       const dbUser = results[0]
+      const isAdmin = user.username === "admin" || dbUser.isAdmin === 1
       res.json({
         username: dbUser.username,
-        isAdmin: dbUser.isAdmin === 1, // Convert from SQL boolean (1/0) to JavaScript boolean
+        isAdmin: isAdmin, // Determine admin status
         email: dbUser.email,
       })
     } else {
