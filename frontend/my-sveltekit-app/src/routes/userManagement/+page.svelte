@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { checkUserStatus, createGroup, getAllUsers, createUser, updateUser, checkUserGroup, getAllGroups, insertUserToGroup, handleRemovedGroup } from '$lib/api';
+  import { checkUserStatus, createGroup, getAllUsers, createUser, updateUser, retrieveUserGroups, getAllGroups, insertUserToGroup, handleRemovedGroup } from '$lib/api';
   import MultiSelect from 'svelte-multiselect';
 		
   let isAdmin = false;
@@ -167,7 +167,7 @@
 
   const getUserGroups = async (username) => {
     try {
-      const response = await checkUserGroup(username);
+      const response = await retrieveUserGroups(username);
       return response.data;
     } catch (error) {
         console.error('Error fetching user groups:', error);

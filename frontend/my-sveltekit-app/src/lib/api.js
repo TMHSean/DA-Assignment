@@ -2,9 +2,9 @@ import { authAPI, userAPI } from './axiosInstances';
 
 
 // Function to check which groups a user belongs to
-export const checkUserGroup = async (username) => {
+export const retrieveUserGroups = async (username) => {
 	try {
-		const response = await authAPI.get('/checkgroups', {
+		const response = await userAPI.get('/retrieveusergroups', {
 			params: { username }, // Send username as a query parameter
 			withCredentials: true
 		});

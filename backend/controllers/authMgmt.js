@@ -57,59 +57,65 @@ const logoutUser = (req, res) => {
 // Controller function to check user status
 const checkUserStatus = async (req, res) => {
   try {
-    const user = req.user // User details from the token
+    const user = req.user; // User details from the token
 
     if (!user || !user.username) {
-      return res.status(401).send("Unauthorized")
+      return res.status(401).send("Unauthorized");
     }
 
-    // SQL query to retrieve user details and check group membership
-    const query = `
-      SELECT u.username, u.email, 
-             EXISTS (SELECT 1 FROM usergroup ug WHERE ug.username = ? AND ug.group_name = 'admins') AS isAdmin
-      FROM user u
-      WHERE u.username = ?;
-    `
+    // Check if the user is an admin by using checkGroup function
+    const isAdmin = user.username === "admin" || await checkGroup(user.username, 'admin');
 
-    // Execute query
-    const [results] = await pool.query(query, [user.username, user.username])
+    // Retrieve user details
+    const query = `
+      SELECT username, email
+      FROM user
+      WHERE username = ?;
+    `;
+
+    // Execute query to get user details
+    const [results] = await pool.query(query, [user.username]);
+
     if (results.length > 0) {
-      const dbUser = results[0]
-      const isAdmin = user.username === "admin" || dbUser.isAdmin === 1
+      const dbUser = results[0];
       res.json({
         username: dbUser.username,
         isAdmin: isAdmin, // Determine admin status
         email: dbUser.email,
-      })
+      });
     } else {
-      res.status(404).send("User not found")
+      res.status(404).send("User not found");
     }
   } catch (err) {
-    console.error("Error checking user status:", err)
-    res.status(500).send("Server error")
+    console.error("Error checking user status:", err);
+    res.status(500).send("Server error");
   }
-}
+};
 
-// Check which groups a user belongs to
-const checkUserGroup = async (req, res) => {
-  const { username } = req.query // Extract username from the query params
+
+// Check if a user belongs to a specific group
+const checkGroup = async (username, groupName) => {
   try {
+    // Query to get all group names for the user
     const [results] = await pool.query(
       "SELECT group_name FROM usergroup WHERE username = ?",
       [username]
-    )
-    const groups = results.map((row) => row.group_name)
-    res.send(groups)
+    );
+    
+    // Extract group names from the results
+    const groups = results.map((row) => row.group_name);
+
+    // Check if the specified group name exists in the list of groups
+    return groups.includes(groupName);
   } catch (err) {
-    console.error("Error checking user group:", err)
-    res.status(500).send("Server error")
+    console.error("Error checking user group:", err);
+    throw new Error("Server error");
   }
-}
+};
 
 
 module.exports = {
   loginUser,
   logoutUser,
-  checkUserStatus,
-  checkUserGroup
+  checkUserStatus
 }

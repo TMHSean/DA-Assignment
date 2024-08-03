@@ -62,6 +62,7 @@ router.delete(
 router.get("/allrecords", authenticateToken, userMgmt.getAllRecords)
 router.get("/allgroups", authenticateToken, userMgmt.getAllGroups)
 router.get("/checkusers", authenticateToken, userMgmt.getUsersInGroup)
+router.get("/retrieveusergroups", authenticateToken, userMgmt.retrieveUserGroups)
 
 //NOT USED but placed here for checks
 

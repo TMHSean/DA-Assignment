@@ -314,12 +314,10 @@ const removeUserFromGroup = async (req, res) => {
 
 // Get all groups
 const getAllGroups = async (req, res) => {
-  console.log("TESTTESTTEST")
   try {
     const [results] = await pool.query(
       "SELECT DISTINCT group_name FROM usergroup"
     )
-    console.log("TRY")
     res.status(200).send(results)
   } catch (err) {
     console.error("Error fetching groups:", err)
@@ -370,6 +368,21 @@ const groupExists = async (groupName) => {
   }
 }
 
+// Get users in a specific group
+const retrieveUserGroups = async (req, res) => {
+  const { username } = req.query
+  try {
+    const [results] = await pool.query(
+      "SELECT group_name FROM usergroup WHERE username = ?",
+      [username]
+    )
+    const groups = results.map((row) => row.group_name)
+    res.send(groups)
+  } catch (err) {
+    console.error("Error fetching users in group:", err)
+    res.status(500).send("Server error")
+  }
+}
 
 
 module.exports = {
@@ -389,5 +402,6 @@ module.exports = {
   getAllGroups,
   getAllRecords,
   getUsersInGroup,
-  groupExists
+  groupExists,
+  retrieveUserGroups
 }
