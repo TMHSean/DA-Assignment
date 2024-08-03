@@ -1,4 +1,19 @@
-import { authAPI, userAPI, groupAPI } from './axiosInstances';
+import { authAPI, userAPI } from './axiosInstances';
+
+
+// Function to check which groups a user belongs to
+export const checkUserGroup = async (username) => {
+	try {
+		const response = await authAPI.get('/checkgroups', {
+			params: { username }, // Send username as a query parameter
+			withCredentials: true
+		});
+		return response; // Assume response data is an array of group names
+	} catch (error) {
+		console.error('Error checking user groups:', error);
+		return [];
+	}
+};
 
 export async function checkUserStatus() {
 	try {
@@ -14,28 +29,10 @@ export async function checkUserStatus() {
 	}
 }
 
-// Function to create a new group
-export const createGroup = async (groupName) => {
-	try {
-		const response = await groupAPI.post('/create', { groupName }, { withCredentials: true });
-		return response.data; // Return the response data for further handling
-	} catch (error) {
-		if (error.response) {
-			// Check if errors are present in response
-			const errorMessages = error.response.data.errors || [
-				error.response.data.message || 'Error creating group.'
-			];
-			return { errors: errorMessages }; // Return error messages for frontend handling
-		} else {
-			return { errors: ['Network error. Please try again later.'] };
-		}
-	}
-};
-
 // Function to get all users
 export const getAllUsers = async () => {
 	try {
-		const response = await userAPI.get('/', { withCredentials: true });
+		const response = await userAPI.get('/allusers', { withCredentials: true });
 		return response.data;
 	} catch (error) {
 		console.error('Error fetching users:', error);
@@ -47,7 +44,7 @@ export const getAllUsers = async () => {
 export const createUser = async (userData) => {
 	try {
 		const userCreateresponse = await userAPI.post('/create', userData, { withCredentials: true });
-		const userGroupResponse = await groupAPI.post('/adduser', userData, { withCredentials: true });
+		const userGroupResponse = await userAPI.post('/adduser', userData, { withCredentials: true });
 		return {
 			userData: userCreateresponse.data,
 			userGroupData: userGroupResponse.data
@@ -112,23 +109,28 @@ export const updateUserProfile = async (username, userData) => {
 	}
 };
 
-// Function to check which groups a user belongs to
-export const checkUserGroup = async (username) => {
+
+// Function to create a new group
+export const createGroup = async (groupName) => {
 	try {
-		const response = await groupAPI.get('/checkgroups', {
-			params: { username }, // Send username as a query parameter
-			withCredentials: true
-		});
-		return response; // Assume response data is an array of group names
+		const response = await userAPI.post('/creategroup', { groupName }, { withCredentials: true });
+		return response.data; // Return the response data for further handling
 	} catch (error) {
-		console.error('Error checking user groups:', error);
-		return [];
+		if (error.response) {
+			// Check if errors are present in response
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error creating group.'
+			];
+			return { errors: errorMessages }; // Return error messages for frontend handling
+		} else {
+			return { errors: ['Network error. Please try again later.'] };
+		}
 	}
 };
 
 export const getAllGroups = async () => {
 	try {
-		const response = await groupAPI.get('/all', { withCredentials: true });
+		const response = await userAPI.get('/allgroups', { withCredentials: true });
 		return response.data;
 	} catch (error) {
 		console.error('Error fetching groups:', error);
@@ -138,7 +140,7 @@ export const getAllGroups = async () => {
 
 export const insertUserToGroup = async (username, groups) => {
 	try {
-		const response = await groupAPI.post(
+		const response = await userAPI.post(
 			'/adduser',
 			{ username, groups },
 			{ withCredentials: true }
@@ -152,7 +154,7 @@ export const insertUserToGroup = async (username, groups) => {
 
 export const handleRemovedGroup = async (username, groups) => {
 	try {
-		const response = await groupAPI.delete('/removeuser', {
+		const response = await userAPI.delete('/removeuser', {
 			params: { username, groups }, // Send username as a query parameter
 			withCredentials: true
 		});

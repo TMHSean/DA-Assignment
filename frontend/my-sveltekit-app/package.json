@@ -24,7 +24,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"jsonwebtoken": "^9.0.2",
 		"svelte-multiselect": "^10.3.0"
 	}
 }

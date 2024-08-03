@@ -1,6 +1,5 @@
 // Page for authenticating JWT Tokens
 const { verifyToken } = require("../utils/auth")
-const GroupModel = require("../models/groupModel")
 const db = require("../config/db") // Path to your db configuration
 
 function authenticateToken(req, res, next) {

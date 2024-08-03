@@ -1,6 +1,5 @@
-const UserModel = require("../models/userModel")
-const GroupModel = require("../models/groupModel")
 const { isAlphanumeric, isLength, isEmail } = require("validator") // Using 'validator' package for validation
+const pool = require("../config/db") // Path to your db configuration
 
 // Validate user creation
 const validateCreateUser = async (username, password, email) => {
@@ -15,7 +14,7 @@ const validateCreateUser = async (username, password, email) => {
     errors.push(
       "Username can only contain alphanumeric characters and underscores."
     )
-  } else if (await UserModel.getUserByUsername(username)) {
+  } else if (await userMgmt.getUserByUsername(username)) {
     errors.push("Username already exists.")
   }
 
@@ -73,25 +72,43 @@ const validateUpdateUserProfile = (password, email) => {
   return errors
 }
 
+//function to check if group exists
+const groupExists = async (groupName) => {
+  try {
+    const [results] = await pool.query(
+      "SELECT COUNT(*) AS count FROM usergroup WHERE LOWER(group_name) = LOWER(?)",
+      [groupName]
+    )
+    if (results.length > 0) {
+      return results[0].count > 0
+    } else {
+      return false
+    }
+  } catch (err) {
+    console.error("Error checking group existence:", err)
+  }
+}
+
+
+
 // Validate group creation
 const validateCreateGroup = async (groupName) => {
-  let errors = []
-
+  let errors = [];
   // Validate group name
   if (!groupName || groupName.trim() === "") {
-    errors.push("Group name cannot be empty.")
+    errors.push("Group name cannot be empty.");
   } else if (!isLength(groupName, { min: 4, max: 20 })) {
-    errors.push("Group name length must be between 4 and 20 characters.")
+    errors.push("Group name length must be between 4 and 20 characters.");
   } else if (!/^[a-zA-Z0-9_]+$/.test(groupName)) {
     errors.push(
       "Group name can only contain alphanumeric characters and underscores, with no spaces."
-    )
-  } else if (await GroupModel.groupExists(groupName)) {
-    errors.push("Group name already exists.")
+    );
+  } else if (await groupExists(groupName)) {
+    errors.push("Group name already exists.");
   }
 
-  return errors
-}
+  return errors;
+};
 
 module.exports = {
   validateCreateUser,

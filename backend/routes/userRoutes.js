@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const userController = require("../controllers/userController")
+const userMgmt = require("../controllers/userMgmt")
 const {
   authenticateToken,
   authorizeAdmin,
@@ -11,39 +11,69 @@ router.post(
   "/create",
   authenticateToken,
   authorizeAdmin,
-  userController.createUser
+  userMgmt.createUser
 )
 
 // Get all users
-router.get("/", authenticateToken, userController.getAllUsers)
+router.get("/allusers", authenticateToken, userMgmt.getAllUsers)
 
 // Other user routes with authentication
-router.get("/active", authenticateToken, userController.getActiveUsers)
-router.get("/inactive", authenticateToken, userController.getInactiveUsers)
-router.get("/:username", authenticateToken, userController.getUserByUsername)
+router.get("/active", authenticateToken, userMgmt.getActiveUsers)
+router.get("/inactive", authenticateToken, userMgmt.getInactiveUsers)
 router.put(
   "/update/:username",
   authenticateToken,
   authorizeAdmin,
-  userController.updateUser
+  userMgmt.updateUser
 )
 router.put(
   "/status/:username",
   authenticateToken,
   authorizeAdmin,
-  userController.setUserStatus
+  userMgmt.setUserStatus
 )
 router.put(
   "/disable/:username",
   authenticateToken,
   authorizeAdmin,
-  userController.softDeleteUser
+  userMgmt.softDeleteUser
 )
-router.delete(
-  "/:username",
+
+// Routes for groups - protected by token
+router.post(
+  "/creategroup",
   authenticateToken,
   authorizeAdmin,
-  userController.hardDeleteUser
+  userMgmt.createGroup
 )
+router.post(
+  "/adduser",
+  authenticateToken,
+  authorizeAdmin,
+  userMgmt.addUserToGroup
+)
+router.delete(
+  "/removeuser",
+  authenticateToken,
+  authorizeAdmin,
+  userMgmt.removeUserFromGroup
+)
+
+router.get("/allrecords", authenticateToken, userMgmt.getAllRecords)
+router.get("/allgroups", authenticateToken, userMgmt.getAllGroups)
+router.get("/checkusers", authenticateToken, userMgmt.getUsersInGroup)
+
+//NOT USED but placed here for checks
+
+// ******** USER *********** //
+router.get("/retrieve/:username", authenticateToken, userMgmt.getUserByUsername)
+router.delete(
+  "/delete/:username",
+  authenticateToken,
+  authorizeAdmin,
+  userMgmt.hardDeleteUser
+)
+
+// ******** GROUPS *********** //
 
 module.exports = router

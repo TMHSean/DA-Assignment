@@ -1,10 +1,5 @@
 const express = require("express")
-const {
-  loginUser,
-  logoutUser,
-  registerUser,
-  checkUserStatus,
-} = require("../controllers/authController")
+const authMgmt = require("../controllers/authMgmt")
 const {
   authenticateToken,
   authenticateAdmin,
@@ -16,12 +11,15 @@ const router = express.Router()
 // router.post("/register", authenticateToken, authenticateAdmin, registerUser)
 
 // Route for user login
-router.post("/login", loginUser)
+router.post("/login", authMgmt.loginUser)
 
 // Route for user logout, requires authentication
-router.post("/logout", authenticateToken, logoutUser)
+router.post("/logout", authenticateToken, authMgmt.logoutUser)
 
 // Route to check user status, requires authentication
-router.get("/check", authenticateToken, checkUserStatus)
+router.get("/check", authenticateToken, authMgmt.checkUserStatus)
+
+// Route to check which user group is user from
+router.get("/checkgroups", authenticateToken, authMgmt.checkUserGroup)
 
 module.exports = router

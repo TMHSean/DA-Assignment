@@ -2,6 +2,7 @@
   export let data;
 
   $: navStatus = data.props?.showNavbar;
+  console.log(navStatus)
   $: adminStatus = data.props?.isAdmin;
   $: username = data.props?.username; // Retrieve username from props
 </script>

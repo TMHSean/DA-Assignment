@@ -2,8 +2,7 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const { generateToken } = require("../utils/auth")
 const pool = require("../config/db") // Ensure the path is correct
-const userModel = require("../models/userModel")
-const db = require("../config/db") // Path to your db configuration
+
 
 // Handle user login
 const loginUser = async (req, res) => {
@@ -73,7 +72,7 @@ const checkUserStatus = async (req, res) => {
     `
 
     // Execute query
-    const [results] = await db.query(query, [user.username, user.username])
+    const [results] = await pool.query(query, [user.username, user.username])
     if (results.length > 0) {
       const dbUser = results[0]
       const isAdmin = user.username === "admin" || dbUser.isAdmin === 1
@@ -91,10 +90,26 @@ const checkUserStatus = async (req, res) => {
   }
 }
 
-module.exports = { checkUserStatus }
+// Check which groups a user belongs to
+const checkUserGroup = async (req, res) => {
+  const { username } = req.query // Extract username from the query params
+  try {
+    const [results] = await pool.query(
+      "SELECT group_name FROM usergroup WHERE username = ?",
+      [username]
+    )
+    const groups = results.map((row) => row.group_name)
+    res.send(groups)
+  } catch (err) {
+    console.error("Error checking user group:", err)
+    res.status(500).send("Server error")
+  }
+}
+
 
 module.exports = {
   loginUser,
   logoutUser,
   checkUserStatus,
+  checkUserGroup
 }

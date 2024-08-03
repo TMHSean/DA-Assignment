@@ -207,61 +207,63 @@
       </thead>
       <tbody>
         {#each users as user, index}
-          <tr>
-            <td>{user.username}</td>
-            <td>
-              {#if editableUserIndex === index}
-                <input type="email" bind:value={editableEmail} />
-              {:else}
-                {user.email}
-              {/if}
-            </td>
-            <td>
-              {#if editableUserIndex === index}
-                <input type="password" bind:value={editablePassword} placeholder="New Password" />
-              {:else}
-                ****** 
-              {/if}
-            </td>
-            <td>
-              {#if editableUserIndex === index}
-                  <MultiSelect bind:selected={editableGroups} options={formattedGroups} class={(user.username === 'admin') ? 'disabled' : ''}
-                  disabled={user.username === 'admin'}/> 
-              {:else}
-                {#if userGroups[user.username] && Array.isArray(userGroups[user.username])}
-                  {#if userGroups[user.username].length > 0}
-                    {userGroups[user.username].join(', ')}
-                  {:else}
-                    Not in any groups
-                  {/if}
+          {#if user.username !== "-"}
+            <tr>
+              <td>{user.username}</td>
+              <td>
+                {#if editableUserIndex === index}
+                  <input type="email" bind:value={editableEmail} />
                 {:else}
-                  Loading groups...
+                  {user.email}
                 {/if}
-              {/if}
-            </td>
-            <td>
-              {#if editableUserIndex === index}
-                <select bind:value={editableStatus} disabled={user.username === 'admin'}>
-                  <option value=0>Enabled</option>
-                  <option value=1>Disabled</option>
-                </select>
-              {:else}
-                <span class={user.disabled === 0 ? 'status-enabled' : 'status-disabled'}>
-                  {user.disabled === 0 ? 'Enabled' : 'Disabled'}
-                </span>
-              {/if}
-            </td>
-            <td>
-              {#if editableUserIndex === index}
-                <div class="button-group">
-                  <button class="save-button" on:click={handleCancel}>Cancel</button>
-                  <button class="cancel-button" on:click={() => handleSave(index)}>Save</button>
-                </div>
-              {:else}
-                  <button class="primary-button" on:click={() => handleEdit(index)}>Edit</button>
-              {/if}
-            </td>
-          </tr>
+              </td>
+              <td>
+                {#if editableUserIndex === index}
+                  <input type="password" bind:value={editablePassword} placeholder="New Password" />
+                {:else}
+                  ****** 
+                {/if}
+              </td>
+              <td>
+                {#if editableUserIndex === index}
+                    <MultiSelect bind:selected={editableGroups} options={formattedGroups} class={(user.username === 'admin') ? 'disabled' : ''}
+                    disabled={user.username === 'admin'}/> 
+                {:else}
+                  {#if userGroups[user.username] && Array.isArray(userGroups[user.username])}
+                    {#if userGroups[user.username].length > 0}
+                      {userGroups[user.username].join(', ')}
+                    {:else}
+                      Not in any groups
+                    {/if}
+                  {:else}
+                    Loading groups...
+                  {/if}
+                {/if}
+              </td>
+              <td>
+                {#if editableUserIndex === index}
+                  <select bind:value={editableStatus} disabled={user.username === 'admin'}>
+                    <option value=0>Enabled</option>
+                    <option value=1>Disabled</option>
+                  </select>
+                {:else}
+                  <span class={user.disabled === 0 ? 'status-enabled' : 'status-disabled'}>
+                    {user.disabled === 0 ? 'Enabled' : 'Disabled'}
+                  </span>
+                {/if}
+              </td>
+              <td>
+                {#if editableUserIndex === index}
+                  <div class="button-group">
+                    <button class="save-button" on:click={handleCancel}>Cancel</button>
+                    <button class="cancel-button" on:click={() => handleSave(index)}>Save</button>
+                  </div>
+                {:else}
+                    <button class="primary-button" on:click={() => handleEdit(index)}>Edit</button>
+                {/if}
+              </td>
+            </tr>
+          {/if}
         {/each}
         <tr>
           <td><input type="text" bind:value={newUsername} placeholder="Username" /></td>

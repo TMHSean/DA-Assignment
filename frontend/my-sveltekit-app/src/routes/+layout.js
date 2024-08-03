@@ -14,6 +14,7 @@ export async function load({ url }) {
 			console.log('Username:', username); // Log username
 
 			if (username) {
+				console.log("HELLO")
 				return {
 					props: {
 						showNavbar: true,
