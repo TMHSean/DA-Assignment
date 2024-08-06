@@ -58,57 +58,83 @@
   });
 
   const handleCreateGroup = async () => {
-    const result = await createGroup(groupName);
+    try {
+        const result = await createGroup(groupName);
 
-    if (result.errors) {
-      // Display all error messages
-      feedbackMessage = result.errors.join('\n');
-      feedbackType = 'error';
-    } else {
-      feedbackMessage = 'Group created successfully!';
-      feedbackType = 'success';
+        if (result.errors) {
+            // Handle specific HTTP status codes
+            if (result.status === 403) {
+                // Redirect or handle 403 Forbidden error
+                goto('/logout'); // Example redirect
+            } else {
+                // Display all error messages
+                feedbackMessage = result.errors.join('\n');
+                feedbackType = 'error';
+            }
+        } else {
+            feedbackMessage = 'Group created successfully!';
+            feedbackType = 'success';
 
-      // Refresh the group list and update the formatted groups
-      allGroups = await getAllGroups();
-      formattedGroups = allGroups.map(group => ({
-        value: group.group_name,
-        label: group.group_name
-      }));
+            // Refresh the group list and update the formatted groups
+            allGroups = await getAllGroups();
+            formattedGroups = allGroups.map(group => ({
+                value: group.group_name,
+                label: group.group_name
+            }));
 
-      // Clear the input field
-      groupName = '';
+            // Clear the input field
+            groupName = '';
+        }
+    } catch (error) {
+        // Handle unexpected errors
+        console.error('Unexpected error:', error);
+        feedbackMessage = 'An unexpected error occurred. Please try again later.';
+        feedbackType = 'error';
     }
-  };
+};
+
 
   const handleCreateUser = async () => {
     const userData = {
-      username: newUsername,
-      email: newEmail,
-      password: newPassword,
-      disabled: newStatus,
-      groups: newGroups
+        username: newUsername,
+        email: newEmail,
+        password: newPassword,
+        disabled: newStatus,
+        groups: newGroups
     };
-    
-    console.log(userData)
-    const result = await createUser(userData);
-    console.log(result)
 
-    if (result.errors) {
-      // Display all error messages
-      feedbackMessage = result.errors.join('\n');
-      feedbackType = 'error';
-    } else {
-      feedbackMessage = 'User created successfully!';
-      feedbackType = 'success';
+    try {
+        const result = await createUser(userData);
 
-      // Refresh the user list and update the formatted groups
-      users = await getAllUsers();
-      allGroups = await getAllGroups();
-      for (const user of users) {
-        userGroups[user.username] = await getUserGroups(user.username);
-      }
+        if (result.errors) {
+            // Handle specific HTTP status codes
+            if (result.status === 403) {
+                // Redirect or handle 403 Forbidden error
+                goto('/logout'); // Example redirect
+            } else {
+                // Display all error messages
+                feedbackMessage = result.errors.join('\n');
+                feedbackType = 'error';
+            }
+        } else {
+            feedbackMessage = 'User created successfully!';
+            feedbackType = 'success';
+
+            // Refresh the user list and update the formatted groups
+            users = await getAllUsers();
+            allGroups = await getAllGroups();
+            for (const user of users) {
+                userGroups[user.username] = await getUserGroups(user.username);
+            }
+        }
+    } catch (error) {
+        // Handle unexpected errors
+        console.error('Unexpected error:', error);
+        feedbackMessage = 'An unexpected error occurred. Please try again later.';
+        feedbackType = 'error';
     }
-  };
+};
+
 
   
   const handleEdit = async (index) => {
@@ -131,35 +157,69 @@
     const removedGroups = initialGroups.filter(group => !editableGroups.includes(group));
     const addedGroups = editableGroups.filter(group => !initialGroups.includes(group));
 
-    // Update the user data in the backend
-    const result = await updateUser(users[index].username, updatedUser);
-    console.log(result)
-    if (result.errors) {
-      // Display all error messages
-      feedbackMessage = result.errors.join('\n');
-      feedbackType = 'error';
-    } else {
-      feedbackMessage = 'User updated successfully!';
-      feedbackType = 'success';
+    try {
+        // Update the user data in the backend
+        const result = await updateUser(users[index].username, updatedUser);
+        console.log(result);
 
-      // Remove user from removed groups
-      if (removedGroups.length > 0) {
-        await handleRemovedGroup(users[index].username, removedGroups);
-      }
+        if (result.errors) {
+            // Handle specific HTTP status codes
+            if (result.status === 403) {
+                // Redirect or handle 403 Forbidden error
+                goto('/logout'); // Example redirect
+            } else {
+                // Display all error messages
+                feedbackMessage = result.errors.join('\n');
+                feedbackType = 'error';
+            }
+        } else {
+            feedbackMessage = 'User updated successfully!';
+            feedbackType = 'success';
 
-      // Add user to added groups
-      if (addedGroups.length > 0) {
-        await insertUserToGroup(users[index].username, addedGroups);
-      }
+           // Remove user from removed groups
+           if (removedGroups.length > 0) {
+                const removedGroupResult = await handleRemovedGroup(users[index].username, removedGroups);
+                if (removedGroupResult.errors) {
+                    if (removedGroupResult.status === 403) {
+                        // Redirect or handle 403 Forbidden error
+                        goto('/logout'); // Example redirect
+                    } else {
+                        feedbackMessage = removedGroupResult.errors.join('\n');
+                        feedbackType = 'error';
+                        return; // Exit early if there are errors
+                    }
+                }
+            }
 
-      // Refresh the user list
-      users = await getAllUsers();
-      for (const user of users) {
-        userGroups[user.username] = await getUserGroups(user.username);
+            // Add user to added groups
+            if (addedGroups.length > 0) {
+                const addedGroupResult = await insertUserToGroup(users[index].username, addedGroups);
+                if (addedGroupResult.errors) {
+                    if (addedGroupResult.status === 403) {
+                        // Redirect or handle 403 Forbidden error
+                        goto('/logout'); // Example redirect
+                    } else {
+                        feedbackMessage = addedGroupResult.errors.join('\n');
+                        feedbackType = 'error';
+                        return; // Exit early if there are errors
+                    }
+                }
+            }
+            // Refresh the user list
+            users = await getAllUsers();
+            for (const user of users) {
+                userGroups[user.username] = await getUserGroups(user.username);
+            }
+            editableUserIndex = -1; // Exit edit mode
+        }
+      } catch (error) {
+          // Handle unexpected errors
+          console.error('Unexpected error:', error);
+          feedbackMessage = 'An unexpected error occurred. Please try again later.';
+          feedbackType = 'error';
       }
-      editableUserIndex = -1; // Exit edit mode
-    }
   };
+
 
   const handleCancel = () => {
       editableUserIndex = -1; // Exit edit mode

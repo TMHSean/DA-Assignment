@@ -35,7 +35,7 @@ const authorizeAdmin = async (req, res, next) => {
     const userGroups = results.map((row) => row.group_name)
 
     // Check if 'admins' is in the array of group names
-    const isAdmin = userGroups.includes("admins")
+    const isAdmin = userGroups.includes("admin")
 
     // Check if user is an admin or has the username "admin"
     if (isAdmin || user.username === "admin") {

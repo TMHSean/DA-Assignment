@@ -1,6 +1,5 @@
 import { authAPI, userAPI } from './axiosInstances';
 
-
 // Function to check which groups a user belongs to
 export const retrieveUserGroups = async (username) => {
 	try {
@@ -43,23 +42,26 @@ export const getAllUsers = async () => {
 // Function to create a new user
 export const createUser = async (userData) => {
 	try {
-		const userCreateresponse = await userAPI.post('/create', userData, { withCredentials: true });
+		const userCreateResponse = await userAPI.post('/create', userData, { withCredentials: true });
 		const userGroupResponse = await userAPI.post('/adduser', userData, { withCredentials: true });
 		return {
-			userData: userCreateresponse.data,
+			userData: userCreateResponse.data,
 			userGroupData: userGroupResponse.data
 		}; // Return the response data for further handling
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		if (error.response) {
-			console.log(error);
-			// Check if errors are present in response
 			const errorMessages = error.response.data.errors || [
 				error.response.data.message || 'Error creating User.'
 			];
-			return { errors: errorMessages }; // Return error messages for frontend handling
+			return {
+				errors: errorMessages,
+				status: error.response.status // Return the status code
+			};
 		} else {
-			return { errors: ['Network error. Please try again later.'] };
+			return {
+				errors: ['Network error. Please try again later.']
+			};
 		}
 	}
 };
@@ -78,15 +80,22 @@ export const updateUser = async (username, userData) => {
 			statusResult: statusResponse.data
 		};
 	} catch (error) {
+		let errorMessages = ['Error updating user.'];
+		let statusCode = error.response ? error.response.status : null;
+
 		if (error.response) {
-			// Check if errors are present in response
-			const errorMessages = error.response.data.errors || [
-				error.response.data.message || 'Error updating User.'
+			console.log(error.response);
+			errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error updating user.'
 			];
-			return { errors: errorMessages }; // Return error messages for frontend handling
 		} else {
-			return { errors: ['Network error. Please try again later.'] };
+			errorMessages = ['Network error. Please try again later.'];
 		}
+
+		return {
+			errors: errorMessages,
+			status: statusCode
+		};
 	}
 };
 
@@ -109,8 +118,6 @@ export const updateUserProfile = async (username, userData) => {
 	}
 };
 
-
-// Function to create a new group
 export const createGroup = async (groupName) => {
 	try {
 		const response = await userAPI.post('/creategroup', { groupName }, { withCredentials: true });
@@ -121,9 +128,15 @@ export const createGroup = async (groupName) => {
 			const errorMessages = error.response.data.errors || [
 				error.response.data.message || 'Error creating group.'
 			];
-			return { errors: errorMessages }; // Return error messages for frontend handling
+			return {
+				errors: errorMessages,
+				status: error.response.status // Return the status code for further handling
+			};
 		} else {
-			return { errors: ['Network error. Please try again later.'] };
+			return {
+				errors: ['Network error. Please try again later.'],
+				status: 500 // Default status code for network errors
+			};
 		}
 	}
 };
@@ -147,8 +160,22 @@ export const insertUserToGroup = async (username, groups) => {
 		);
 		return response.data;
 	} catch (error) {
-		console.error('Error fetching groups:', error);
-		return [];
+		console.error('Error adding groups:', error);
+		let errorMessages = ['Error adding groups.'];
+		let statusCode = error.response ? error.response.status : null;
+
+		if (error.response) {
+			errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error adding groups.'
+			];
+		} else {
+			errorMessages = ['Network error. Please try again later.'];
+		}
+
+		return {
+			errors: errorMessages,
+			status: statusCode
+		};
 	}
 };
 
@@ -160,7 +187,21 @@ export const handleRemovedGroup = async (username, groups) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error('Error fetching groups:', error);
-		return [];
+		console.error('Error removing groups:', error);
+		let errorMessages = ['Error removing groups.'];
+		let statusCode = error.response ? error.response.status : null;
+
+		if (error.response) {
+			errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error removing groups.'
+			];
+		} else {
+			errorMessages = ['Network error. Please try again later.'];
+		}
+
+		return {
+			errors: errorMessages,
+			status: statusCode
+		};
 	}
 };

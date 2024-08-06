@@ -7,15 +7,10 @@ const {
 } = require("../middleware/authMiddleware")
 
 // Create a new user (if needed for admin purposes)
-router.post(
-  "/create",
-  authenticateToken,
-  authorizeAdmin,
-  userMgmt.createUser
-)
+router.post("/create", authenticateToken, authorizeAdmin, userMgmt.createUser)
 
 // Get all users
-router.get("/allusers", authenticateToken, userMgmt.getAllUsers)
+router.get("/allusers", authenticateToken, authorizeAdmin, userMgmt.getAllUsers)
 
 // Other user routes with authentication
 router.get("/active", authenticateToken, userMgmt.getActiveUsers)
@@ -62,7 +57,11 @@ router.delete(
 router.get("/allrecords", authenticateToken, userMgmt.getAllRecords)
 router.get("/allgroups", authenticateToken, userMgmt.getAllGroups)
 router.get("/checkusers", authenticateToken, userMgmt.getUsersInGroup)
-router.get("/retrieveusergroups", authenticateToken, userMgmt.retrieveUserGroups)
+router.get(
+  "/retrieveusergroups",
+  authenticateToken,
+  userMgmt.retrieveUserGroups
+)
 
 //NOT USED but placed here for checks
 
