@@ -215,3 +215,14 @@ export const getAllApplications = async () => {
 		return [];
 	}
 };
+
+// Function to get application details by acronym
+export const getApplicationDetails = async (acronym) => {
+	try {
+		const response = await taskAPI.get(`/get/${acronym}`, { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching application details:', error);
+		throw error;
+	}
+};
