@@ -1,6 +1,6 @@
 // Page for authenticating JWT Tokens
 const { verifyToken } = require("../utils/auth")
-const db = require("../config/db") // Path to your db configuration
+const pool = require("../config/db") // Path to your db configuration
 
 function authenticateToken(req, res, next) {
   const token = req.cookies.jwt
@@ -17,67 +17,76 @@ function authenticateToken(req, res, next) {
   next()
 }
 
-const authorizeAdmin = async (req, res, next) => {
-  const user = req.user // Assuming user details are attached by authentication middleware
-
+// Check if a user belongs to a specific group
+const checkGroup = async (username, groupName) => {
   try {
-    // SQL query to check if user is in the "admins" group
-    const query = `
-      SELECT group_name 
-      FROM usergroup 
-      WHERE username = ?;
-    `
+    // Query to get all group names for the user
+    const [results] = await pool.query(
+      "SELECT group_name FROM usergroup WHERE username = ?",
+      [username]
+    )
 
-    // Execute query
-    const [results] = await db.query(query, [user.username])
+    // Extract group names from the results
+    const groups = results.map((row) => row.group_name)
 
-    // Extract group names from results
-    const userGroups = results.map((row) => row.group_name)
-
-    // Check if 'admins' is in the array of group names
-    const isAdmin = userGroups.includes("admin")
-
-    // Check if user is an admin or has the username "admin"
-    if (isAdmin || user.username === "admin") {
-      next() // User is authorized
-    } else {
-      res.status(403).send("Forbidden: You do not have permission")
-    }
+    // Check if the specified group name exists in the list of groups
+    return groups.includes(groupName)
   } catch (err) {
-    console.error("Error authorizing admin:", err)
-    res.status(500).send("Server error")
+    console.error("Error checking user group:", err)
+    throw new Error("Server error")
   }
 }
 
+// const authorizeAdmin = async (req, res, next) => {
+//   const user = req.user // Assuming user details are attached by authentication middleware
+
+//   try {
+//     // SQL query to check if user is in the "admins" group
+//     const query = `
+//       SELECT group_name
+//       FROM usergroup
+//       WHERE username = ?;
+//     `
+
+//     // Execute query
+//     const [results] = await db.query(query, [user.username])
+
+//     // Extract group names from results
+//     const userGroups = results.map((row) => row.group_name)
+
+//     // Check if 'admins' is in the array of group names
+//     const isAdmin = userGroups.includes("admin")
+
+//     // Check if user is an admin or has the username "admin"
+//     if (isAdmin || user.username === "admin") {
+//       next() // User is authorized
+//     } else {
+//       res.status(403).send("Forbidden: You do not have permission")
+//     }
+//   } catch (err) {
+//     console.error("Error authorizing admin:", err)
+//     res.status(500).send("Server error")
+//   }
+// }
+
+// Middleware to authorize based on group name
 const authorizeGroup = (groupName) => {
   return async (req, res, next) => {
     const user = req.user // Assuming user details are attached by authentication middleware
 
     try {
-      // SQL query to check if user is in the specified group
-      const query = `
-        SELECT group_name 
-        FROM usergroup 
-        WHERE username = ?;
-      `
+      // Check if the user belongs to the specified group
+      const isInGroup = await checkGroup(user.username, groupName)
 
-      // Execute query
-      const [results] = await db.query(query, [user.username])
-
-      // Extract group names from results
-      const userGroups = results.map((row) => row.group_name)
-
-      // Check if the specified group is in the array of group names
+      // Handle authorization for 'admin' group with additional check
       if (groupName === "admin") {
-        // If checking for 'admin' group, also allow if the username is 'admin'
-        if (userGroups.includes("admin") || user.username === "admin") {
+        if (isInGroup || user.username === "admin") {
           next() // User is authorized
         } else {
           res.status(403).send("Forbidden: You do not have permission")
         }
       } else {
-        // For other groups, just check if the user belongs to the group
-        if (userGroups.includes(groupName)) {
+        if (isInGroup) {
           next() // User is authorized
         } else {
           res.status(403).send("Forbidden: You do not have permission")
@@ -90,4 +99,4 @@ const authorizeGroup = (groupName) => {
   }
 }
 
-module.exports = { authenticateToken, authorizeAdmin, authorizeGroup }
+module.exports = { authenticateToken, authorizeGroup }
