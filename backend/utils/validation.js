@@ -1,6 +1,7 @@
 const { isAlphanumeric, isLength, isEmail } = require("validator") // Using 'validator' package for validation
 const db = require("../config/db") // Path to your db configuration
 
+
 // Validate user creation
 const validateCreateUser = async (username, password, email) => {
   let errors = []
@@ -14,7 +15,7 @@ const validateCreateUser = async (username, password, email) => {
     errors.push(
       "Username can only contain alphanumeric characters and underscores."
     )
-  } else if (await userMgmt.getUserByUsername(username)) {
+  } else if (await getUser(username)) {
     errors.push("Username already exists.")
   }
 
@@ -72,25 +73,6 @@ const validateUpdateUserProfile = (password, email) => {
   return errors
 }
 
-//function to check if group exists
-const groupExists = async (groupName) => {
-  try {
-    const [results] = await db.query(
-      "SELECT COUNT(*) AS count FROM usergroup WHERE LOWER(group_name) = LOWER(?)",
-      [groupName]
-    )
-    if (results.length > 0) {
-      return results[0].count > 0
-    } else {
-      return false
-    }
-  } catch (err) {
-    console.error("Error checking group existence:", err)
-  }
-}
-
-
-
 // Validate group creation
 const validateCreateGroup = async (groupName) => {
   let errors = [];
@@ -110,8 +92,80 @@ const validateCreateGroup = async (groupName) => {
   return errors;
 };
 
+const validateCreateApplication = async (acronym) => {
+  let errors = [];
+
+  // Validate acronym
+  if (!acronym || acronym.trim() === "") {
+    errors.push("Acronym cannot be empty.");
+  } else if (!isLength(acronym, { min: 4, max: 20 })) {
+    errors.push("Acronym length must be between 4 and 20 characters.");
+  } else if (!/^[a-zA-Z0-9_]+$/.test(acronym)) {
+    errors.push("Acronym can only contain alphanumeric characters and underscores.");
+  } else if (await checkApplication(acronym)) {
+    errors.push("Acronym already exists.");
+  }
+
+  return errors;
+};
+
+
+//**** HELPER FUNCTIONS */
+
+// Get specific user
+const getUser = async (username) => {
+  try {
+    const [results] = await db.query("SELECT * FROM user WHERE username = ?", [username]);
+    if (results.length > 0) {
+      return results[0];
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    throw new Error("Database error occurred while fetching the user");
+  }
+};
+
+
+//function to check if group exists
+const groupExists = async (groupName) => {
+  try {
+    const [results] = await db.query(
+      "SELECT COUNT(*) AS count FROM usergroup WHERE LOWER(group_name) = LOWER(?)",
+      [groupName]
+    )
+    if (results.length > 0) {
+      return results[0].count > 0
+    } else {
+      return false
+    }
+  } catch (err) {
+    console.error("Error checking group existence:", err)
+  }
+}
+
+// Get a specific application by Acronym
+const checkApplication = async (acronym) => {
+  try {
+    const [results] = await db.query(
+      "SELECT * FROM application WHERE LOWER(app_acronym) = LOWER(?)",
+      [acronym]
+    );
+
+    if (results.length > 0) {
+      return results[0];
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching application:", error);
+    throw new Error("Database error occurred while fetching the application");
+  }
+};
 module.exports = {
   validateCreateUser,
   validateUpdateUserProfile,
   validateCreateGroup,
+  validateCreateApplication
 }

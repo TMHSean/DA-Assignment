@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { getAllGroups } from '$lib/api';
+  import { createApplication, getAllGroups } from '$lib/api';
 
   let acronym = "";
   let description = "";
@@ -15,18 +15,19 @@
   let permitDone = "";
 
   let groups = [];
+  let feedbackMessage = '';
+  let feedbackType = '';
 
   onMount(async () => {
     try {
       const result = await getAllGroups();
-      console.log(result)
       groups = result; // Assign the fetched groups to the variable
     } catch (error) {
       console.error("Error fetching groups:", error);
     }
   });
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = {
       acronym,
@@ -40,8 +41,43 @@
       permitDoing,
       permitDone
     };
-    console.log(formData);
-    // You can add your form submission logic here
+
+    try {
+      const result = await createApplication(formData);
+
+      if (result.errors) {
+          // Handle specific HTTP status codes
+          if (result.status === 403) {
+              // Redirect or handle 403 Forbidden error
+              goto('/logout'); // Example redirect
+          } else {
+              // Display all error messages
+              feedbackMessage = result.errors.join('\n');
+              feedbackType = 'error';
+          }
+      } else {
+        feedbackMessage = 'Application created successfully!';
+        feedbackType = 'success';
+        // Optionally, redirect or clear form fields
+        // goto('/applications'); // Example redirect
+
+        // Clear form fields on successful submission
+        acronym = "";
+        description = "";
+        rnumber = 0;
+        startDate = "";
+        endDate = "";
+        permitCreate = "";
+        permitOpen = "";
+        permitToDo = "";
+        permitDoing = "";
+        permitDone = "";
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      feedbackMessage = 'An unexpected error occurred. Please try again later.';
+      feedbackType = 'error';
+    }
   };
 </script>
 
@@ -130,6 +166,10 @@
   <div class="submit-button-container">
     <button type="submit">Submit</button>
   </div>
+
+  {#if feedbackMessage}
+    <p class="feedback-message {feedbackType}">{feedbackMessage}</p>
+  {/if}
 </form>
 
 <style>
@@ -194,5 +234,26 @@
 
   .description-textarea {
     height: 100px; /* Adjust height as needed */
+  }
+
+  .feedback-message {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: bold;
+  width: 100%; /* Add this line to make the feedback message take the full width */
+  box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
+}
+
+
+  .feedback-message.success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .feedback-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
   }
 </style>

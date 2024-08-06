@@ -59,39 +59,39 @@
 
   const handleCreateGroup = async () => {
     try {
-        const result = await createGroup(groupName);
+      const result = await createGroup(groupName);
 
-        if (result.errors) {
-            // Handle specific HTTP status codes
-            if (result.status === 403) {
-                // Redirect or handle 403 Forbidden error
-                goto('/logout'); // Example redirect
-            } else {
-                // Display all error messages
-                feedbackMessage = result.errors.join('\n');
-                feedbackType = 'error';
-            }
-        } else {
-            feedbackMessage = 'Group created successfully!';
-            feedbackType = 'success';
+      if (result.errors) {
+          // Handle specific HTTP status codes
+          if (result.status === 403) {
+              // Redirect or handle 403 Forbidden error
+              goto('/logout'); // Example redirect
+          } else {
+              // Display all error messages
+              feedbackMessage = result.errors.join('\n');
+              feedbackType = 'error';
+          }
+      } else {
+          feedbackMessage = 'Group created successfully!';
+          feedbackType = 'success';
 
-            // Refresh the group list and update the formatted groups
-            allGroups = await getAllGroups();
-            formattedGroups = allGroups.map(group => ({
-                value: group.group_name,
-                label: group.group_name
-            }));
+          // Refresh the group list and update the formatted groups
+          allGroups = await getAllGroups();
+          formattedGroups = allGroups.map(group => ({
+              value: group.group_name,
+              label: group.group_name
+          }));
 
-            // Clear the input field
-            groupName = '';
-        }
+          // Clear the input field
+          groupName = '';
+      }
     } catch (error) {
-        // Handle unexpected errors
-        console.error('Unexpected error:', error);
-        feedbackMessage = 'An unexpected error occurred. Please try again later.';
-        feedbackType = 'error';
+      // Handle unexpected errors
+      console.error('Unexpected error:', error);
+      feedbackMessage = 'An unexpected error occurred. Please try again later.';
+      feedbackType = 'error';
     }
-};
+  };
 
 
   const handleCreateUser = async () => {
@@ -105,8 +105,9 @@
 
     try {
         const result = await createUser(userData);
-
+        console.log("result" + result)
         if (result.errors) {
+          console.log(result.errors)
             // Handle specific HTTP status codes
             if (result.status === 403) {
                 // Redirect or handle 403 Forbidden error

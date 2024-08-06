@@ -226,3 +226,26 @@ export const getApplicationDetails = async (acronym) => {
 		throw error;
 	}
 };
+
+export const createApplication = async (applicationData) => {
+	try {
+		const response = await taskAPI.post('/create', applicationData, { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		if (error.response) {
+			console.log("HELLO" + error)
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error creating application.'
+			];
+			console.log(errorMessages)
+			return {
+				errors: errorMessages,
+				status: error.response.status // Return the status code
+			};
+		} else {
+			return {
+				errors: ['Network error. Please try again later.']
+			};
+		}
+	}
+};

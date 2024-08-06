@@ -1,9 +1,17 @@
 const db = require("../config/db"); // Assuming you have a db module to handle SQL queries
+const { validateCreateApplication } = require('../utils/validation');
 
 // Create a new application
 const createApplication = async (req, res) => {
   const { acronym, description, rnumber, startDate, endDate, permitCreate, permitOpen, permitToDo, permitDoing, permitDone } = req.body;
   const lowerAcronym = acronym.toLowerCase();
+
+  // Validate inputs
+  const errors = await validateCreateApplication(acronym);
+  if (errors.length > 0) {
+    return res.status(400).json({ errors });
+  }
+
   const connection = await db.getConnection(); // Get a connection from the pool
   try {
     await connection.beginTransaction();
@@ -16,7 +24,7 @@ const createApplication = async (req, res) => {
     await connection.commit();
     res.status(201).json({ message: "Application created successfully" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     await connection.rollback();
     res.status(500).json({ error: "Database error occurred while creating application" });
   } finally {
