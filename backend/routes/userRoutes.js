@@ -4,33 +4,45 @@ const userMgmt = require("../controllers/userMgmt")
 const {
   authenticateToken,
   authorizeAdmin,
+  authorizeGroup,
 } = require("../middleware/authMiddleware")
 
 // Create a new user (if needed for admin purposes)
-router.post("/create", authenticateToken, authorizeAdmin, userMgmt.createUser)
+router.post(
+  "/create",
+  authenticateToken,
+  authorizeGroup("admin"),
+  userMgmt.createUser
+)
 
 // Get all users
-router.get("/allusers", authenticateToken, authorizeAdmin, userMgmt.getAllUsers)
+router.get(
+  "/allusers",
+  authenticateToken,
+  authorizeGroup("admin"),
+  userMgmt.getAllUsers
+)
 
 // Other user routes with authentication
 router.get("/active", authenticateToken, userMgmt.getActiveUsers)
 router.get("/inactive", authenticateToken, userMgmt.getInactiveUsers)
+router.put("/updateprofile/:username", authenticateToken, userMgmt.updateUser)
 router.put(
   "/update/:username",
   authenticateToken,
-  authorizeAdmin,
+  authorizeGroup("admin"),
   userMgmt.updateUser
 )
 router.put(
   "/status/:username",
   authenticateToken,
-  authorizeAdmin,
+  authorizeGroup("admin"),
   userMgmt.setUserStatus
 )
 router.put(
   "/disable/:username",
   authenticateToken,
-  authorizeAdmin,
+  authorizeGroup("admin"),
   userMgmt.softDeleteUser
 )
 
@@ -38,19 +50,19 @@ router.put(
 router.post(
   "/creategroup",
   authenticateToken,
-  authorizeAdmin,
+  authorizeGroup("admin"),
   userMgmt.createGroup
 )
 router.post(
   "/adduser",
   authenticateToken,
-  authorizeAdmin,
+  authorizeGroup("admin"),
   userMgmt.addUserToGroup
 )
 router.delete(
   "/removeuser",
   authenticateToken,
-  authorizeAdmin,
+  authorizeGroup("admin"),
   userMgmt.removeUserFromGroup
 )
 
@@ -70,7 +82,7 @@ router.get("/retrieve/:username", authenticateToken, userMgmt.getUserByUsername)
 router.delete(
   "/delete/:username",
   authenticateToken,
-  authorizeAdmin,
+  authorizeGroup("admin"),
   userMgmt.hardDeleteUser
 )
 

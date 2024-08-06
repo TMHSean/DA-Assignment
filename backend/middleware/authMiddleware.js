@@ -49,4 +49,45 @@ const authorizeAdmin = async (req, res, next) => {
   }
 }
 
-module.exports = { authenticateToken, authorizeAdmin }
+const authorizeGroup = (groupName) => {
+  return async (req, res, next) => {
+    const user = req.user // Assuming user details are attached by authentication middleware
+
+    try {
+      // SQL query to check if user is in the specified group
+      const query = `
+        SELECT group_name 
+        FROM usergroup 
+        WHERE username = ?;
+      `
+
+      // Execute query
+      const [results] = await db.query(query, [user.username])
+
+      // Extract group names from results
+      const userGroups = results.map((row) => row.group_name)
+
+      // Check if the specified group is in the array of group names
+      if (groupName === "admin") {
+        // If checking for 'admin' group, also allow if the username is 'admin'
+        if (userGroups.includes("admin") || user.username === "admin") {
+          next() // User is authorized
+        } else {
+          res.status(403).send("Forbidden: You do not have permission")
+        }
+      } else {
+        // For other groups, just check if the user belongs to the group
+        if (userGroups.includes(groupName)) {
+          next() // User is authorized
+        } else {
+          res.status(403).send("Forbidden: You do not have permission")
+        }
+      }
+    } catch (err) {
+      console.error("Error authorizing group:", err)
+      res.status(500).send("Server error")
+    }
+  }
+}
+
+module.exports = { authenticateToken, authorizeAdmin, authorizeGroup }

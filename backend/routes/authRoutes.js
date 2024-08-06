@@ -3,6 +3,7 @@ const authMgmt = require("../controllers/authMgmt")
 const {
   authenticateToken,
   authenticateAdmin,
+  authorizeGroup,
 } = require("../middleware/authMiddleware")
 
 const router = express.Router()

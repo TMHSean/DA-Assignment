@@ -69,7 +69,7 @@ export const createUser = async (userData) => {
 // Function to update a user
 export const updateUser = async (username, userData) => {
 	try {
-		const updateResponse = await userAPI.put(`/update/${username}`, userData, {
+		const updateResponse = await userAPI.put(`/updateadmin/${username}`, userData, {
 			withCredentials: true
 		});
 		const statusResponse = await userAPI.put(`/status/${username}`, userData, {
@@ -101,7 +101,7 @@ export const updateUser = async (username, userData) => {
 
 export const updateUserProfile = async (username, userData) => {
 	try {
-		const updateResponse = await userAPI.put(`/update/${username}`, userData, {
+		const updateResponse = await userAPI.put(`/updateprofile/${username}`, userData, {
 			withCredentials: true
 		});
 		return updateResponse.data;
