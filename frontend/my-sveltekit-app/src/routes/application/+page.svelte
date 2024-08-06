@@ -1,17 +1,19 @@
 <script>
   import { onMount } from 'svelte';
-  import { checkUserStatus, getApplications } from '$lib/api';
+  import { checkUserStatus, getAllApplications } from '$lib/api';
   import { goto } from '$app/navigation';
 
   let applications = [];
+  let isProjectLead = false;
 
   onMount(async () => {
     const userStatus = await checkUserStatus();
+    isProjectLead = userStatus.isProjectLead;
     if (userStatus) {
-      applications = await getApplications(); // Fetch applications from the backend
+      applications = await getAllApplications(); // Fetch applications from the backend
     } else {
       // Redirect to login if not authenticated
-      goto('/login');
+      goto('/');
     }
   });
 
@@ -19,9 +21,9 @@
     goto('/createapplication');
   }
 
-  function editApplication(id) {
-    // Implement the edit functionality
-    console.log('Edit application with ID:', id);
+  function editApplication(acronym) {
+    console.log('Edit application with acronym:', acronym);
+    goto(`/applicationdetails/${acronym}`);
   }
 </script>
 
@@ -62,6 +64,13 @@
     justify-content: center;
     align-items: center;
     position: relative;
+    text-decoration: none;
+    color: black;
+    transition: transform 0.2s;
+  }
+
+  .application-card:hover {
+    transform: scale(1.05);
   }
 
   .application-card h2 {
@@ -84,13 +93,17 @@
 
 <h1>Applications</h1>
 
-<button class="create-app-button" on:click={createApplication}>+ Create App</button>
+{#if isProjectLead}
+  <button class="create-app-button" on:click={createApplication}>+ Create App</button>
+{/if}
 
 <div class="applications-container">
   {#each applications as application}
-    <div class="application-card">
-      <h2>{application.name}</h2>
-      <button on:click={() => editApplication(application.id)}>+ Edit</button>
-    </div>
+    <a href={`/taskpage/${application.app_acronym}`} class="application-card">
+      <h2>{application.app_acronym}</h2>
+      {#if isProjectLead}
+        <button type="button" on:click|preventDefault={() => editApplication(application.app_acronym)}>+ Edit</button>
+      {/if}
+    </a>
   {/each}
 </div>

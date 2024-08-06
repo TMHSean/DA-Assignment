@@ -1,7 +1,11 @@
 <script>
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { getAllGroups } from '$lib/api';
+
   let acronym = "";
   let description = "";
-  let rnumber = "";
+  let rnumber = 0;
   let startDate = "";
   let endDate = "";
   let permitCreate = "";
@@ -10,24 +14,34 @@
   let permitDoing = "";
   let permitDone = "";
 
-  const groups = ["Group 1", "Group 2", "Group 3"]; // Example groups
+  let groups = [];
+
+  onMount(async () => {
+    try {
+      const result = await getAllGroups();
+      console.log(result)
+      groups = result; // Assign the fetched groups to the variable
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+    }
+  });
 
   const handleSubmit = (event) => {
-      event.preventDefault();
-      const formData = {
-          acronym,
-          description,
-          rnumber,
-          startDate,
-          endDate,
-          permitCreate,
-          permitOpen,
-          permitToDo,
-          permitDoing,
-          permitDone
-      };
-      console.log(formData);
-      // You can add your form submission logic here
+    event.preventDefault();
+    const formData = {
+      acronym,
+      description,
+      rnumber,
+      startDate,
+      endDate,
+      permitCreate,
+      permitOpen,
+      permitToDo,
+      permitDoing,
+      permitDone
+    };
+    console.log(formData);
+    // You can add your form submission logic here
   };
 </script>
 
@@ -67,7 +81,7 @@
       <select bind:value={permitCreate}>
         <option value="">Select Group</option>
         {#each groups as group}
-          <option value={group}>{group}</option>
+          <option value={group.group_name}>{group.group_name}</option>
         {/each}
       </select>
     </div>
@@ -77,7 +91,7 @@
       <select bind:value={permitOpen}>
         <option value="">Select Group</option>
         {#each groups as group}
-          <option value={group}>{group}</option>
+          <option value={group.group_name}>{group.group_name}</option>
         {/each}
       </select>
     </div>
@@ -87,7 +101,7 @@
       <select bind:value={permitToDo}>
         <option value="">Select Group</option>
         {#each groups as group}
-          <option value={group}>{group}</option>
+          <option value={group.group_name}>{group.group_name}</option>
         {/each}
       </select>
     </div>
@@ -97,7 +111,7 @@
       <select bind:value={permitDoing}>
         <option value="">Select Group</option>
         {#each groups as group}
-          <option value={group}>{group}</option>
+          <option value={group.group_name}>{group.group_name}</option>
         {/each}
       </select>
     </div>
@@ -107,7 +121,7 @@
       <select bind:value={permitDone}>
         <option value="">Select Group</option>
         {#each groups as group}
-          <option value={group}>{group}</option>
+          <option value={group.group_name}>{group.group_name}</option>
         {/each}
       </select>
     </div>
@@ -117,7 +131,6 @@
     <button type="submit">Submit</button>
   </div>
 </form>
-
 
 <style>
   h2 {

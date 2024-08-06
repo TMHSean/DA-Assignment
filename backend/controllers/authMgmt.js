@@ -66,6 +66,7 @@ const checkUserStatus = async (req, res) => {
     // Check if the user is an admin by using checkGroup function
     const isAdmin = user.username === "admin" || await checkGroup(user.username, 'admin');
 
+    const isProjectLead = await checkGroup(user.username, 'projectlead');
     // Retrieve user details
     const query = `
       SELECT username, email
@@ -81,6 +82,7 @@ const checkUserStatus = async (req, res) => {
       res.json({
         username: dbUser.username,
         isAdmin: isAdmin, // Determine admin status
+        isProjectLead: isProjectLead,
         email: dbUser.email,
       });
     } else {

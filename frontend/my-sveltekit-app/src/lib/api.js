@@ -1,4 +1,4 @@
-import { authAPI, userAPI } from './axiosInstances';
+import { authAPI, userAPI, taskAPI } from './axiosInstances';
 
 // Function to check which groups a user belongs to
 export const retrieveUserGroups = async (username) => {
@@ -206,11 +206,12 @@ export const handleRemovedGroup = async (username, groups) => {
 	}
 };
 
-export async function getApplications() {
-	// Implement the API call to get applications
-	return [
-		{ id: 1, name: 'Application 1' },
-		{ id: 2, name: 'Application 2' },
-		{ id: 3, name: 'Application 3' }
-	];
-}
+export const getAllApplications = async () => {
+	try {
+		const response = await taskAPI.get('/all', { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching groups:', error);
+		return [];
+	}
+};
