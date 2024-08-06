@@ -205,3 +205,12 @@ export const handleRemovedGroup = async (username, groups) => {
 		};
 	}
 };
+
+export async function getApplications() {
+	// Implement the API call to get applications
+	return [
+		{ id: 1, name: 'Application 1' },
+		{ id: 2, name: 'Application 2' },
+		{ id: 3, name: 'Application 3' }
+	];
+}
