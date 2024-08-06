@@ -31,71 +31,6 @@
   };
 </script>
 
-<style>
-  h2 {
-    text-align: center;
-    width: 100%;
-  }
-
-  form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px; /* Optional: to give some padding around the form */
-  }
-
-  .column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  label {
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-
-  input, textarea, select, button {
-    padding: 10px;
-    font-size: 1em;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-
-  textarea {
-    resize: vertical;
-  }
-
-  button {
-    background-color: #007bff; /* Primary blue color */
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    font-size: 1em;
-    border-radius: 5px;
-    width: 100%;
-  }
-
-  .submit-button-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-
-  .description-textarea {
-    height: 100px; /* Adjust height as needed */
-  }
-</style>
-
 <form on:submit={handleSubmit}>
   <h2>Create Application</h2>
   
@@ -182,3 +117,69 @@
     <button type="submit">Submit</button>
   </div>
 </form>
+
+
+<style>
+  h2 {
+    text-align: center;
+    width: 100%;
+  }
+
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px; /* Optional: to give some padding around the form */
+  }
+
+  .column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  input, textarea, select, button {
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  button {
+    background-color: #007bff; /* Primary blue color */
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 5px;
+    width: 100%;
+  }
+
+  .submit-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .description-textarea {
+    height: 100px; /* Adjust height as needed */
+  }
+</style>

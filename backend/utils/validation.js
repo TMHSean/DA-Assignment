@@ -1,5 +1,5 @@
 const { isAlphanumeric, isLength, isEmail } = require("validator") // Using 'validator' package for validation
-const pool = require("../config/db") // Path to your db configuration
+const db = require("../config/db") // Path to your db configuration
 
 // Validate user creation
 const validateCreateUser = async (username, password, email) => {
@@ -75,7 +75,7 @@ const validateUpdateUserProfile = (password, email) => {
 //function to check if group exists
 const groupExists = async (groupName) => {
   try {
-    const [results] = await pool.query(
+    const [results] = await db.query(
       "SELECT COUNT(*) AS count FROM usergroup WHERE LOWER(group_name) = LOWER(?)",
       [groupName]
     )

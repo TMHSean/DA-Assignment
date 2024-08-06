@@ -1,4 +1,4 @@
-const pool = require("../config/db") // Path to your db configuration
+const db = require("../config/db") // Path to your db configuration
 const bcrypt = require("bcryptjs")
 const {
   validateCreateUser,
@@ -35,7 +35,7 @@ const createUser = async (req, res) => {
     const hashedPassword = await hashPassword(password)
     const query =
       "INSERT INTO user (username, password, email, disabled) VALUES (?, ?, ?, ?)"
-    await pool.query(query, [username, hashedPassword, email, disabled])
+    await db.query(query, [username, hashedPassword, email, disabled])
     res.status(201).json({ message: "User created successfully" })
   } catch (err) {
     console.error("Error creating user:", err)
@@ -46,7 +46,7 @@ const createUser = async (req, res) => {
 // Get all users
 const getAllUsers = async (req, res) => {
   try {
-    const [results] = await pool.query("SELECT * FROM user")
+    const [results] = await db.query("SELECT * FROM user")
     res.json(results)
   } catch (err) {
     console.error("Error fetching users:", err)
@@ -57,7 +57,7 @@ const getAllUsers = async (req, res) => {
 // Get all active users
 const getActiveUsers = async (req, res) => {
   try {
-    const [results] = await pool.query("SELECT * FROM user WHERE disabled = 0")
+    const [results] = await db.query("SELECT * FROM user WHERE disabled = 0")
     res.json(results)
   } catch (err) {
     console.error("Error fetching active users:", err)
@@ -68,7 +68,7 @@ const getActiveUsers = async (req, res) => {
 // Get all inactive users
 const getInactiveUsers = async (req, res) => {
   try {
-    const [results] = await pool.query("SELECT * FROM user WHERE disabled = 1")
+    const [results] = await db.query("SELECT * FROM user WHERE disabled = 1")
     res.json(results)
   } catch (err) {
     console.error("Error fetching inactive users:", err)
@@ -81,7 +81,7 @@ const getUserByUsername = async (req, res) => {
   const { username } = req.params
 
   try {
-    const [results] = await pool.query("SELECT * FROM user WHERE username = ?", [
+    const [results] = await db.query("SELECT * FROM user WHERE username = ?", [
       username,
     ])
     const user = results[0]
@@ -128,7 +128,7 @@ const updateUser = async (req, res) => {
     query = query.slice(0, -1) + " WHERE username = ?"
     params.push(username)
 
-    await pool.query(query, params)
+    await db.query(query, params)
     res.status(201).json({ message: "User updated successfully" })
   } catch (err) {
     console.error("Error updating user:", err)
@@ -148,7 +148,7 @@ const setUserStatus = async (req, res) => {
   }
 
   try {
-    await pool.query("UPDATE user SET disabled = ? WHERE username = ?", [
+    await db.query("UPDATE user SET disabled = ? WHERE username = ?", [
       disabled,
       username,
     ])
@@ -166,7 +166,7 @@ const softDeleteUser = async (req, res) => {
   const { username } = req.params
 
   try {
-    await pool.query("UPDATE user SET disabled = 1 WHERE username = ?", [
+    await db.query("UPDATE user SET disabled = 1 WHERE username = ?", [
       username,
     ])
     res.send("User disabled successfully")
@@ -181,7 +181,7 @@ const hardDeleteUser = async (req, res) => {
   const { username } = req.params
 
   try {
-    await pool.query("DELETE FROM user WHERE username = ?", [username])
+    await db.query("DELETE FROM user WHERE username = ?", [username])
     res.send("User deleted successfully")
   } catch (err) {
     console.error("Error deleting user:", err)
@@ -194,7 +194,7 @@ const loginUser = async (req, res) => {
   const { username, password } = req.body
 
   try {
-    const [rows] = await pool.query("SELECT * FROM user WHERE username = ?", [
+    const [rows] = await db.query("SELECT * FROM user WHERE username = ?", [
       username,
     ])
     if (!rows.length) {
@@ -235,7 +235,7 @@ const createGroup = async (req, res) => {
     const query = "INSERT INTO usergroup (group_name) VALUES (?)"
     const values = [groupLower]
 
-    await pool.query(query, values)
+    await db.query(query, values)
 
     res.status(201).json({ message: "Group created successfully" })
   } catch (err) {
@@ -250,7 +250,7 @@ const addUserToGroup = async (req, res) => {
 
   try {
     // Ensure the user exists
-    const [userResults] = await pool.query(
+    const [userResults] = await db.query(
       "SELECT * FROM user WHERE username = ?",
       [username]
     )
@@ -261,7 +261,7 @@ const addUserToGroup = async (req, res) => {
     // Add user to each group
     for (const groupName of groups) {
       const groupLower = groupName.value.toLowerCase()
-      await pool.query(
+      await db.query(
         "INSERT INTO usergroup (username, group_name) VALUES (?, ?)",
         [username, groupLower]
       )
@@ -280,7 +280,7 @@ const removeUserFromGroup = async (req, res) => {
 
   try {
     // Ensure the user exists
-    const [userResults] = await pool.query(
+    const [userResults] = await db.query(
       "SELECT * FROM user WHERE username = ?",
       [username]
     )
@@ -289,7 +289,7 @@ const removeUserFromGroup = async (req, res) => {
     }
 
     // Check user's current groups
-    const [userGroupsResults] = await pool.query(
+    const [userGroupsResults] = await db.query(
       "SELECT group_name FROM usergroup WHERE username = ?",
       [username]
     )
@@ -298,7 +298,7 @@ const removeUserFromGroup = async (req, res) => {
     // Remove user from specified groups
     for (const groupName of groups) {
       if (userGroups.includes(groupName)) {
-        await pool.query(
+        await db.query(
           "DELETE FROM usergroup WHERE username = ? AND group_name = ?",
           [username, groupName]
         )
@@ -315,7 +315,7 @@ const removeUserFromGroup = async (req, res) => {
 // Get all groups
 const getAllGroups = async (req, res) => {
   try {
-    const [results] = await pool.query(
+    const [results] = await db.query(
       "SELECT DISTINCT group_name FROM usergroup"
     )
     res.status(200).send(results)
@@ -328,7 +328,7 @@ const getAllGroups = async (req, res) => {
 // Get all records from usergroup table
 const getAllRecords = async (req, res) => {
   try {
-    const [results] = await pool.query("SELECT * FROM usergroup")
+    const [results] = await db.query("SELECT * FROM usergroup")
     res.send(results)
   } catch (err) {
     console.error("Error fetching records:", err)
@@ -340,7 +340,7 @@ const getAllRecords = async (req, res) => {
 const getUsersInGroup = async (req, res) => {
   const { groupName } = req.body
   try {
-    const [results] = await pool.query(
+    const [results] = await db.query(
       "SELECT username FROM usergroup WHERE group_name = ?",
       [groupName]
     )
@@ -354,7 +354,7 @@ const getUsersInGroup = async (req, res) => {
 
 const groupExists = async (groupName) => {
   try {
-    const [results] = await pool.query(
+    const [results] = await db.query(
       "SELECT COUNT(*) AS count FROM usergroup WHERE LOWER(group_name) = LOWER(?)",
       [groupName]
     )
@@ -372,7 +372,7 @@ const groupExists = async (groupName) => {
 const retrieveUserGroups = async (req, res) => {
   const { username } = req.query
   try {
-    const [results] = await pool.query(
+    const [results] = await db.query(
       "SELECT group_name FROM usergroup WHERE username = ?",
       [username]
     )

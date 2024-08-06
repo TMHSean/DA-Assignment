@@ -8,9 +8,6 @@ const {
 
 const router = express.Router()
 
-// // Route for user registration, accessible only by admin
-// router.post("/register", authenticateToken, authenticateAdmin, registerUser)
-
 // Route for user login
 router.post("/login", authMgmt.loginUser)
 

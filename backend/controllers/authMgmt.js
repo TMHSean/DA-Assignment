@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const { generateToken } = require("../utils/auth")
-const pool = require("../config/db") // Ensure the path is correct
+const db = require("../config/db") // Ensure the path is correct
 
 
 // Handle user login
@@ -10,7 +10,7 @@ const loginUser = async (req, res) => {
 
   try {
     // Fetch user from the database
-    const [users] = await pool.query("SELECT * FROM user WHERE username = ?", [
+    const [users] = await db.query("SELECT * FROM user WHERE username = ?", [
       username,
     ])
     const user = users[0]
@@ -74,7 +74,7 @@ const checkUserStatus = async (req, res) => {
     `;
 
     // Execute query to get user details
-    const [results] = await pool.query(query, [user.username]);
+    const [results] = await db.query(query, [user.username]);
 
     if (results.length > 0) {
       const dbUser = results[0];
@@ -97,11 +97,11 @@ const checkUserStatus = async (req, res) => {
 const checkGroup = async (username, groupName) => {
   try {
     // Query to get all group names for the user
-    const [results] = await pool.query(
+    const [results] = await db.query(
       "SELECT group_name FROM usergroup WHERE username = ?",
       [username]
     );
-    
+
     // Extract group names from the results
     const groups = results.map((row) => row.group_name);
 
