@@ -237,14 +237,14 @@
   }
 
   .feedback-message {
-  margin: 1rem 0;
-  padding: 1rem;
-  border-radius: 4px;
-  text-align: center;
-  font-weight: bold;
-  width: 100%; /* Add this line to make the feedback message take the full width */
-  box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
-}
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    width: 100%; /* Add this line to make the feedback message take the full width */
+    box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
+  }
 
 
   .feedback-message.success {

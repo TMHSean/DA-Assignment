@@ -20,12 +20,17 @@
     goto(`/editplan/${acronym}/${plan.plan_mvp_name}`);
   }
 
+  function goBack() {
+    goto(`/taskpage/${acronym}`);
+  }
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toISOString().split('T')[0]; // Split at 'T' to get only the date part
   };
 </script>
 
+<button class="back-button" on:click={goBack}>← Back</button>
 <h1>Plans for <br> {acronym}</h1>
 
 <div class="button-container">
@@ -56,6 +61,24 @@
     justify-content: center;
     width: 100%;
     margin-bottom: 20px;
+  }
+
+  .back-button {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc; /* Add a border */
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background-color 0.2s, border-color 0.2s;
+    width: auto; /* Auto width */
+  }
+
+  .back-button:hover {
+    background-color: #e0e0e0;
+    border-color: #bbb; /* Darker border on hover */
   }
 
   .create-plan-button {

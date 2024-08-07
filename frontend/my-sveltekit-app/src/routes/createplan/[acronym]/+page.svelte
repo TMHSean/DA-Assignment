@@ -9,6 +9,9 @@
   let endDate = '';
   let acronym = '';
 
+  let feedbackMessage = '';
+  let feedbackType = '';
+
   onMount(() => {
     acronym = $page.params.acronym;
   });
@@ -16,20 +19,31 @@
   const handleSubmit = async (event) => {
     event.preventDefault();
     const planData = {
-      plan_mvp_name: planMvpName,
+      mvpName: planMvpName,
       startDate,
       endDate,
-      plan_app_acronym: acronym
+      acronym: acronym
     };
+    console.log(planData)
 
     try {
       const result = await createPlan(planData);
       if (result.errors) {
-        // Handle errors (display them or log them)
-        console.error(result.errors);
+        console.log(result)
+          // Handle specific HTTP status codes
+          if (result.status === 403) {
+              // Redirect or handle 403 Forbidden error
+              goto('/logout'); // Example redirect
+          } else {
+              // Display all error messages
+              feedbackMessage = Array.isArray(result.errors) ? result.errors.join('\n') : result.errors;
+              feedbackType = 'error';
+          }
       } else {
         // Redirect to the plans page
-        goto(`/plans/${acronym}`);
+        feedbackMessage = 'Plan created successfully!';
+        feedbackType = 'success';
+        goto(`/plan/${acronym}`);
       }
     } catch (error) {
       console.error('Error creating plan:', error);
@@ -64,6 +78,10 @@
   <div class="submit-button-container">
     <button type="submit">Submit</button>
   </div>
+
+  {#if feedbackMessage}
+    <p class="feedback-message {feedbackType}">{feedbackMessage}</p>
+  {/if}
 </form>
 
 <style>
@@ -146,5 +164,26 @@
 
   button:hover {
     background-color: #0056b3;
+  }
+
+  .feedback-message {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    width: 100%; /* Add this line to make the feedback message take the full width */
+    box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
+  }
+
+
+  .feedback-message.success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .feedback-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
   }
 </style>

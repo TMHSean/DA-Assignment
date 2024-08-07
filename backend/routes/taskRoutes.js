@@ -20,7 +20,7 @@ router.put("/update/:acronym", authenticateToken, authorizeGroup("projectlead"),
 router.post('/plans/create', authenticateToken, authorizeGroup("projectlead"), taskMgmt.createPlan);
 
 // Get all plans
-router.get('/plans/all', authenticateToken, taskMgmt.getAllPlans);
+router.get('/plans/all/:acronym', authenticateToken, taskMgmt.getAllPlans);
 
 // Get a specific plan
 router.get('/plans/get/:plan_app_acronym/:plan_mvp_name', authenticateToken, taskMgmt.getPlan);

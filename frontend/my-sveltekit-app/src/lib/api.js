@@ -233,11 +233,9 @@ export const createApplication = async (applicationData) => {
 		return response.data;
 	} catch (error) {
 		if (error.response) {
-			console.log("HELLO" + error)
 			const errorMessages = error.response.data.errors || [
 				error.response.data.message || 'Error creating application.'
 			];
-			console.log(errorMessages)
 			return {
 				errors: errorMessages,
 				status: error.response.status // Return the status code
@@ -299,16 +297,15 @@ export const createPlan = async (planData) => {
 };
 
 // Function to get all plans
-export const getAllPlans = async () => {
+export const getAllPlans = async (acronym) => {
 	try {
-		const response = await taskAPI.get('/plans/all', { withCredentials: true });
+		const response = await taskAPI.get(`/plans/all/${acronym}`, { withCredentials: true });
 		return response.data;
 	} catch (error) {
 		console.error('Error fetching plans:', error);
 		return [];
 	}
 };
-
 // Function to get plan details by acronym and MVP name
 export const getPlanDetails = async (planAppAcronym, planMvpName) => {
 	try {

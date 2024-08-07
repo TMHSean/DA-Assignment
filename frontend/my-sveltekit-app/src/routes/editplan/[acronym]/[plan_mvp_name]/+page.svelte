@@ -9,6 +9,9 @@
   let endDate = '';
   let acronym = '';
 
+  let feedbackMessage = '';
+  let feedbackType = '';
+
   onMount(async () => {
     acronym = $page.params.acronym;
     planMvpName = $page.params.plan_mvp_name;
@@ -32,11 +35,20 @@
     try {
       const result = await updatePlan(acronym, planMvpName, planData);
       if (result.errors) {
-        // Handle errors (display them or log them)
-        console.error(result.errors);
+        console.log(result)
+          // Handle specific HTTP status codes
+          if (result.status === 403) {
+              // Redirect or handle 403 Forbidden error
+              goto('/logout'); // Example redirect
+          } else {
+              // Display all error messages
+              feedbackMessage = Array.isArray(result.errors) ? result.errors.join('\n') : result.errors;
+              feedbackType = 'error';
+          }
       } else {
         // Redirect to the plans page
-        goto(`/plans/${acronym}`);
+        feedbackMessage = 'Plan updated successfully!';
+        feedbackType = 'success';
       }
     } catch (error) {
       console.error('Error updating plan:', error);
@@ -151,5 +163,26 @@
 
   button:hover {
     background-color: #0056b3;
+  }
+
+  .feedback-message {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    width: 100%; /* Add this line to make the feedback message take the full width */
+    box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
+  }
+
+
+  .feedback-message.success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .feedback-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
   }
 </style>

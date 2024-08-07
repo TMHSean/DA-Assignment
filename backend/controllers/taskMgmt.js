@@ -26,7 +26,7 @@ const createApplication = async (req, res) => {
   } catch (error) {
     console.log(error);
     await connection.rollback();
-    res.status(500).json({ error: "Database error occurred while creating application" });
+    res.status(500).json({ errors: "Database error occurred while creating application" });
   } finally {
     connection.release();
   }
@@ -38,7 +38,7 @@ const getAllApplications = async (req, res) => {
     const [results] = await db.query("SELECT * FROM application");
     res.status(200).json(results);
   } catch (error) {
-    res.status(500).json({ error: "Database error occurred while fetching applications" });
+    res.status(500).json({ errors: "Database error occurred while fetching applications" });
   }
 };
 
@@ -52,7 +52,7 @@ const getApplicationByAcronym = async (req, res) => {
     }
     res.status(200).json(result[0]);
   } catch (error) {
-    res.status(500).json({ error: "Database error occurred while fetching the application" });
+    res.status(500).json({ errors: "Database error occurred while fetching the application" });
   }
 };
 
@@ -76,7 +76,7 @@ const updateApplication = async (req, res) => {
   } catch (error) {
     console.log(error)
     await connection.rollback();
-    res.status(500).json({ error: "Database error occurred while updating the application" });
+    res.status(500).json({ errors: "Database error occurred while updating the application" });
   } finally {
     connection.release();
   }
@@ -85,38 +85,42 @@ const updateApplication = async (req, res) => {
 
 const createPlan = async (req, res) => {
   const { mvpName, startDate, endDate, acronym } = req.body;
-
+  console.log("HI 1")
+  console.log(mvpName)
+  console.log(acronym)
   // Validate inputs (add your own validation logic if necessary)
-  if (!mvpName || !acronym) {
-    return res.status(400).json({ error: "MVP name and app acronym are required." });
+  if (!mvpName) {
+    return res.status(400).json({ errors: "MVP name is required." });
+  } else if (!acronym) {
+    return res.status(400).json({ errors: "Couldn't retrieve app acronym." });
   }
 
   const connection = await db.getConnection(); // Get a connection from the pool
   try {
     await connection.beginTransaction();
-
     const result = await connection.query(
       "INSERT INTO plan (plan_mvp_name, plan_startDate, plan_endDate, plan_app_acronym) VALUES (?, ?, ?, ?)",
       [mvpName, startDate, endDate, acronym]
     );
-
     await connection.commit();
     res.status(201).json({ message: "Plan created successfully" });
   } catch (error) {
     console.log(error);
     await connection.rollback();
-    res.status(500).json({ error: "Database error occurred while creating plan" });
+    res.status(500).json({ errors: "Database error occurred while creating plan" });
   } finally {
     connection.release();
   }
 };
 
+// Get all plans for a specific application
 const getAllPlans = async (req, res) => {
+  const { acronym } = req.params;
   try {
-    const [results] = await db.query("SELECT * FROM plan");
+    const [results] = await db.query("SELECT * FROM plan WHERE plan_app_acronym = ?", [acronym]);
     res.status(200).json(results);
   } catch (error) {
-    res.status(500).json({ error: "Database error occurred while fetching plans" });
+    res.status(500).json({ errors: "Database error occurred while fetching plans" });
   }
 };
 
@@ -128,11 +132,11 @@ const getPlan = async (req, res) => {
       [plan_app_acronym, plan_mvp_name]
     );
     if (result.length === 0) {
-      return res.status(404).json({ error: "Plan not found" });
+      return res.status(404).json({ errors: "Plan not found" });
     }
     res.status(200).json(result[0]);
   } catch (error) {
-    res.status(500).json({ error: "Database error occurred while fetching the plan" });
+    res.status(500).json({ errors: "Database error occurred while fetching the plan" });
   }
 };
 
@@ -154,7 +158,7 @@ const updatePlan = async (req, res) => {
   } catch (error) {
     console.log(error);
     await connection.rollback();
-    res.status(500).json({ error: "Database error occurred while updating the plan" });
+    res.status(500).json({ errors: "Database error occurred while updating the plan" });
   } finally {
     connection.release();
   }
