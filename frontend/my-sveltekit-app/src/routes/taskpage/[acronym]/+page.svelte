@@ -24,11 +24,9 @@
         // tasks = await getTasksForApplication(acronym); // Fetch tasks for the application
         isProjectManager = userStatus.isProjectManager;
         const applicationDetails = await getApplicationDetails(acronym);
-        console.log(applicationDetails)
         const taskCreatorGroup = applicationDetails.app_permit_create;
-        console.log(taskCreatorGroup)
         const result = await checkUserGroup(taskCreatorGroup);
-        isTaskCreator = result.data.isInGroup
+        isTaskCreator = result.data.isInGroup;
       } else {
         // Redirect to login if not authenticated
         goto('/');
@@ -62,16 +60,16 @@
 
 <h1>Tasks for <br> {acronym}</h1>
 
-{#if isProjectManager && isTaskCreator}
-  <div class="button-container">
+<div class="button-container">
+  {#if isProjectManager && isTaskCreator}
     <button class="plan-button view-plans-button" on:click={goToPlans}>View Plans</button>
     <button class="plan-button create-tasks-button" on:click={goToTasks}>Create Tasks</button>
-  </div>
-{:else if isProjectManager}
-  <button class="plan-button view-plans-button" on:click={goToPlans}>View Plans</button>
-{:else if isTaskCreator}
-  <button class="plan-button create-tasks-button" on:click={goToTasks}>Create Tasks</button>
-{/if}
+  {:else if isProjectManager}
+    <button class="plan-button view-plans-button full-width" on:click={goToPlans}>View Plans</button>
+  {:else if isTaskCreator}
+    <button class="plan-button create-tasks-button full-width" on:click={goToTasks}>Create Tasks</button>
+  {/if}
+</div>
 
 <div class="tasks-container">
   <div class="column">
@@ -145,6 +143,7 @@
     justify-content: center;
     gap: 20px;
     margin-bottom: 20px;
+    width: 100%;
   }
 
   .plan-button {
@@ -153,14 +152,18 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s;
-    width: 100%;
-    max-width: 200px;
+  }
+
+  .full-width {
+    flex: 1;
+    max-width: 100%; /* Ensure the button takes the full width when it's the only button */
   }
 
   .view-plans-button {
     background-color: #28a745;
     color: white;
     border: none;
+    flex: 1; /* Ensure the button takes half the width when both buttons are displayed */
   }
 
   .view-plans-button:hover {
@@ -171,6 +174,7 @@
     background-color: #007bff;
     color: white;
     border: none;
+    flex: 1; /* Ensure the button takes half the width when both buttons are displayed */
   }
 
   .create-tasks-button:hover {
