@@ -82,9 +82,95 @@ const updateApplication = async (req, res) => {
   }
 };
 
+
+const createPlan = async (req, res) => {
+  const { mvpName, startDate, endDate, acronym } = req.body;
+
+  // Validate inputs (add your own validation logic if necessary)
+  if (!mvpName || !acronym) {
+    return res.status(400).json({ error: "MVP name and app acronym are required." });
+  }
+
+  const connection = await db.getConnection(); // Get a connection from the pool
+  try {
+    await connection.beginTransaction();
+
+    const result = await connection.query(
+      "INSERT INTO plan (plan_mvp_name, plan_startDate, plan_endDate, plan_app_acronym) VALUES (?, ?, ?, ?)",
+      [mvpName, startDate, endDate, acronym]
+    );
+
+    await connection.commit();
+    res.status(201).json({ message: "Plan created successfully" });
+  } catch (error) {
+    console.log(error);
+    await connection.rollback();
+    res.status(500).json({ error: "Database error occurred while creating plan" });
+  } finally {
+    connection.release();
+  }
+};
+
+const getAllPlans = async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM plan");
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ error: "Database error occurred while fetching plans" });
+  }
+};
+
+const getPlan = async (req, res) => {
+  const { plan_app_acronym, plan_mvp_name } = req.params;
+  try {
+    const [result] = await db.query(
+      "SELECT * FROM plan WHERE plan_app_acronym = ? AND plan_mvp_name = ?",
+      [plan_app_acronym, plan_mvp_name]
+    );
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Plan not found" });
+    }
+    res.status(200).json(result[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Database error occurred while fetching the plan" });
+  }
+};
+
+const updatePlan = async (req, res) => {
+  const { plan_app_acronym, plan_mvp_name } = req.params;
+  const { startDate, endDate } = req.body;
+
+  const connection = await db.getConnection(); // Get a connection from the pool
+  try {
+    await connection.beginTransaction();
+
+    const result = await connection.query(
+      "UPDATE plan SET plan_startDate = ?, plan_endDate = ? WHERE plan_app_acronym = ? AND plan_mvp_name = ?",
+      [startDate, endDate, plan_app_acronym, plan_mvp_name]
+    );
+
+    await connection.commit();
+    res.status(200).json({ message: "Plan updated successfully" });
+  } catch (error) {
+    console.log(error);
+    await connection.rollback();
+    res.status(500).json({ error: "Database error occurred while updating the plan" });
+  } finally {
+    connection.release();
+  }
+};
+
+module.exports = { updatePlan };
+
+
+
 module.exports = {
   createApplication,
   getAllApplications,
   getApplicationByAcronym,
-  updateApplication
+  updateApplication,
+  createPlan,
+  getAllPlans,
+  getPlan,
+  updatePlan
 };

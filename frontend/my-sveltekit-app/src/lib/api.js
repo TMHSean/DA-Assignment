@@ -275,3 +275,71 @@ export const updateApplication = async (acronym, applicationData) => {
 		}
 	}
 };
+
+// Function to create a new plan
+export const createPlan = async (planData) => {
+	try {
+		const response = await taskAPI.post('/plans/create', planData, { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		if (error.response) {
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error creating plan.'
+			];
+			return {
+				errors: errorMessages,
+				status: error.response.status // Return the status code
+			};
+		} else {
+			return {
+				errors: ['Network error. Please try again later.']
+			};
+		}
+	}
+};
+
+// Function to get all plans
+export const getAllPlans = async () => {
+	try {
+		const response = await taskAPI.get('/plans/all', { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching plans:', error);
+		return [];
+	}
+};
+
+// Function to get plan details by acronym and MVP name
+export const getPlanDetails = async (planAppAcronym, planMvpName) => {
+	try {
+		const response = await taskAPI.get(`/plans/get/${planAppAcronym}/${planMvpName}`, { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching plan details:', error);
+		throw error;
+	}
+};
+
+// Function to update a plan
+export const updatePlan = async (planAppAcronym, planMvpName, planData) => {
+	try {
+		const updateResponse = await taskAPI.put(`/plans/update/${planAppAcronym}/${planMvpName}`, planData, {
+			withCredentials: true
+		});
+		return updateResponse.data;
+	} catch (error) {
+		if (error.response) {
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error updating plan.'
+			];
+			return {
+				errors: errorMessages,
+				status: error.response.status // Return the status code
+			};
+		} else {
+			return {
+				errors: ['Network error. Please try again later.']
+			};
+		}
+	}
+};

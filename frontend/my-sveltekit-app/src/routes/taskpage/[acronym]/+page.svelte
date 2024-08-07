@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   // import { getTasksForApplication } from '$lib/api'; // Assume you have an API function to get tasks
 
   let tasks = {
@@ -28,9 +29,15 @@
       viewTask(taskId);
     }
   }
+
+  function goToPlans() {
+    goto(`/plan/${acronym}`);
+  }
 </script>
 
 <h1>Tasks for <br> {acronym}</h1>
+
+<button class="plan-button" on:click={goToPlans}>View Plans</button>
 
 <div class="tasks-container">
   <div class="column">
@@ -97,6 +104,20 @@
     margin-bottom: 20px;
     font-size: 2em;
     color: #333;
+  }
+
+  .plan-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto 20px auto;
+    transition: background-color 0.2s;
+    width: 100%;
   }
 
   .tasks-container {
