@@ -101,7 +101,7 @@
     font-size: 1em;
     border-radius: 5px;
     cursor: pointer;
-    margin-bottom: 20px;
+    margin-top: 20px; /* Add margin to move it lower */
     transition: background-color 0.2s, border-color 0.2s;
     width: auto; /* Auto width */
   }
