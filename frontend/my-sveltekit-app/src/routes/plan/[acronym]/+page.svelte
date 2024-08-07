@@ -112,10 +112,10 @@
     background-color: white;
     border: 1px solid #ddd;
     border-radius: 10px;
-    padding: 20px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     width: 100%; /* Make the plan card as wide as the container */
     max-width: 800px; /* Set a max width for the plan card */

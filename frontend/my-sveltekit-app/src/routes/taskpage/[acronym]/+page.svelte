@@ -54,7 +54,7 @@
   }
 
   function goToTasks() {
-    goto(`/task/${acronym}`);
+    goto(`/createtask/${acronym}`);
   }
 </script>
 
