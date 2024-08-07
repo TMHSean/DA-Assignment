@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
-  import { getApplicationDetails, getAllGroups } from '$lib/api';
+  import { getApplicationDetails, getAllGroups, updateApplication } from '$lib/api';
   import { goto } from '$app/navigation';
 
   let acronym = '';
@@ -16,7 +16,8 @@
   let permitDone = '';
 
   let groups = [];
-  let errorMessage = '';
+  let feedbackMessage = '';
+  let feedbackType = '';
 
   onMount(async () => {
     try {
@@ -40,31 +41,43 @@
     }
   });
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const formData = {
-      acronym,
+    const applicationData = {
       description,
       rnumber,
-      startDate,
-      endDate,
+      startDate: startDate ? new Date(startDate).toISOString().split('T')[0] : '',
+      endDate: endDate ? new Date(endDate).toISOString().split('T')[0] : '',
       permitCreate,
       permitOpen,
       permitToDo,
       permitDoing,
       permitDone
     };
-    console.log(formData);
-    // You can add your form submission logic here
+
+    console.log(applicationData)
+
+    try {
+      const result = await updateApplication(acronym, applicationData);
+
+      if (result.errors) {
+        feedbackMessage = result.errors.join('\n');
+        feedbackType = 'error';
+      } else {
+        feedbackMessage = 'Application updated successfully!';
+        feedbackType = 'success';
+        // Optionally, redirect or clear form fields
+        // goto('/applications'); // Example redirect
+      }
+    } catch (error) {
+      feedbackMessage = 'An unexpected error occurred. Please try again later.';
+      feedbackType = 'error';
+    }
   };
 </script>
 
 <form on:submit={handleSubmit}>
   <h2>Application Details</h2>
-  
-  {#if errorMessage}
-    <p class="error-message">{errorMessage}</p>
-  {/if}
   
   <div class="column">
     <div class="form-group">
@@ -148,6 +161,10 @@
   <div class="submit-button-container">
     <button type="submit">Save</button>
   </div>
+
+  {#if feedbackMessage}
+    <p class="feedback-message {feedbackType}">{feedbackMessage}</p>
+  {/if}
 </form>
 
 <style>
@@ -219,8 +236,26 @@
     height: 100px; /* Adjust height as needed */
   }
 
-  .error-message {
-    color: red;
-    text-align: center;
+  .feedback-message {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: bold;
+  width: 100%; /* Add this line to make the feedback message take the full width */
+  box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
+}
+
+
+  .feedback-message.success {
+    background-color: #d4edda;
+    color: #155724;
   }
+
+  .feedback-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+
 </style>

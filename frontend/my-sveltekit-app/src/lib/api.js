@@ -249,3 +249,29 @@ export const createApplication = async (applicationData) => {
 		}
 	}
 };
+
+// Function to update an application
+export const updateApplication = async (acronym, applicationData) => {
+	try {
+		const updateResponse = await taskAPI.put(`/update/${acronym}`, applicationData, {
+			withCredentials: true
+		});
+		return updateResponse.data;
+	} catch (error) {
+		if (error.response) {
+			console.log("HELLO" + error)
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error creating application.'
+			];
+			console.log(errorMessages)
+			return {
+				errors: errorMessages,
+				status: error.response.status // Return the status code
+			};
+		} else {
+			return {
+				errors: ['Network error. Please try again later.']
+			};
+		}
+	}
+};

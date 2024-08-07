@@ -85,12 +85,12 @@
           // Clear the input field
           groupName = '';
       }
-    } catch (error) {
-      // Handle unexpected errors
-      console.error('Unexpected error:', error);
-      feedbackMessage = 'An unexpected error occurred. Please try again later.';
-      feedbackType = 'error';
-    }
+      } catch (error) {
+        // Handle unexpected errors
+        console.error('Unexpected error:', error);
+        feedbackMessage = 'An unexpected error occurred. Please try again later.';
+        feedbackType = 'error';
+      }
   };
 
 
@@ -105,9 +105,8 @@
 
     try {
         const result = await createUser(userData);
-        console.log("result" + result)
+
         if (result.errors) {
-          console.log(result.errors)
             // Handle specific HTTP status codes
             if (result.status === 403) {
                 // Redirect or handle 403 Forbidden error

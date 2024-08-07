@@ -74,6 +74,7 @@ const updateApplication = async (req, res) => {
     await connection.commit();
     res.status(200).json({ message: "Application updated successfully" });
   } catch (error) {
+    console.log(error)
     await connection.rollback();
     res.status(500).json({ error: "Database error occurred while updating the application" });
   } finally {
