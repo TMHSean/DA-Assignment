@@ -1,5 +1,5 @@
 const db = require("../config/db"); // Assuming you have a db module to handle SQL queries
-const { validateCreateApplication } = require('../utils/validation');
+const { validateCreateApplication, validateCreatePlan } = require('../utils/validation');
 
 // Create a new application
 const createApplication = async (req, res) => {
@@ -85,14 +85,11 @@ const updateApplication = async (req, res) => {
 
 const createPlan = async (req, res) => {
   const { mvpName, startDate, endDate, acronym } = req.body;
-  console.log("HI 1")
-  console.log(mvpName)
-  console.log(acronym)
-  // Validate inputs (add your own validation logic if necessary)
-  if (!mvpName) {
-    return res.status(400).json({ errors: "MVP name is required." });
-  } else if (!acronym) {
-    return res.status(400).json({ errors: "Couldn't retrieve app acronym." });
+
+  // Validate inputs
+  const errors = await validateCreatePlan(acronym, mvpName);
+  if (errors.length > 0) {
+    return res.status(400).json({ errors });
   }
 
   const connection = await db.getConnection(); // Get a connection from the pool
@@ -105,7 +102,6 @@ const createPlan = async (req, res) => {
     await connection.commit();
     res.status(201).json({ message: "Plan created successfully" });
   } catch (error) {
-    console.log(error);
     await connection.rollback();
     res.status(500).json({ errors: "Database error occurred while creating plan" });
   } finally {

@@ -67,6 +67,8 @@ const checkUserStatus = async (req, res) => {
     const isAdmin = user.username === "admin" || await checkGroup(user.username, 'admin');
 
     const isProjectLead = await checkGroup(user.username, 'projectlead');
+    const isProjectManager = await checkGroup(user.username, 'projectmanager');
+
     // Retrieve user details
     const query = `
       SELECT username, email
@@ -83,6 +85,7 @@ const checkUserStatus = async (req, res) => {
         username: dbUser.username,
         isAdmin: isAdmin, // Determine admin status
         isProjectLead: isProjectLead,
+        isProjectManager: isProjectManager,
         email: dbUser.email,
       });
     } else {
@@ -91,6 +94,25 @@ const checkUserStatus = async (req, res) => {
   } catch (err) {
     console.error("Error checking user status:", err);
     res.status(500).send("Server error");
+  }
+};
+
+// Controller function to check if a user belongs to a specific group
+const checkUserGroup = async (req, res) => {
+  const user = req.user; // User details from the token
+  console.log(user)
+  const username = user.username;
+  const { groupName } = req.query;
+
+  if (!username || !groupName) {
+    return res.status(400).json({ error: 'Username and group name are required' });
+  }
+  try {
+    const isInGroup = await checkGroup(username, groupName);
+    res.status(200).json({ isInGroup });
+  } catch (error) {
+    console.error("Error checking user group:", error);
+    res.status(500).json({ error: "Server error occurred while checking user group" });
   }
 };
 
@@ -119,5 +141,6 @@ const checkGroup = async (username, groupName) => {
 module.exports = {
   loginUser,
   logoutUser,
-  checkUserStatus
+  checkUserStatus,
+  checkUserGroup
 }

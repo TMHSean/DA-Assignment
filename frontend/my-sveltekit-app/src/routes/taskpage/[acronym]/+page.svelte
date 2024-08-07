@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  // import { getTasksForApplication } from '$lib/api'; // Assume you have an API function to get tasks
+  import { checkUserGroup, checkUserStatus, getApplicationDetails } from '$lib/api'; // Assume you have an API function to get tasks
 
   let tasks = {
     open: [],
@@ -12,10 +12,31 @@
     closed: []
   };
   let acronym = '';
+  let isProjectManager = false;
+  let isTaskCreator = false;
 
   onMount(async () => {
     acronym = $page.params.acronym;
-    // tasks = await getTasksForApplication(acronym); // Fetch tasks for the application
+
+    try {
+      const userStatus = await checkUserStatus();
+      if (userStatus) {
+        // tasks = await getTasksForApplication(acronym); // Fetch tasks for the application
+        isProjectManager = userStatus.isProjectManager;
+        const applicationDetails = await getApplicationDetails(acronym);
+        console.log(applicationDetails)
+        const taskCreatorGroup = applicationDetails.app_permit_create;
+        console.log(taskCreatorGroup)
+        const result = await checkUserGroup(taskCreatorGroup);
+        isTaskCreator = result.data.isInGroup
+      } else {
+        // Redirect to login if not authenticated
+        goto('/');
+      }
+    } catch (error) {
+      console.error('Error checking if user is task creator:', error);
+      throw error;
+    }
   });
 
   function viewTask(taskId) {
@@ -33,11 +54,24 @@
   function goToPlans() {
     goto(`/plan/${acronym}`);
   }
+
+  function goToTasks() {
+    goto(`/task/${acronym}`);
+  }
 </script>
 
 <h1>Tasks for <br> {acronym}</h1>
 
-<button class="plan-button" on:click={goToPlans}>View Plans</button>
+{#if isProjectManager && isTaskCreator}
+  <div class="button-container">
+    <button class="plan-button view-plans-button" on:click={goToPlans}>View Plans</button>
+    <button class="plan-button create-tasks-button" on:click={goToTasks}>Create Tasks</button>
+  </div>
+{:else if isProjectManager}
+  <button class="plan-button view-plans-button" on:click={goToPlans}>View Plans</button>
+{:else if isTaskCreator}
+  <button class="plan-button create-tasks-button" on:click={goToTasks}>Create Tasks</button>
+{/if}
 
 <div class="tasks-container">
   <div class="column">
@@ -106,18 +140,41 @@
     color: #333;
   }
 
+  .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
   .plan-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
     padding: 10px 20px;
     font-size: 1em;
     border-radius: 5px;
     cursor: pointer;
-    display: block;
-    margin: 0 auto 20px auto;
     transition: background-color 0.2s;
     width: 100%;
+    max-width: 200px;
+  }
+
+  .view-plans-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+  }
+
+  .view-plans-button:hover {
+    background-color: #218838;
+  }
+
+  .create-tasks-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+  }
+
+  .create-tasks-button:hover {
+    background-color: #0056b3;
   }
 
   .tasks-container {

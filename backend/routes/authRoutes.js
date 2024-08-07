@@ -17,4 +17,7 @@ router.post("/logout", authenticateToken, authMgmt.logoutUser)
 // Route to check user status, requires authentication
 router.get("/check", authenticateToken, authMgmt.checkUserStatus)
 
+// Route to check user status, requires authentication
+router.get("/checkusergroup", authenticateToken, authMgmt.checkUserGroup)
+
 module.exports = router

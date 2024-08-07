@@ -206,6 +206,34 @@ export const handleRemovedGroup = async (username, groups) => {
 	}
 };
 
+export const checkUserGroup = async (groupName) => {
+	try {
+		const response = await authAPI.get('/checkusergroup', {
+			params: { groupName }, // Send username as a query parameter
+			withCredentials: true
+		});
+		return response;
+	} catch (error) {
+		console.error('Error checking groups:', error);
+		let errorMessages = ['Error checking user groups.'];
+		let statusCode = error.response ? error.response.status : null;
+
+		if (error.response) {
+			errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error checking user groups.'
+			];
+		} else {
+			errorMessages = ['Network error. Please try again later.'];
+		}
+
+		return {
+			errors: errorMessages,
+			status: statusCode
+		};
+	}
+};
+
+
 export const getAllApplications = async () => {
 	try {
 		const response = await taskAPI.get('/all', { withCredentials: true });

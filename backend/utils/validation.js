@@ -109,6 +109,24 @@ const validateCreateApplication = async (acronym) => {
   return errors;
 };
 
+const validateCreatePlan = async (planAppAcronym, planMvpName) => {
+  let errors = [];
+
+  // Validate MVP name
+  if (!planMvpName || planMvpName.trim() === "") {
+    errors.push("MVP name cannot be empty.");
+  } else if (!isLength(planMvpName, { min: 4, max: 20 })) {
+    errors.push("MVP name length must be between 4 and 20 characters.");
+  } else if (!/^[a-zA-Z0-9_]+$/.test(planMvpName)) {
+    errors.push("MVP name can only contain alphanumeric characters and underscores.");
+  } else if (await checkPlan(planAppAcronym, planMvpName)) {
+    errors.push("MVP name already exists for this application.");
+  }
+
+  return errors;
+};
+
+
 
 //**** HELPER FUNCTIONS */
 
@@ -163,9 +181,30 @@ const checkApplication = async (acronym) => {
     throw new Error("Database error occurred while fetching the application");
   }
 };
+
+// Get a specific plan by Acronym and MVP Name
+const checkPlan = async (planAppAcronym, planMvpName) => {
+  try {
+    const [results] = await db.query(
+      "SELECT * FROM plan WHERE LOWER(plan_app_acronym) = LOWER(?) AND LOWER(plan_mvp_name) = LOWER(?)",
+      [planAppAcronym, planMvpName]
+    );
+
+    if (results.length > 0) {
+      return results[0];
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching plan:", error);
+    throw new Error("Database error occurred while fetching the plan");
+  }
+};
+
 module.exports = {
   validateCreateUser,
   validateUpdateUserProfile,
   validateCreateGroup,
-  validateCreateApplication
+  validateCreateApplication,
+  validateCreatePlan
 }
