@@ -368,3 +368,24 @@ export const updatePlan = async (planAppAcronym, planMvpName, planData) => {
 		}
 	}
 };
+
+export const createTask = async (taskData) => {
+	try {
+		const response = await taskAPI.post('/createtask', taskData, { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		if (error.response) {
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error creating task.'
+			];
+			return {
+				errors: errorMessages,
+				status: error.response.status // Return the status code
+			};
+		} else {
+			return {
+				errors: ['Network error. Please try again later.']
+			};
+		}
+	}
+};

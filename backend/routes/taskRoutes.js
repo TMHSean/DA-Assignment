@@ -3,6 +3,8 @@ const router = express.Router();
 const taskMgmt = require("../controllers/taskMgmt"); // Assume taskMgmt is the controller for task-related functions
 const { authenticateToken, authorizeGroup } = require("../middleware/authMiddleware");
 
+//***** APPLICATION  */
+
 // Create a new application
 router.post("/create", authenticateToken, authorizeGroup("projectlead"), taskMgmt.createApplication);
 
@@ -15,9 +17,10 @@ router.get("/get/:acronym", authenticateToken, taskMgmt.getApplicationByAcronym)
 // Update an application
 router.put("/update/:acronym", authenticateToken, authorizeGroup("projectlead"), taskMgmt.updateApplication);
 
+//***** PLAN  */
 
 // Create a new plan
-router.post('/plans/create', authenticateToken, authorizeGroup("projectlead"), taskMgmt.createPlan);
+router.post('/plans/create', authenticateToken, authorizeGroup("projectmanager"), taskMgmt.createPlan);
 
 // Get all plans
 router.get('/plans/all/:acronym', authenticateToken, taskMgmt.getAllPlans);
@@ -26,6 +29,24 @@ router.get('/plans/all/:acronym', authenticateToken, taskMgmt.getAllPlans);
 router.get('/plans/get/:plan_app_acronym/:plan_mvp_name', authenticateToken, taskMgmt.getPlan);
 
 // Update a plan
-router.put('/plans/update/:plan_app_acronym/:plan_mvp_name', authenticateToken, authorizeGroup("projectlead"), taskMgmt.updatePlan);
+router.put('/plans/update/:plan_app_acronym/:plan_mvp_name', authenticateToken, authorizeGroup("projectmanager"), taskMgmt.updatePlan);
+
+//***** TASK  */
+
+// Create a new task
+router.post('/createtask', authenticateToken, taskMgmt.createTask);
+
+// Update a task
+router.put('/update/:taskId', authenticateToken, taskMgmt.updateTask);
+
+// Get a specific task by ID
+router.get('/get/:taskId', authenticateToken, taskMgmt.getTaskById);
+
+// Get all tasks
+router.get('/all', authenticateToken, taskMgmt.getAllTasks);
+
+// Get tasks by application acronym
+router.get('/byAcronym/:acronym', authenticateToken, taskMgmt.getTasksByAcronym);
+
 
 module.exports = router;
