@@ -194,17 +194,27 @@ const createTask = async (req, res) => {
     // Create task_id using app_acronym and new rnumber
     const taskId = `${acronym}_${newRNumber}`;
 
+    // Get the current date and time in local format
+    const currentDate = new Date();
+    const formattedDate = currentDate.getFullYear() + '-' +
+      ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
+      ('0' + currentDate.getDate()).slice(-2) + ' ' +
+      ('0' + currentDate.getHours()).slice(-2) + ':' +
+      ('0' + currentDate.getMinutes()).slice(-2) + ':' +
+      ('0' + currentDate.getSeconds()).slice(-2);
+
     // Insert new task into the task table
     await connection.query(
       "INSERT INTO task (task_id, task_name, task_description, task_plan, task_app_acronym, task_state, task_creator, task_owner, task_createDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [taskId, name, description, plan, acronym, 'open', req.user.username, req.user.username, new Date()]
+      [taskId, name, description, plan, acronym, 'open', req.user.username, req.user.username, formattedDate]
     );
 
     // Create initial audit trail entry
     const initialNote = `User ${req.user.username} has created the task.`;
+    const auditTrail = JSON.stringify([{ user: req.user.username, state: 'open', date: formattedDate, message: initialNote }]);
     await connection.query(
       "INSERT INTO tasknote (task_id, tasknote_created, notes) VALUES (?, ?, ?)",
-      [taskId, new Date(), JSON.stringify([{ user: req.user.username, state: 'open', date: new Date(), message: initialNote }])]
+      [taskId, formattedDate, auditTrail]
     );
 
     await connection.commit();
@@ -218,9 +228,7 @@ const createTask = async (req, res) => {
   }
 };
 
-module.exports = {
-  createTask,
-};
+
 
 
 // Update a task
