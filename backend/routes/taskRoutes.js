@@ -46,7 +46,7 @@ router.get('/get/:taskId', authenticateToken, taskMgmt.getTaskById);
 router.get('/all', authenticateToken, taskMgmt.getAllTasks);
 
 // Get tasks by application acronym
-router.get('/byAcronym/:acronym', authenticateToken, taskMgmt.getTasksByAcronym);
+router.get('/getByAcronym/:acronym', authenticateToken, taskMgmt.getTasksByAcronym);
 
 
 module.exports = router;

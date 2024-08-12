@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { checkUserGroup, checkUserStatus, getApplicationDetails } from '$lib/api'; // Assume you have an API function to get tasks
+  import { checkUserGroup, checkUserStatus, getApplicationDetails, getTasksForApplication } from '$lib/api'; // Make sure you have an API function to get tasks
 
   let tasks = {
     open: [],
@@ -21,18 +21,28 @@
     try {
       const userStatus = await checkUserStatus();
       if (userStatus) {
-        // tasks = await getTasksForApplication(acronym); // Fetch tasks for the application
         isProjectManager = userStatus.isProjectManager;
         const applicationDetails = await getApplicationDetails(acronym);
         const taskCreatorGroup = applicationDetails.app_permit_create;
         const result = await checkUserGroup(taskCreatorGroup);
         isTaskCreator = result.data.isInGroup;
+
+        // Fetch tasks for the application
+        const fetchedTasks = await getTasksForApplication(acronym);
+
+        // Populate the tasks object based on task state
+        tasks.open = fetchedTasks.filter(task => task.task_state === 'open');
+        tasks.toDo = fetchedTasks.filter(task => task.task_state === 'todo');
+        tasks.doing = fetchedTasks.filter(task => task.task_state === 'doing');
+        tasks.done = fetchedTasks.filter(task => task.task_state === 'done');
+        tasks.closed = fetchedTasks.filter(task => task.task_state === 'closed');
+        
       } else {
         // Redirect to login if not authenticated
         goto('/');
       }
     } catch (error) {
-      console.error('Error checking if user is task creator:', error);
+      console.error('Error:', error);
       throw error;
     }
   });
@@ -77,10 +87,10 @@
     <div class="column">
       <h2>Open</h2>
       {#each tasks.open as task}
-        <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.id)} on:keypress={(event) => handleKeyPress(event, task.id)}>
-          <h3>{task.name}</h3>
-          <p>{task.description}</p>
-          <p><strong>Plan:</strong> {task.planName}</p>
+        <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
+          <h3>{task.task_name}</h3>
+          <p>{task.task_description}</p>
+          <p><strong>Plan:</strong> {task.task_plan}</p>
         </div>
       {/each}
     </div>
@@ -88,11 +98,11 @@
     <div class="column">
       <h2>To Do</h2>
       {#each tasks.toDo as task}
-        <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.id)} on:keypress={(event) => handleKeyPress(event, task.id)}>
-          <h3>{task.name}</h3>
-          <p>{task.description}</p>
-          <p><strong>Plan:</strong> {task.planName}</p>
-          <button class="view-task-button" on:click|stopPropagation={() => viewTask(task.id)}>View Task</button>
+        <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
+          <h3>{task.task_name}</h3>
+          <p>{task.task_description}</p>
+          <p><strong>Plan:</strong> {task.task_plan}</p>
+          <button class="view-task-button" on:click|stopPropagation={() => viewTask(task.task_id)}>View Task</button>
         </div>
       {/each}
     </div>
@@ -100,11 +110,11 @@
     <div class="column">
       <h2>Doing</h2>
       {#each tasks.doing as task}
-        <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.id)} on:keypress={(event) => handleKeyPress(event, task.id)}>
-          <h3>{task.name}</h3>
-          <p>{task.description}</p>
-          <p><strong>Plan:</strong> {task.planName}</p>
-          <button class="view-task-button" on:click|stopPropagation={() => viewTask(task.id)}>View Task</button>
+        <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
+          <h3>{task.task_name}</h3>
+          <p>{task.task_description}</p>
+          <p><strong>Plan:</strong> {task.task_plan}</p>
+          <button class="view-task-button" on:click|stopPropagation={() => viewTask(task.task_id)}>View Task</button>
         </div>
       {/each}
     </div>
@@ -112,10 +122,10 @@
     <div class="column">
       <h2>Done</h2>
       {#each tasks.done as task}
-        <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.id)} on:keypress={(event) => handleKeyPress(event, task.id)}>
-          <h3>{task.name}</h3>
-          <p>{task.description}</p>
-          <p><strong>Plan:</strong> {task.planName}</p>
+        <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
+          <h3>{task.task_name}</h3>
+          <p>{task.task_description}</p>
+          <p><strong>Plan:</strong> {task.task_plan}</p>
         </div>
       {/each}
     </div>
@@ -123,16 +133,15 @@
     <div class="column">
       <h2>Closed</h2>
       {#each tasks.closed as task}
-        <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.id)} on:keypress={(event) => handleKeyPress(event, task.id)}>
-          <h3>{task.name}</h3>
-          <p>{task.description}</p>
-          <p><strong>Plan:</strong> {task.planName}</p>
+        <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
+          <h3>{task.task_name}</h3>
+          <p>{task.task_description}</p>
+          <p><strong>Plan:</strong> {task.task_plan}</p>
         </div>
       {/each}
     </div>
   </div>
 </div>
-
 <style>
   .container {
     padding: 20px;

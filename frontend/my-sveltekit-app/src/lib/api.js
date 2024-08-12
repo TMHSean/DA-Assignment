@@ -389,3 +389,24 @@ export const createTask = async (taskData) => {
 		}
 	}
 };
+
+export const getTasksForApplication = async (acronym) => {
+	try {
+		const response = await taskAPI.get(`/getByAcronym/${acronym}`, { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		if (error.response) {
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error fetching task.'
+			];
+			return {
+				errors: errorMessages,
+				status: error.response.status // Return the status code
+			};
+		} else {
+			return {
+				errors: ['Network error. Please try again later.']
+			};
+		}
+	}
+};

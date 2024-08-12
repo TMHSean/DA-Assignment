@@ -290,8 +290,11 @@ const getAllTasks = async (req, res) => {
 // Get tasks by application acronym
 const getTasksByAcronym = async (req, res) => {
   const { acronym } = req.params;
+
   try {
-    const [results] = await db.query("SELECT * FROM task WHERE task_app_acronym = ?", [acronym]);
+    const [results] = await db.query(`
+      SELECT task_id, task_name, task_description, task_plan, task_state FROM task WHERE task_app_acronym = ?`, [acronym]);
+    console.log(results)
     res.status(200).json(results);
   } catch (error) {
     console.error("Error fetching tasks:", error);

@@ -100,7 +100,6 @@ const checkUserStatus = async (req, res) => {
 // Controller function to check if a user belongs to a specific group
 const checkUserGroup = async (req, res) => {
   const user = req.user; // User details from the token
-  console.log(user)
   const username = user.username;
   const { groupName } = req.query;
 
