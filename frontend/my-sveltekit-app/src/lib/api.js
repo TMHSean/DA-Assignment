@@ -459,7 +459,7 @@ export const getTaskNotesDetails = async (taskId) => {
 // API function to update task
 export const updateTask = async (taskId, note) => {
 	try {
-		const response = await taskAPI.post(`/update/${taskId}/update`, { note }, { withCredentials: true });
+		const response = await taskAPI.post(`/update/task/${taskId}`, { note }, { withCredentials: true });
 		return response.data;
 	} catch (error) {
 		if (error.response) {
@@ -488,6 +488,48 @@ export const takeOnTask = async (taskId) => {
 		if (error.response) {
 			const errorMessages = error.response.data.errors || [
 				error.response.data.message || 'Error taking on task.'
+			];
+			return {
+				errors: errorMessages,
+				status: error.response.status // Return the status code
+			};
+		} else {
+			return {
+				errors: ['Network error. Please try again later.']
+			};
+		}
+	}
+};
+
+export const updateTaskState = async (taskId, newState) => {
+	try {
+		const response = await taskAPI.put(`/update/taskState/${taskId}`, { newState }, { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		if (error.response) {
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error updating task state.'
+			];
+			return {
+				errors: errorMessages,
+				status: error.response.status // Return the status code
+			};
+		} else {
+			return {
+				errors: ['Network error. Please try again later.']
+			};
+		}
+	}
+};
+
+export const updateTaskNote = async (taskId, note, state = 'open', type = 'system') => {
+	try {
+		const response = await taskAPI.put(`/update/tasknote/${taskId}`, { note, state, type }, { withCredentials: true });
+		return response.data;
+	} catch (error) {
+		if (error.response) {
+			const errorMessages = error.response.data.errors || [
+				error.response.data.message || 'Error updating task note.'
 			];
 			return {
 				errors: errorMessages,

@@ -37,7 +37,13 @@ router.put('/plans/update/:plan_app_acronym/:plan_mvp_name', authenticateToken, 
 router.post('/createtask', authenticateToken, taskMgmt.createTask);
 
 // Update a task
-router.put('/update/:taskId', authenticateToken, taskMgmt.updateTask);
+router.put('/update/task/:taskId', authenticateToken, taskMgmt.updateTask);
+
+// Update a tasknote
+router.put('/update/tasknote/:taskId', authenticateToken, taskMgmt.updateTaskNote);
+
+// Update a task state
+router.put('/update/taskState/:taskId', authenticateToken, taskMgmt.updateTaskState);
 
 // Get a specific task by ID
 router.get('/getTask/:taskId', authenticateToken, taskMgmt.getTaskById);
