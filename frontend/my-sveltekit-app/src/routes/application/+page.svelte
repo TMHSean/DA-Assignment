@@ -27,11 +27,12 @@
   }
 </script>
 
-<h1>Applications</h1>
-
-{#if isProjectLead}
-  <button class="create-app-button" on:click={createApplication}>+ Create App</button>
-{/if}
+<div class="header-container">
+  <h1>Applications</h1>
+  {#if isProjectLead}
+    <button class="create-app-button" on:click={createApplication}>+ Create App</button>
+  {/if}
+</div>
 
 <div class="applications-container">
   {#each applications as application}
@@ -44,21 +45,26 @@
   {/each}
 </div>
 
-
 <style>
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box; /* Include padding in the total width and height */
+  }
+
   h1 {
-    text-align: center;
+    margin: 0;
   }
 
   .create-app-button {
     background-color: #007bff; /* Primary blue color */
     color: white;
     border: none;
-    padding: 10px;
+    padding: 10px 20px; /* Adjust padding if needed */
     font-size: 16px;
-    width: 100%;
     cursor: pointer;
-    margin-bottom: 20px;
     border-radius: 5px;
     transition: background-color 0.2s;
   }
@@ -72,7 +78,8 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
-    padding: 20px;
+    padding: 20px; /* Ensure this matches the padding in header-container */
+    box-sizing: border-box; /* Include padding in the total width and height */
   }
 
   .application-card {
