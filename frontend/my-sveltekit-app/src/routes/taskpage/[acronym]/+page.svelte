@@ -50,6 +50,7 @@
   function viewTask(taskId) {
     // Handle view task logic
     console.log(`View task with ID: ${taskId}`);
+    goto(`/taskdetails/${acronym}/${taskId}`);
   }
 
   function handleKeyPress(event, taskId) {

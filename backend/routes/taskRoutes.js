@@ -40,10 +40,13 @@ router.post('/createtask', authenticateToken, taskMgmt.createTask);
 router.put('/update/:taskId', authenticateToken, taskMgmt.updateTask);
 
 // Get a specific task by ID
-router.get('/get/:taskId', authenticateToken, taskMgmt.getTaskById);
+router.get('/getTask/:taskId', authenticateToken, taskMgmt.getTaskById);
+
+// Get a specific tasknotes by ID
+router.get('/getTasknotes/:taskId', authenticateToken, taskMgmt.getTasknotesById);
 
 // Get all tasks
-router.get('/all', authenticateToken, taskMgmt.getAllTasks);
+// router.get('/all', authenticateToken, taskMgmt.getAllTasks);
 
 // Get tasks by application acronym
 router.get('/getByAcronym/:acronym', authenticateToken, taskMgmt.getTasksByAcronym);

@@ -276,6 +276,21 @@ const getTaskById = async (req, res) => {
   }
 };
 
+// Get a specific task by ID
+const getTasknotesById = async (req, res) => {
+  const { taskId } = req.params;
+  try {
+    const [result] = await db.query("SELECT * FROM tasknote WHERE task_id = ?", [taskId]);
+    if (result.length === 0) {
+      return res.status(404).json({ errors: "Task not found" });
+    }
+    res.status(200).json(result[0]);
+  } catch (error) {
+    console.error("Error fetching task:", error);
+    res.status(500).json({ errors: "Database error occurred while fetching task" });
+  }
+};
+
 // Get all tasks
 const getAllTasks = async (req, res) => {
   try {
@@ -316,4 +331,5 @@ module.exports = {
   getTaskById,
   getAllTasks,
   getTasksByAcronym,
+  getTasknotesById
 };

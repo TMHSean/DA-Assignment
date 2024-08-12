@@ -60,18 +60,18 @@
 
 <form on:submit={handleSubmit}>
   <div class="form-group">
-    <label>Name:</label>
-    <input type="text" bind:value={taskName} required />
+    <label for="taskName">Name:</label>
+    <input id="taskName" type="text" bind:value={taskName} required />
   </div>
   
   <div class="form-group">
-    <label>Description:</label>
-    <textarea bind:value={taskDescription} required></textarea>
+    <label for="taskDescription">Description:</label>
+    <textarea id="taskDescription" class="description-textarea" bind:value={taskDescription} required></textarea>
   </div>
   
   <div class="form-group">
-    <label>Plan:</label>
-    <select bind:value={selectedPlan} required>
+    <label for="selectedPlan">Plan:</label>
+    <select id="selectedPlan" bind:value={selectedPlan} required>
       <option value="">Select Plan</option>
       {#each plans as plan}
         <option value={plan.plan_mvp_name}>{plan.plan_mvp_name}</option>
@@ -139,11 +139,21 @@
     font-weight: bold;
   }
 
-  input, textarea, select {
+  input, select {
     padding: 10px;
     font-size: 1em;
     border-radius: 5px;
     border: 1px solid #ccc;
+  }
+
+  .description-textarea {
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    resize: vertical; /* Allows vertical resizing */
+    min-height: 150px; /* Set a minimum height for the textarea */
+    width: 94.5%; /* Ensure textarea takes up the full width */
   }
 
   .submit-button-container {
