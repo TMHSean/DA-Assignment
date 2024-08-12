@@ -67,9 +67,9 @@
 </script>
 
 <button class="back-button" on:click={goBack}>← Back</button>
-<h1>Plans for <br> {acronym}</h1>
 
-<div class="button-container">
+<div class="header-container">
+  <h1>Plans for {acronym}</h1>
   <button class="create-plan-button" on:click={createPlan}>+ Create Plan</button>
 </div>
 
@@ -115,6 +115,30 @@
     color: #333;
   }
 
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .create-plan-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .create-plan-button:hover {
+    background-color: #0056b3;
+  }
+
   .button-container {
     display: flex;
     justify-content: center;
@@ -138,23 +162,6 @@
   .back-button:hover {
     background-color: #e0e0e0;
     border-color: #bbb;
-  }
-
-  .create-plan-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 1em;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    width: 100%;
-    max-width: 800px;
-  }
-
-  .create-plan-button:hover {
-    background-color: #0056b3;
   }
 
   .plans-container {
