@@ -457,37 +457,16 @@ export const getTaskNotesDetails = async (taskId) => {
 
 
 // API function to update task
-export const updateTask = async (taskId, note) => {
+export const updateTask = async (taskId, taskObjects) => {
+	console.log(taskObjects)
 	try {
-		const response = await taskAPI.post(`/update/task/${taskId}`, { note }, { withCredentials: true });
+		const response = await taskAPI.put(`/update/task/${taskId}`, taskObjects, { withCredentials: true });
+		console.log(response)
 		return response.data;
 	} catch (error) {
 		if (error.response) {
 			const errorMessages = error.response.data.errors || [
 				error.response.data.message || 'Error updating task.'
-			];
-			return {
-				errors: errorMessages,
-				status: error.response.status // Return the status code
-			};
-		} else {
-			return {
-				errors: ['Network error. Please try again later.']
-			};
-		}
-	}
-};
-
-
-// API function to take on a task
-export const takeOnTask = async (taskId) => {
-	try {
-		const response = await taskAPI.post(`/tasks/${taskId}/take`, {}, { withCredentials: true });
-		return response.data;
-	} catch (error) {
-		if (error.response) {
-			const errorMessages = error.response.data.errors || [
-				error.response.data.message || 'Error taking on task.'
 			];
 			return {
 				errors: errorMessages,

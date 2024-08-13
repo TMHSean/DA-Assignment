@@ -90,8 +90,10 @@
       {#each tasks.open as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
           <h3>{task.task_name}</h3>
-          <p>{task.task_description}</p>
-          <p><strong>Plan:</strong> {task.task_plan}</p>
+          <div class="description-container">
+            <p>{task.task_description}</p>
+          </div>
+          <p class="plan-text"><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
         </div>
       {/each}
     </div>
@@ -101,9 +103,10 @@
       {#each tasks.toDo as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
           <h3>{task.task_name}</h3>
-          <p>{task.task_description}</p>
-          <p><strong>Plan:</strong> {task.task_plan}</p>
-          <button class="view-task-button" on:click|stopPropagation={() => viewTask(task.task_id)}>View Task</button>
+          <div class="description-container">
+            <p>{task.task_description}</p>
+          </div>
+          <p class="plan-text"><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
         </div>
       {/each}
     </div>
@@ -113,9 +116,10 @@
       {#each tasks.doing as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
           <h3>{task.task_name}</h3>
-          <p>{task.task_description}</p>
-          <p><strong>Plan:</strong> {task.task_plan}</p>
-          <button class="view-task-button" on:click|stopPropagation={() => viewTask(task.task_id)}>View Task</button>
+          <div class="description-container">
+            <p>{task.task_description}</p>
+          </div>
+          <p class="plan-text"><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
         </div>
       {/each}
     </div>
@@ -125,8 +129,10 @@
       {#each tasks.done as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
           <h3>{task.task_name}</h3>
-          <p>{task.task_description}</p>
-          <p><strong>Plan:</strong> {task.task_plan}</p>
+          <div class="description-container">
+            <p>{task.task_description}</p>
+          </div>
+          <p class="plan-text"><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
         </div>
       {/each}
     </div>
@@ -136,13 +142,16 @@
       {#each tasks.closed as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
           <h3>{task.task_name}</h3>
-          <p>{task.task_description}</p>
-          <p><strong>Plan:</strong> {task.task_plan}</p>
+          <div class="description-container">
+            <p>{task.task_description}</p>
+          </div>
+          <p class="plan-text"><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
         </div>
       {/each}
     </div>
   </div>
 </div>
+
 <style>
   .container {
     padding: 20px;
@@ -226,7 +235,7 @@
     background-color: white;
     border: 1px solid #ddd;
     border-radius: 10px;
-    padding: 10px;
+    padding: 0;
     margin-bottom: 10px;
     cursor: pointer;
     width: 100%;
@@ -234,10 +243,42 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s, box-shadow 0.2s;
     outline: none;
+    height: auto;
+    display: flex;
+    flex-direction: column;
   }
 
-  .task-card:focus {
-    outline: 2px solid #007bff;
+  .task-card h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: white;
+    background-color: rgb(87, 87, 87);
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .description-container {
+    max-height: 100px;
+    overflow-y: auto;
+    text-align: left;
+    padding: 10px;
+  }
+
+  .task-card p {
+    margin: 10px 0;
+    color: #555;
+    text-align: center;
+  }
+
+  .plan-text {
+    text-align: center;
+    padding: 10px;
+    margin: 10px 0; /* Adjust this as needed */
+    border-top: 1px solid #ddd;
+    box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
   }
 
   .task-card:hover {
@@ -245,30 +286,7 @@
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
   }
 
-  .task-card h3 {
-    margin: 0 0 5px 0;
-    font-size: 1.1em;
-    color: #333;
-  }
-
-  .task-card p {
-    margin: 5px 0;
-    color: #555;
-  }
-
-  .view-task-button {
-    margin-top: 10px;
-    padding: 5px 10px;
-    font-size: 0.9em;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .view-task-button:hover {
-    background-color: #0056b3;
+  .task-card:focus {
+    outline: 2px solid #007bff;
   }
 </style>

@@ -1,10 +1,12 @@
 <script>
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
-  import { getTaskDetails, getTaskNotesDetails, updateTask, takeOnTask, getAllPlans, checkUserStatus, getApplicationDetails, checkUserGroup, updateTaskState, updateTaskNote } from '$lib/api';
+  import { goto } from '$app/navigation';
+  import { getTaskDetails, getTaskNotesDetails, updateTask, getAllPlans, checkUserStatus, getApplicationDetails, checkUserGroup, updateTaskState, updateTaskNote } from '$lib/api';
 
   let taskDetails = {};
   let auditTrail = [];
+  let acronym = '';
   let newNote = '';
   let permitGroupKey = "";
   let canTakeOnTask = false;
@@ -22,7 +24,7 @@
 
   onMount(async () => {
   const taskId = $page.params.taskid;
-  const acronym = $page.params.acronym;
+  acronym = $page.params.acronym;
   try {
     const userStatus = await checkUserStatus();
     if (userStatus) {
@@ -31,14 +33,18 @@
       // Fetch current task details
       taskDetails = await getTaskDetails(taskId);
       const taskState = taskDetails.task_state;
-
-      // Retrieve the relevant permit group for the current task state
-      permitGroupKey = `app_permit_${taskState}`;
-      if (permitGroupKey === "app_permit_todo") {
-        permitGroupKey = "app_permit_toDoList";
+      if (taskState !== "closed") {
+        // Retrieve the relevant permit group for the current task state
+        permitGroupKey = `app_permit_${taskState}`;
+        if (permitGroupKey === "app_permit_todo") {
+          permitGroupKey = "app_permit_toDoList";
+        }
+        const userGroupCheck = await checkUserGroup(applicationDetails[permitGroupKey]);
+        canUpdateTask = userGroupCheck.data.isInGroup;
+      } else {
+        canUpdateTask = false;
       }
-      const userGroupCheck = await checkUserGroup(applicationDetails[permitGroupKey]);
-      canUpdateTask = userGroupCheck.data.isInGroup;
+      
 
       const auditTrailData = await getTaskNotesDetails(taskId);
       auditTrail = auditTrailData.map(note => ({
@@ -58,11 +64,18 @@
 
       console.log('Task State:', taskState);
       console.log('Can Update Task:', canUpdateTask);
+    } else {
+      goto('/deny'); 
     }
   } catch (error) {
     console.error('Error fetching task details or user permissions:', error);
+    }
+  });
+
+  function goBack() {
+    goto(`/taskpage/${acronym}`);
   }
-});
+
 
 
   async function handleUpdateTask() {
@@ -81,6 +94,7 @@
     if (taskState === 'open' || taskState === 'doing') {
       // Update task description and plan if there are changes
       if (taskUpdate.description.trim() || taskUpdate.plan !== taskDetails.task_plan) {
+        console.log("CHANGES")
         const taskUpdateResult = await updateTask(taskDetails.task_id, taskUpdate);
         if (taskUpdateResult) {
           console.log(taskUpdateResult.message);
@@ -118,26 +132,22 @@
   }
 }
 
-
-  async function handleTakeOnTask() {
-    try {
-      if (!canTakeOnTask) return;
-
-      const result = await takeOnTask(taskDetails.task_id);
-      taskDetails.owner = result.data.owner;
-      auditTrail = result.data.auditTrail;
-    } catch (error) {
-      console.error('Error taking on task:', error);
-    }
-  }
-
   async function handleUpdateTaskState(newState) {
     try {
+      await handleUpdateTask();
       const result = await updateTaskState(taskDetails.task_id, newState);
-      taskDetails.task_state = newState;
-      auditTrail = result.data.auditTrail;
+      if (result) {
+        window.location.reload();
+        taskDetails.task_state = newState;
+        auditTrail = result.data.auditTrail;
+        feedbackMessage = 'Task updated successfully!';
+        feedbackType = 'success';
+        
+      }
+      
     } catch (error) {
-      console.error('Error updating task state:', error);
+        feedbackMessage = Array.isArray(error.errors) ? error.errors.join('\n') : error.errors;
+        feedbackType = 'error';
     }
   }
 
@@ -162,9 +172,10 @@
   }
 </script>
 
+<button class="back-button" on:click={goBack}>← Back</button>
 
 <div class="task-container">
-  <h1>{taskDetails.task_name}</h1>
+  <h1> {taskDetails.task_name}</h1>
   {#if feedbackMessage}
     <p class="feedback-message {feedbackType}">{feedbackMessage}</p>
   {/if}
@@ -172,13 +183,13 @@
   <!-- Unified container for task-info and audit-trail -->
   <div class="task-content">
     <div class="task-info">
-      <p><strong>Description:</strong> {#if (taskDetails.task_state === 'open' || taskDetails.task_state === 'doing') && canUpdateTask}<textarea bind:value={taskDetails.task_description} />{:else}{taskDetails.task_description}{/if}</p>
+      <p><strong>Description:</strong> {#if (taskDetails.task_state === 'open' || taskDetails.task_state === 'done') && canUpdateTask}<textarea bind:value={taskDetails.task_description} />{:else}{taskDetails.task_description}{/if}</p>
       <p><strong>Task ID:</strong> {taskDetails.task_id}</p>
       <p><strong>State:</strong> {taskDetails.task_state}</p>
       <p><strong>Creator:</strong> {taskDetails.task_creator}</p>
       <p><strong>Owner:</strong> {taskDetails.task_owner || "Unassigned"}</p>
       <p><strong>Create Date:</strong> {formatDate(taskDetails.task_createDate)}</p>
-      <p><strong>Plan:</strong> {#if (taskDetails.task_state === 'open' || taskDetails.task_state === 'doing') && canUpdateTask}
+      <p><strong>Plan:</strong> {#if (taskDetails.task_state === 'open' || taskDetails.task_state === 'done') && canUpdateTask}
         <select bind:value={selectedPlan}>
           <option value="">Select Plan</option>
           {#each availablePlans as plan}
@@ -233,7 +244,7 @@
         <button class="update-task-btn" on:click={handleUpdateTask}>Update Details</button>
       {/if}
       {#if canTakeOnTask}
-        <button class="take-task-btn" on:click={handleTakeOnTask}>Take On Task</button>
+        <button class="take-task-btn" on:click={() => handleUpdateTaskState('doing')}>Take On Task</button>
       {/if}
       {#if canReleaseTask}
         <button class="release-task-btn" on:click={() => handleUpdateTaskState('todo')}>Release Task</button>
@@ -244,11 +255,11 @@
       {#if canCompleteTask}
         <button class="complete-task-btn" on:click={() => handleUpdateTaskState('done')}>Complete Task</button>
       {/if}
-      {#if canApproveTask}
-        <button class="approve-task-btn" on:click={() => handleUpdateTaskState('closed')}>Approve Task</button>
-      {/if}
       {#if canRejectTask}
         <button class="reject-task-btn" on:click={() => handleUpdateTaskState('doing')}>Reject Task</button>
+      {/if}
+      {#if canApproveTask}
+        <button class="approve-task-btn" on:click={() => handleUpdateTaskState('closed')}>Approve Task</button>
       {/if}
     </div>
   </div>
@@ -266,6 +277,7 @@
     color: #333;
     text-align: center; /* Centered title */
     margin-bottom: 20px; /* Extra space below the title */
+    margin-top: -20px;
   }
 
   .task-content {
@@ -377,6 +389,19 @@
   button:disabled {
     background-color: #c6c6c6;
     cursor: not-allowed;
+  }
+
+  .back-button {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.2s, border-color 0.2s;
+    width: auto;
   }
 
   .feedback-message {

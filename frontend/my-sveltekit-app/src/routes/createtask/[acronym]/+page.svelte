@@ -71,7 +71,7 @@
   
   <div class="form-group">
     <label for="selectedPlan">Plan:</label>
-    <select id="selectedPlan" bind:value={selectedPlan} required>
+    <select id="selectedPlan" bind:value={selectedPlan}>
       <option value="">Select Plan</option>
       {#each plans as plan}
         <option value={plan.plan_mvp_name}>{plan.plan_mvp_name}</option>

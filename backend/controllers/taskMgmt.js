@@ -160,7 +160,6 @@ const updatePlan = async (req, res) => {
   }
 };
 
-// Create a new task
 const createTask = async (req, res) => {
   const { name, description, plan, acronym } = req.body;
 
@@ -203,15 +202,18 @@ const createTask = async (req, res) => {
       ('0' + currentDate.getMinutes()).slice(-2) + ':' +
       ('0' + currentDate.getSeconds()).slice(-2);
 
+    // Use null if plan is not provided
+    const taskPlan = plan || null;
+
     // Insert new task into the task table
     await connection.query(
       "INSERT INTO task (task_id, task_name, task_description, task_plan, task_app_acronym, task_state, task_creator, task_owner, task_createDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [taskId, name, description, plan, acronym, 'open', req.user.username, req.user.username, formattedDate]
+      [taskId, name, description, taskPlan, acronym, 'open', req.user.username, req.user.username, formattedDate]
     );
 
     // Create initial audit trail entry
     const initialNote = `User ${req.user.username} has created the task.`;
-    const messageInitiator = "system"
+    const messageInitiator = "system";
     const auditTrail = JSON.stringify([{ user: req.user.username, state: 'open', date: formattedDate, message: initialNote, type: messageInitiator }]);
     await connection.query(
       "INSERT INTO tasknote (task_id, tasknote_created, notes) VALUES (?, ?, ?)",
@@ -228,6 +230,7 @@ const createTask = async (req, res) => {
     connection.release();
   }
 };
+
 
 
 
@@ -345,7 +348,7 @@ const updateTaskState = async (req, res) => {
     }
 
     // Update task state
-    await connection.query('UPDATE task SET task_state = ? WHERE task_id = ?', [newState, taskId]);
+    await connection.query('UPDATE task SET task_state = ?, task_owner = ? WHERE task_id = ?', [newState, req.user.username, taskId]);
 
     // Get the current date and time in local format
     const currentDate = new Date();
