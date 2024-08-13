@@ -19,7 +19,6 @@
   let canRejectTask = false;
   let availablePlans = [];
   let selectedPlan = '';
-  let userPermissions = {};
   let feedbackMessage = '';
   let feedbackType = '';
 
@@ -305,8 +304,18 @@
   }
 
   .task-info {
-    width: 48%; /* Slightly reduce width to allow spacing */
+    width: 45%; /* Slightly reduce width to allow spacing */
   }
+
+  .task-info p {
+    margin-bottom: 5%; /* Increase space below each paragraph */
+    line-height: 1.6; /* Increase line height for better readability */
+  }
+
+  .task-info textarea {
+    margin-bottom: 15px; /* Add space below the textarea if present */
+  }
+
 
   .audit-trail {
     width: 48%;
