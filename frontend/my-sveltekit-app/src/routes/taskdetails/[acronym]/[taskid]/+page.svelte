@@ -6,6 +6,7 @@
   let taskDetails = {};
   let auditTrail = [];
   let newNote = '';
+  let permitGroupKey = "";
   let canTakeOnTask = false;
   let canUpdateTask = false;
   let canReleaseTask = false;
@@ -20,56 +21,49 @@
   let feedbackType = '';
 
   onMount(async () => {
-    const taskId = $page.params.taskid;
-    const acronym = $page.params.acronym;
-    try {
-      const userStatus = await checkUserStatus();
-      if (userStatus) {
-        const applicationDetails = await getApplicationDetails(acronym);
+  const taskId = $page.params.taskid;
+  const acronym = $page.params.acronym;
+  try {
+    const userStatus = await checkUserStatus();
+    if (userStatus) {
+      const applicationDetails = await getApplicationDetails(acronym);
+      
+      // Fetch current task details
+      taskDetails = await getTaskDetails(taskId);
+      const taskState = taskDetails.task_state;
 
-        const userGroups = await Promise.all([
-          checkUserGroup(applicationDetails.app_permit_create),
-          checkUserGroup(applicationDetails.app_permit_open),
-          checkUserGroup(applicationDetails.app_permit_toDoList),
-          checkUserGroup(applicationDetails.app_permit_doing),
-          checkUserGroup(applicationDetails.app_permit_done),
-        ]);
-
-        userPermissions = {
-          canCreate: userGroups[0].data.isInGroup,
-          canOpen: userGroups[1].data.isInGroup,
-          canToDo: userGroups[2].data.isInGroup,
-          canDoing: userGroups[3].data.isInGroup,
-          canDone: userGroups[4].data.isInGroup,
-        };
-
-        taskDetails = await getTaskDetails(taskId);
-        const auditTrailData = await getTaskNotesDetails(taskId);
-
-        auditTrail = auditTrailData.map(note => ({
-          ...note,
-          notes: JSON.parse(note.notes)
-        }));
-
-        availablePlans = await getAllPlans(acronym);
-        selectedPlan = taskDetails.task_plan;
-
-        const taskState = taskDetails.task_state;
-        canTakeOnTask = taskState === 'todo' && userPermissions.canToDo;
-        canUpdateTask = (userPermissions.canOpen || userPermissions.canTodo || userPermissions.canDoing || userPermissions.canDone );
-        canReleaseTask = taskState === 'open' && userPermissions.canOpen;
-        canGiveUpTask = taskState === 'doing' && userPermissions.canToDo;
-        canCompleteTask = taskState === 'doing' && userPermissions.canDone;
-        canApproveTask = taskState === 'done' && userPermissions.canDone;
-        canRejectTask = taskState === 'done' && userPermissions.canDone;
-
-        console.log('Task State:', taskState);
-        console.log('Can Update Task:', canUpdateTask);
+      // Retrieve the relevant permit group for the current task state
+      permitGroupKey = `app_permit_${taskState}`;
+      if (permitGroupKey === "app_permit_todo") {
+        permitGroupKey = "app_permit_toDoList";
       }
-    } catch (error) {
-      console.error('Error fetching task details or user permissions:', error);
+      const userGroupCheck = await checkUserGroup(applicationDetails[permitGroupKey]);
+      canUpdateTask = userGroupCheck.data.isInGroup;
+
+      const auditTrailData = await getTaskNotesDetails(taskId);
+      auditTrail = auditTrailData.map(note => ({
+        ...note,
+        notes: JSON.parse(note.notes)
+      }));
+
+      availablePlans = await getAllPlans(acronym);
+      selectedPlan = taskDetails.task_plan;
+
+      canTakeOnTask = taskState === 'todo' && canUpdateTask;
+      canReleaseTask = taskState === 'open' && canUpdateTask;
+      canGiveUpTask = taskState === 'doing' && canUpdateTask;
+      canCompleteTask = taskState === 'doing' && canUpdateTask;
+      canApproveTask = taskState === 'done' && canUpdateTask;
+      canRejectTask = taskState === 'done' && canUpdateTask;
+
+      console.log('Task State:', taskState);
+      console.log('Can Update Task:', canUpdateTask);
     }
-  });
+  } catch (error) {
+    console.error('Error fetching task details or user permissions:', error);
+  }
+});
+
 
   async function handleUpdateTask() {
   try {
@@ -216,7 +210,7 @@
           <hr class="divider" />
         {/each}
       </div>
-      {#if userPermissions.canCreate || userPermissions.canOpen || userPermissions.canToDo || userPermissions.canDoing || userPermissions.canDone}
+      {#if canUpdateTask}
         <br>
         <b>Enter New Note:</b>
         <textarea bind:value={newNote} placeholder="Enter New Note"></textarea>

@@ -402,7 +402,7 @@ const getTasknotesById = async (req, res) => {
     }
 
     // Fetch related records (e.g., task notes) ordered by date
-    const [notesResult] = await db.query("SELECT * FROM tasknote WHERE task_id = ? ORDER BY tasknote_created ASC", [taskId]);
+    const [notesResult] = await db.query("SELECT * FROM tasknote WHERE task_id = ? ORDER BY tasknote_created DESC", [taskId]);
 
     // // Combine the task details with ordered notes
     // const task = taskResult[0];
