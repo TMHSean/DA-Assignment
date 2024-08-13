@@ -123,4 +123,8 @@
     transition: background-color 0.2s, transform 0.2s;
     font-size: 14px; /* Adjusted font size */
   }
+
+  .application-card button:hover {
+    background-color: #0056b3; /* Darker blue for hover effect */
+  }
 </style>

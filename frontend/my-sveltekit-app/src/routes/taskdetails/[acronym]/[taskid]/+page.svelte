@@ -391,6 +391,7 @@
     display: flex;
   }
 
+  /* General button styles */
   button {
     margin-right: 10px;
     padding: 12px 24px;
@@ -399,22 +400,84 @@
     color: #fff;
     background-color: #007bff;
     cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
   }
 
-  button.take-task-btn { background-color: #28a745; }
-  button.update-task-btn { background-color: #007bff; }
-  button.release-task-btn { background-color: #28a745; }
-  button.give-up-task-btn { background-color: #dc3545; }
-  button.complete-task-btn { background-color: #28a745; }
-  button.approve-task-btn { background-color: #28a745; }
-  button.reject-task-btn { background-color: #dc3545; }
-  button.cancel-btn { background-color: #6c757d; }
+  button:hover {
+    opacity: 0.9; /* Slight opacity change for all buttons on hover */
+  }
+
+  /* Specific button styles */
+  button.take-task-btn {
+    background-color: #28a745;
+  }
+
+  button.take-task-btn:hover {
+    background-color: #218838; /* Darker green for hover effect */
+  }
+
+  button.update-task-btn {
+    background-color: #007bff;
+  }
+
+  button.update-task-btn:hover {
+    background-color: #0056b3; /* Darker blue for hover effect */
+  }
+
+  button.release-task-btn {
+    background-color: #28a745;
+  }
+
+  button.release-task-btn:hover {
+    background-color: #218838; /* Darker green for hover effect */
+  }
+
+  button.give-up-task-btn {
+    background-color: #dc3545;
+  }
+
+  button.give-up-task-btn:hover {
+    background-color: #c82333; /* Darker red for hover effect */
+  }
+
+  button.complete-task-btn {
+    background-color: #28a745;
+  }
+
+  button.complete-task-btn:hover {
+    background-color: #218838; /* Darker green for hover effect */
+  }
+
+  button.approve-task-btn {
+    background-color: #28a745;
+  }
+
+  button.approve-task-btn:hover {
+    background-color: #218838; /* Darker green for hover effect */
+  }
+
+  button.reject-task-btn {
+    background-color: #dc3545;
+  }
+
+  button.reject-task-btn:hover {
+    background-color: #c82333; /* Darker red for hover effect */
+  }
+
+  button.cancel-btn {
+    background-color: #6c757d;
+  }
+
+  button.cancel-btn:hover {
+    background-color: #5a6268; /* Darker grey for hover effect */
+  }
 
   button:disabled {
     background-color: #c6c6c6;
     cursor: not-allowed;
   }
 
+  /* Back button styles */
   .back-button {
     background-color: #f0f0f0;
     color: #333;
@@ -425,7 +488,10 @@
     cursor: pointer;
     margin-top: 20px;
     transition: background-color 0.2s, border-color 0.2s;
-    width: auto;
+  }
+
+  .back-button:hover {
+    background-color: #e0e0e0; /* Slightly darker grey for hover effect */
   }
 
   .feedback-message {
