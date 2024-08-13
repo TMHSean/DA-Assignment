@@ -2,17 +2,26 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { getAllPlans, updatePlan } from '$lib/api'; // Assume you have an API function to get and update plans
+  import { getAllPlans, updatePlan, checkUserStatus } from '$lib/api'; // Assume you have an API function to get and update plans
 
   let plans = [];
   let acronym = '';
   let editingPlan = null;
   let feedbackMessage = '';
   let feedbackType = '';
+  let isProjectManager = "";
 
   onMount(async () => {
     acronym = $page.params.acronym;
-    plans = await getAllPlans(acronym); // Fetch plans for the application
+    const userStatus = await checkUserStatus();
+    isProjectManager = userStatus.isProjectManager;
+
+    if (userStatus && isProjectManager) {
+      plans = await getAllPlans(acronym); // Fetch plans for the application
+    } else {
+      goto("/deny")
+    }
+   
   });
 
   function createPlan() {

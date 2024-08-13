@@ -2,18 +2,26 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { createPlan } from '$lib/api'; // Assume you have an API function to create a plan
+  import { checkUserStatus, createPlan } from '$lib/api'; // Assume you have an API function to create a plan
 
   let planMvpName = '';
   let startDate = '';
   let endDate = '';
   let acronym = '';
+  let isProjectManager = "";
 
   let feedbackMessage = '';
   let feedbackType = '';
 
-  onMount(() => {
+  onMount(async () => {
     acronym = $page.params.acronym;
+    const userStatus = await checkUserStatus();
+    isProjectManager = userStatus.isProjectManager;
+
+    if (!userStatus || !isProjectManager) {
+      goto("/deny")
+    }
+
   });
 
   const handleSubmit = async (event) => {

@@ -39,7 +39,7 @@
         
       } else {
         // Redirect to login if not authenticated
-        goto('/');
+        goto('/deny');
       }
     } catch (error) {
       console.error('Error:', error);

@@ -149,11 +149,10 @@
 
   async function handleUpdateTaskState(newState) {
     try {
-
+      await handleUpdateTask();
       const result = await updateTaskState(taskDetails.task_id, newState, permitGroup);
       if (result) {
         window.location.reload();
-        await handleUpdateTask();
         taskDetails.task_state = newState;
         auditTrail = result.data.auditTrail;
         feedbackMessage = 'Task updated successfully!';

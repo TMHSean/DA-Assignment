@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { createTask, getAllPlans, getApplicationDetails } from '$lib/api'; // Assume you have API functions to create a task and get plans by acronym
+  import { checkUserStatus, createTask, getAllPlans, getApplicationDetails, checkUserGroup } from '$lib/api'; // Assume you have API functions to create a task and get plans by acronym
 
   let taskName = '';
   let taskDescription = '';
@@ -10,6 +10,7 @@
   let acronym = '';
   let plans = [];
   let taskCreatorGroup = "";
+  let canCreateTask = "";
 
   let feedbackMessage = '';
   let feedbackType = '';
@@ -17,9 +18,17 @@
   onMount(async () => {
     acronym = $page.params.acronym;
     try {
+      const userStatus = await checkUserStatus();
       const applicationDetails = await getApplicationDetails(acronym);
       taskCreatorGroup = applicationDetails.app_permit_create;
-      plans = await getAllPlans(acronym);
+      const userGroupCheck = await checkUserGroup(taskCreatorGroup);
+      canCreateTask = userGroupCheck.data.isInGroup;
+      if (userStatus && canCreateTask) {
+        plans = await getAllPlans(acronym);
+      } else {
+        goto("/deny")
+      }
+      
     } catch (error) {
       console.error('Error fetching plans:', error);
     }

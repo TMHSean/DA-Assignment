@@ -1,8 +1,9 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { createApplication, getAllGroups } from '$lib/api';
+  import { checkUserStatus, createApplication, getAllGroups } from '$lib/api';
 
+  let isProjectLead = "";
   let acronym = "";
   let description = "";
   let rnumber = 0;
@@ -20,8 +21,16 @@
 
   onMount(async () => {
     try {
-      const result = await getAllGroups();
-      groups = result; // Assign the fetched groups to the variable
+      const userStatus = await checkUserStatus();
+      isProjectLead = userStatus.isProjectLead;
+
+      if (userStatus && isProjectLead) {
+        const result = await getAllGroups();
+        groups = result; // Assign the fetched groups to the variable
+      } else {
+        goto("/deny")
+      }
+      
     } catch (error) {
       console.error("Error fetching groups:", error);
     }
