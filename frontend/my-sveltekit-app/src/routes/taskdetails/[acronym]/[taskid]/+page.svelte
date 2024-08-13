@@ -162,12 +162,15 @@
   }
 </script>
 
+
 <div class="task-container">
   <h1>{taskDetails.task_name}</h1>
   {#if feedbackMessage}
     <p class="feedback-message {feedbackType}">{feedbackMessage}</p>
   {/if}
-  <div class="task-details">
+
+  <!-- Unified container for task-info and audit-trail -->
+  <div class="task-content">
     <div class="task-info">
       <p><strong>Description:</strong> {#if (taskDetails.task_state === 'open' || taskDetails.task_state === 'doing') && canUpdateTask}<textarea bind:value={taskDetails.task_description} />{:else}{taskDetails.task_description}{/if}</p>
       <p><strong>Task ID:</strong> {taskDetails.task_id}</p>
@@ -222,162 +225,177 @@
     </div>
   </div>
 
+  <!-- Right-aligned buttons -->
   <div class="actions">
-    {#if canTakeOnTask}
-      <button class="take-task-btn" on:click={handleTakeOnTask}>Take On Task</button>
-    {/if}
-    {#if canUpdateTask}
-      <button class="update-task-btn" on:click={handleUpdateTask}>Update Details</button>
-    {/if}
-    {#if canReleaseTask}
-      <button class="release-task-btn" on:click={() => handleUpdateTaskState('todo')}>Release Task</button>
-    {/if}
-    {#if canGiveUpTask}
-      <button class="give-up-task-btn" on:click={() => handleUpdateTaskState('todo')}>Give Up Task</button>
-    {/if}
-    {#if canCompleteTask}
-      <button class="complete-task-btn" on:click={() => handleUpdateTaskState('done')}>Complete Task</button>
-    {/if}
-    {#if canApproveTask}
-      <button class="approve-task-btn" on:click={() => handleUpdateTaskState('closed')}>Approve Task</button>
-    {/if}
-    {#if canRejectTask}
-      <button class="reject-task-btn" on:click={() => handleUpdateTaskState('doing')}>Reject Task</button>
-    {/if}
-    <button class="cancel-btn" on:click={() => window.history.back()}>Cancel</button>
+    <div class="action-buttons">
+      <button class="cancel-btn" on:click={() => window.history.back()}>Cancel</button>
+      {#if canUpdateTask}
+        <button class="update-task-btn" on:click={handleUpdateTask}>Update Details</button>
+      {/if}
+      {#if canTakeOnTask}
+        <button class="take-task-btn" on:click={handleTakeOnTask}>Take On Task</button>
+      {/if}
+      {#if canReleaseTask}
+        <button class="release-task-btn" on:click={() => handleUpdateTaskState('todo')}>Release Task</button>
+      {/if}
+      {#if canGiveUpTask}
+        <button class="give-up-task-btn" on:click={() => handleUpdateTaskState('todo')}>Give Up Task</button>
+      {/if}
+      {#if canCompleteTask}
+        <button class="complete-task-btn" on:click={() => handleUpdateTaskState('done')}>Complete Task</button>
+      {/if}
+      {#if canApproveTask}
+        <button class="approve-task-btn" on:click={() => handleUpdateTaskState('closed')}>Approve Task</button>
+      {/if}
+      {#if canRejectTask}
+        <button class="reject-task-btn" on:click={() => handleUpdateTaskState('doing')}>Reject Task</button>
+      {/if}
+    </div>
   </div>
 </div>
 
 <style>
   .task-container {
-  padding: 20px;
-}
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto; /* Center align */
+  }
 
-h1 {
-  font-size: 2em;
-  color: #333;
-}
+  h1 {
+    font-size: 2.5em;
+    color: #333;
+    text-align: center; /* Centered title */
+    margin-bottom: 20px; /* Extra space below the title */
+  }
 
-.task-details {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
+  .task-content {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px; /* Increase space between sections */
+    padding: 20px;
+    border-radius: 8px;
+    
+  }
 
-.task-info {
-  width: 50%;
-}
+  .task-info {
+    width: 48%; /* Slightly reduce width to allow spacing */
+  }
 
-.audit-trail {
-  width: 45%;
-}
+  .audit-trail {
+    width: 48%;
+  }
 
-.notes {
-  max-height: 300px; /* Fixed height for scrolling */
-  overflow-y: auto; /* Vertical scrolling */
-  padding: 10px;
-  border: 1px solid #ccc;
-  background-color: #f9f9f9; /* Optional background color */
-  box-sizing: border-box; /* Ensure padding and border are included in the width */
-}
+  .notes {
+    max-height: 250px; /* Increased height */
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+  }
 
-textarea {
-  width: 100%; /* Full width minus padding and border */
-  height: 30%;
-  margin-top: 10px; /* Space above textarea */
-  padding: 10px; /* Padding inside textarea */
-  border: 1px solid #ccc; /* Border for textarea */
-  border-radius: 4px; /* Rounded corners */
-  box-sizing: border-box; /* Ensure padding and border are included in the width */
-}
+  textarea {
+    width: 96%;
+    height: 80px; /* Fixed height */
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
 
-.system-note {
-  background-color: #e9ecef;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
+  /* Color-coded notes */
+  .system-note {
+    background-color: #e9ecef;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
 
-.user-note {
-  background-color: #f0f8ff;
-  border: 1px solid #b0c4de;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
+  .user-note {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
 
-.note {
-  margin-bottom: 10px;
-}
+  .note {
+    margin-bottom: 10px;
+  }
 
-.note-header {
-  font-weight: bold;
-  color: #333;
-}
+  .note-header {
+    font-weight: bold;
+    color: #333;
+  }
 
-.note-date {
-  color: #888;
-  font-size: 0.9em;
-  margin-left: 10px;
-}
+  .note-date {
+    color: #888;
+    font-size: 0.9em;
+    margin-left: 10px;
+  }
 
-.note-message {
-  margin: 5px 0 0;
-}
+  .note-message {
+    margin: 5px 0 0;
+  }
 
-.divider {
-  border: 0;
-  border-top: 1px solid #ddd;
-  margin: 10px 0;
-}
+  .divider {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 10px 0;
+  }
 
-.actions {
-  margin-top: 20px;
-}
+  /* Right-aligned buttons */
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
 
-button {
-  margin-right: 10px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  color: #fff;
-  background-color: #007bff;
-  cursor: pointer;
-}
+  .action-buttons {
+    display: flex;
+  }
 
-button.take-task-btn { background-color: #28a745; }
-button.update-task-btn { background-color: #007bff; }
-button.release-task-btn { background-color: #ffc107; }
-button.give-up-task-btn { background-color: #dc3545; }
-button.complete-task-btn { background-color: #17a2b8; }
-button.approve-task-btn { background-color: #28a745; }
-button.reject-task-btn { background-color: #dc3545; }
-button.cancel-btn { background-color: #6c757d; }
+  button {
+    margin-right: 10px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    background-color: #007bff;
+    cursor: pointer;
+  }
 
-button:disabled {
-  background-color: #c6c6c6;
-  cursor: not-allowed;
-}
+  button.take-task-btn { background-color: #28a745; }
+  button.update-task-btn { background-color: #007bff; }
+  button.release-task-btn { background-color: #28a745; }
+  button.give-up-task-btn { background-color: #dc3545; }
+  button.complete-task-btn { background-color: #28a745; }
+  button.approve-task-btn { background-color: #28a745; }
+  button.reject-task-btn { background-color: #dc3545; }
+  button.cancel-btn { background-color: #6c757d; }
 
-.feedback-message {
-  margin: 1rem 0;
-  padding: 1rem;
-  border-radius: 4px;
-  text-align: center;
-  font-weight: bold;
-  width: 100%;
-  box-sizing: border-box;
-}
+  button:disabled {
+    background-color: #c6c6c6;
+    cursor: not-allowed;
+  }
 
-.feedback-message.success {
-  background-color: #d4edda;
-  color: #155724;
-}
+  .feedback-message {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    width: 100%;
+    box-sizing: border-box;
+  }
 
-.feedback-message.error {
-  background-color: #f8d7da;
-  color: #721c24;
-}
+  .feedback-message.success {
+    background-color: #d4edda;
+    color: #155724;
+  }
 
+  .feedback-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
 </style>
