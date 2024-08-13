@@ -34,16 +34,29 @@ router.put('/plans/update/:plan_app_acronym/:plan_mvp_name', authenticateToken, 
 //***** TASK  */
 
 // Create a new task
-router.post('/createtask', authenticateToken, taskMgmt.createTask);
+router.post('/createtask', authenticateToken, (req, res, next) => {
+  const groupName = req.body.groupName; // Extract group name from request body
+  authorizeGroup(groupName)(req, res, next); // Call authorizeGroup middleware
+}, taskMgmt.createTask);
+
 
 // Update a task
-router.put('/update/task/:taskId', authenticateToken, taskMgmt.updateTask);
+router.put('/update/task/:taskId', authenticateToken, (req, res, next) => {
+  const groupName = req.body.groupName; // Extract group name from request body
+  authorizeGroup(groupName)(req, res, next); // Call authorizeGroup middleware
+}, taskMgmt.updateTask);
 
 // Update a tasknote
-router.put('/update/tasknote/:taskId', authenticateToken, taskMgmt.updateTaskNote);
+router.put('/update/tasknote/:taskId', authenticateToken, (req, res, next) => {
+  const groupName = req.body.groupName; // Extract group name from request body
+  authorizeGroup(groupName)(req, res, next); // Call authorizeGroup middleware
+}, taskMgmt.updateTaskNote);
 
 // Update a task state
-router.put('/update/taskState/:taskId', authenticateToken, taskMgmt.updateTaskState);
+router.put('/update/taskState/:taskId', authenticateToken, (req, res, next) => {
+  const groupName = req.body.groupName; // Extract group name from request body
+  authorizeGroup(groupName)(req, res, next); // Call authorizeGroup middleware
+}, taskMgmt.updateTaskState);
 
 // Get a specific task by ID
 router.get('/getTask/:taskId', authenticateToken, taskMgmt.getTaskById);

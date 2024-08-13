@@ -6,6 +6,7 @@
 
   let taskDetails = {};
   let auditTrail = [];
+  let permitGroup = "";
   let acronym = '';
   let newNote = '';
   let permitGroupKey = "";
@@ -29,7 +30,6 @@
     const userStatus = await checkUserStatus();
     if (userStatus) {
       const applicationDetails = await getApplicationDetails(acronym);
-      
       // Fetch current task details
       taskDetails = await getTaskDetails(taskId);
       const taskState = taskDetails.task_state;
@@ -39,6 +39,7 @@
         if (permitGroupKey === "app_permit_todo") {
           permitGroupKey = "app_permit_toDoList";
         }
+        permitGroup = applicationDetails[permitGroupKey];
         const userGroupCheck = await checkUserGroup(applicationDetails[permitGroupKey]);
         canUpdateTask = userGroupCheck.data.isInGroup;
       } else {
@@ -79,65 +80,80 @@
 
 
   async function handleUpdateTask() {
-  try {
-    if (!canUpdateTask) return;
+    let taskUpdateSuccessful = false;
+    let taskNoteUpdateSuccessful = false;
+    
+    try {
+      if (!canUpdateTask) return;
 
-    const taskState = taskDetails.task_state;
+      const taskState = taskDetails.task_state;
 
-    // Define the update payload
-    const taskUpdate = {
-      description: taskDetails.task_description,
-      plan: selectedPlan,
-    };
+      // Define the update payload
+      const taskUpdate = {
+        description: taskDetails.task_description,
+        plan: selectedPlan,
+      };
 
-    // Check if the task state is 'open' or 'doing'
-    if (taskState === 'open' || taskState === 'doing') {
-      // Update task description and plan if there are changes
-      if (taskUpdate.description.trim() || taskUpdate.plan !== taskDetails.task_plan) {
-        console.log("CHANGES")
-        const taskUpdateResult = await updateTask(taskDetails.task_id, taskUpdate);
-        if (taskUpdateResult) {
-          console.log(taskUpdateResult.message);
-          feedbackMessage = 'Task updated successfully!';
-          feedbackType = 'success';
-        } else {
-          feedbackMessage = Array.isArray(taskUpdateResult.errors) ? taskUpdateResult.errors.join('\n') : taskUpdateResult.errors;
-          feedbackType = 'error';
+      // Check if the task state is 'open' or 'doing'
+      if (taskState === 'open' || taskState === 'doing') {
+        // Update task description and plan if there are changes
+        if (taskUpdate.description.trim() || taskUpdate.plan !== taskDetails.task_plan) {
+          const taskUpdateResult = await updateTask(taskDetails.task_id, taskUpdate, permitGroup);
+          if (taskUpdateResult) {
+            taskUpdateSuccessful = true; // Mark task update as successful
+          } else {
+            feedbackMessage = Array.isArray(taskUpdateResult.errors) ? taskUpdateResult.errors.join('\n') : taskUpdateResult.errors;
+            feedbackType = 'error';
+          }
         }
       }
-    }
 
-    // Update task note if there is any new note
-    if (newNote.trim()) {
-      const tasknoteUpdateResult = await updateTaskNote(taskDetails.task_id, newNote, taskState, "user" );
-      if (tasknoteUpdateResult) {
-          feedbackMessage = 'Task updated successfully!';
-          feedbackType = 'success';
+      // Update task note if there is any new note
+      if (newNote.trim()) {
+        const tasknoteUpdateResult = await updateTaskNote(taskDetails.task_id, newNote, taskState, "user", permitGroup );
+        if (tasknoteUpdateResult) {
+            taskNoteUpdateSuccessful = true; // Mark task note update as successful
         } else {
-          feedbackMessage = Array.isArray(tasknoteUpdateResult.errors) ? tasknoteUpdateResult.errors.join('\n') : tasknoteUpdateResult.errors;
-          feedbackType = 'error';
+            feedbackMessage = Array.isArray(tasknoteUpdateResult.errors) ? tasknoteUpdateResult.errors.join('\n') : tasknoteUpdateResult.errors;
+            feedbackType = 'error';
         }
         newNote = ''; // Clear the note field after updating
-    }
+      }
 
-    // Refresh audit trail
-    const auditTrailResult = await getTaskNotesDetails(taskDetails.task_id);
-    auditTrail = auditTrailResult.map(note => ({
-      ...note,
-      notes: JSON.parse(note.notes)
-    }));
-    
-  } catch (error) {
-    console.error('Error updating task:', error);
+      // Refresh audit trail
+      const auditTrailResult = await getTaskNotesDetails(taskDetails.task_id);
+      auditTrail = auditTrailResult.map(note => ({
+        ...note,
+        notes: JSON.parse(note.notes)
+      }));
+
+      // Set the feedback message based on the results of both updates
+      if (taskUpdateSuccessful && taskNoteUpdateSuccessful) {
+        feedbackMessage = 'Task and note updated successfully!';
+        feedbackType = 'success';
+      } else if (taskUpdateSuccessful) {
+        feedbackMessage = 'Task updated successfully!';
+        feedbackType = 'success';
+      } else if (taskNoteUpdateSuccessful) {
+        feedbackMessage = 'Note updated successfully!';
+        feedbackType = 'success';
+      }
+
+    } catch (error) {
+      console.error('Error updating task:', error);
+      feedbackMessage = Array.isArray(error.errors) ? error.errors.join('\n') : error.errors;
+      feedbackType = 'error';
+    }
   }
-}
+
 
   async function handleUpdateTaskState(newState) {
     try {
-      await handleUpdateTask();
-      const result = await updateTaskState(taskDetails.task_id, newState);
+
+      const result = await updateTaskState(taskDetails.task_id, newState, permitGroup);
       if (result) {
         window.location.reload();
+        await handleUpdateTask();
         taskDetails.task_state = newState;
         auditTrail = result.data.auditTrail;
         feedbackMessage = 'Task updated successfully!';
@@ -191,7 +207,7 @@
       <p><strong>Create Date:</strong> {formatDate(taskDetails.task_createDate)}</p>
       <p><strong>Plan:</strong> {#if (taskDetails.task_state === 'open' || taskDetails.task_state === 'done') && canUpdateTask}
         <select bind:value={selectedPlan}>
-          <option value="">Select Plan</option>
+          <option value="null">Select Plan</option>
           {#each availablePlans as plan}
             <option value={plan.plan_mvp_name}>{plan.plan_mvp_name}</option>
           {/each}

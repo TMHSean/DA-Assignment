@@ -92,7 +92,7 @@
     height: 150px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between; /* Adjust to distribute space between content and button */
     align-items: center;
     position: relative;
     text-decoration: none;
@@ -113,19 +113,14 @@
     background-color: #007bff; /* Primary blue color */
     color: white;
     border: none;
-    padding: 10px 30px; /* Increased padding to make the button longer */
+    padding: 10px; /* Adjust padding as needed */
     cursor: pointer;
     position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 25px; /* Rounded corners */
+    bottom: 0; /* Align to the bottom of the card */
+    left: 0; /* Align to the left edge of the card */
+    width: 100%; /* Make the button span the full width */
+    border-radius: 0 0 13.5px 13.5px; /* Rounded corners only at the bottom */
     transition: background-color 0.2s, transform 0.2s;
     font-size: 14px; /* Adjusted font size */
-  }
-
-  .application-card button:hover {
-    background-color: #0056b3; /* Darker blue for hover effect */
-    transform: translateX(-50%) scale(1.05); /* Slightly enlarge on hover */
   }
 </style>

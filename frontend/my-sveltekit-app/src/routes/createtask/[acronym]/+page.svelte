@@ -2,13 +2,14 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { createTask, getAllPlans } from '$lib/api'; // Assume you have API functions to create a task and get plans by acronym
+  import { createTask, getAllPlans, getApplicationDetails } from '$lib/api'; // Assume you have API functions to create a task and get plans by acronym
 
   let taskName = '';
   let taskDescription = '';
   let selectedPlan = '';
   let acronym = '';
   let plans = [];
+  let taskCreatorGroup = "";
 
   let feedbackMessage = '';
   let feedbackType = '';
@@ -16,6 +17,8 @@
   onMount(async () => {
     acronym = $page.params.acronym;
     try {
+      const applicationDetails = await getApplicationDetails(acronym);
+      taskCreatorGroup = applicationDetails.app_permit_create;
       plans = await getAllPlans(acronym);
     } catch (error) {
       console.error('Error fetching plans:', error);
@@ -32,7 +35,7 @@
     };
 
     try {
-      const result = await createTask(taskData);
+      const result = await createTask(taskData, taskCreatorGroup);
       if (result.errors) {
         if (result.status === 403) {
           goto('/logout');

@@ -369,9 +369,9 @@ export const updatePlan = async (planAppAcronym, planMvpName, planData) => {
 	}
 };
 
-export const createTask = async (taskData) => {
+export const createTask = async (taskData, groupName) => {
 	try {
-		const response = await taskAPI.post('/createtask', taskData, { withCredentials: true });
+		const response = await taskAPI.post('/createtask', { ...taskData, groupName }, { withCredentials: true });
 		return response.data;
 	} catch (error) {
 		if (error.response) {
@@ -457,10 +457,9 @@ export const getTaskNotesDetails = async (taskId) => {
 
 
 // API function to update task
-export const updateTask = async (taskId, taskObjects) => {
-	console.log(taskObjects)
+export const updateTask = async (taskId, taskObjects, groupName) => {
 	try {
-		const response = await taskAPI.put(`/update/task/${taskId}`, taskObjects, { withCredentials: true });
+		const response = await taskAPI.put(`/update/task/${taskId}`, { ...taskObjects, groupName }, { withCredentials: true });
 		console.log(response)
 		return response.data;
 	} catch (error) {
@@ -480,9 +479,9 @@ export const updateTask = async (taskId, taskObjects) => {
 	}
 };
 
-export const updateTaskState = async (taskId, newState) => {
+export const updateTaskState = async (taskId, newState, groupName) => {
 	try {
-		const response = await taskAPI.put(`/update/taskState/${taskId}`, { newState }, { withCredentials: true });
+		const response = await taskAPI.put(`/update/taskState/${taskId}`, { newState, groupName }, { withCredentials: true });
 		return response.data;
 	} catch (error) {
 		if (error.response) {
@@ -501,9 +500,10 @@ export const updateTaskState = async (taskId, newState) => {
 	}
 };
 
-export const updateTaskNote = async (taskId, note, state = 'open', type = 'system') => {
+export const updateTaskNote = async (taskId, note, state = 'open', type = 'system', groupName) => {
+	console.log(groupName)
 	try {
-		const response = await taskAPI.put(`/update/tasknote/${taskId}`, { note, state, type }, { withCredentials: true });
+		const response = await taskAPI.put(`/update/tasknote/${taskId}`, { note, state, type, groupName }, { withCredentials: true });
 		return response.data;
 	} catch (error) {
 		if (error.response) {

@@ -195,6 +195,7 @@ const createTask = async (req, res) => {
 
     // Get the current date and time in local format
     const currentDate = new Date();
+    // Add 1 second to the current time
     const formattedDate = currentDate.getFullYear() + '-' +
       ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
       ('0' + currentDate.getDate()).slice(-2) + ' ' +
@@ -311,6 +312,7 @@ const updateTaskNote = async (req, res) => {
 
     // Create a new note entry
     const auditTrail = JSON.stringify([{ user: req.user.username, state, date: formattedDate, message: note, type }]);
+
     await connection.query(
       "INSERT INTO tasknote (task_id, tasknote_created, notes) VALUES (?, ?, ?)",
       [taskId, formattedDate, auditTrail]
@@ -352,6 +354,7 @@ const updateTaskState = async (req, res) => {
 
     // Get the current date and time in local format
     const currentDate = new Date();
+    currentDate.setSeconds(currentDate.getSeconds() + 1);
     const formattedDate = currentDate.getFullYear() + '-' +
       ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
       ('0' + currentDate.getDate()).slice(-2) + ' ' +
