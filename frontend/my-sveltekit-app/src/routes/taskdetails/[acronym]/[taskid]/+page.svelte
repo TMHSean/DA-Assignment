@@ -146,10 +146,10 @@
   }
 
 
-  async function handleUpdateTaskState(newState) {
+  async function handleUpdateTaskState(newState, approval=false, release=false) {
     try {
       await handleUpdateTask();
-      const updateStateObject = {newState, permitGroup}
+      const updateStateObject = {newState, permitGroup, approval, release}
       const result = await updateTaskState(taskDetails.task_id, updateStateObject, permitGroup);
       if (result) {
         window.location.reload();
@@ -262,7 +262,7 @@
         <button class="take-task-btn" on:click={() => handleUpdateTaskState('doing')}>Take On Task</button>
       {/if}
       {#if canReleaseTask}
-        <button class="release-task-btn" on:click={() => handleUpdateTaskState('todo')}>Release Task</button>
+        <button class="release-task-btn" on:click={() => handleUpdateTaskState('todo', false, true)}>Release Task</button>
       {/if}
       {#if canGiveUpTask}
         <button class="give-up-task-btn" on:click={() => handleUpdateTaskState('todo')}>Give Up Task</button>
@@ -271,7 +271,7 @@
         <button class="complete-task-btn" on:click={() => handleUpdateTaskState('done')}>Complete Task</button>
       {/if}
       {#if canRejectTask}
-        <button class="reject-task-btn" on:click={() => handleUpdateTaskState('doing')}>Reject Task</button>
+        <button class="reject-task-btn" on:click={() => handleUpdateTaskState('doing', true)}>Reject Task</button>
       {/if}
       {#if canApproveTask}
         <button class="approve-task-btn" on:click={() => handleUpdateTaskState('closed')}>Approve Task</button>

@@ -333,8 +333,7 @@ const updateTaskNote = async (req, res) => {
 
 const updateTaskState = async (req, res) => {
   const { taskId } = req.params;
-  const { newState, groupName } = req.body;
-
+  const { newState, groupName, approval, release } = req.body;
   const validStates = ['todo', 'doing', 'done', 'closed'];
   if (!validStates.includes(newState)) {
     return res.status(400).json({ errors: 'Invalid state' });
@@ -363,7 +362,32 @@ const updateTaskState = async (req, res) => {
       ('0' + currentDate.getMinutes()).slice(-2) + ':' +
       ('0' + currentDate.getSeconds()).slice(-2);
 
-    const stateChangeMessage = `Task state changed to ${newState} by ${req.user.username}`;
+    // Determine the state change message
+    const stateChangeMessage = (() => {
+      switch (newState) {
+        case 'doing':
+          if (approval) {
+            return `Task rejected by ${req.user.username}`;
+          }
+          return `Task taken on by ${req.user.username}`;
+
+        case 'todo':
+          if (release) {
+            return `Task released by ${req.user.username}`;
+          }
+          return `Task given up by ${req.user.username}`;
+
+        case 'done':
+          return `Task submitted by ${req.user.username}`;
+
+        case 'closed':
+          return `Task closed by ${req.user.username}`;
+
+        default:
+          return `Task state changed to ${newState} by ${req.user.username}`;
+      }
+    })();
+
     const messageInitiator = 'system'; // Use 'user' if needed based on who initiates the action
 
     // Insert the new note
@@ -372,14 +396,14 @@ const updateTaskState = async (req, res) => {
       [taskId, formattedDate, JSON.stringify([{ user: req.user.username, state: newState, date: formattedDate, message: stateChangeMessage, type: messageInitiator }])]
     );
 
+    // Commit the transaction
     await connection.commit();
 
     // Send notification if the new state is 'done'
     if (newState === 'done') {
-      const taskName = task[0].task_name; // Assuming task_name is a field in your task tabl
+      const taskName = task[0].task_name; // Assuming task_name is a field in your task table
       await sendTaskNotification(taskId, taskName, req.user.username, groupName);
     }
-
 
     res.status(200).json({ message: 'Task state updated successfully' });
   } catch (error) {
