@@ -55,7 +55,7 @@ const sendTaskNotification = async (taskId, taskName, username, groupName) => {
           from: process.env.EMAIL_USER,
           to: email,
           subject: 'Task Completed Notification',
-          text: `The task "${taskName}" has been marked as done. Please review the task.`
+          html: `The task "<strong>${taskName}</strong>" has been marked as done. Please review the task.<br><br>Click <a href="http://localhost:5173/">here</a> to login.`
         };
         return transporter.sendMail(mailOptions);
       }
