@@ -153,140 +153,147 @@
 </div>
 
 <style>
-  .container {
-    padding: 20px;
-  }
+.container {
+  padding: 20px;
+}
 
-  .header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
 
-  h1 {
-    font-size: 2em;
-    color: #333;
-  }
+h1 {
+  font-size: 2em;
+  color: #333;
+}
 
-  .button-container {
-    display: flex;
-    gap: 10px;
-  }
+.button-container {
+  display: flex;
+  gap: 10px;
+}
 
-  .plan-button {
-    padding: 10px 20px;
-    font-size: 1em;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
+.plan-button {
+  padding: 10px 20px;
+  font-size: 1em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
 
-  .view-plans-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-  }
+.view-plans-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
 
-  .view-plans-button:hover {
-    background-color: #218838;
-  }
+.view-plans-button:hover {
+  background-color: #218838;
+}
 
-  .create-tasks-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-  }
+.create-tasks-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
 
-  .create-tasks-button:hover {
-    background-color: #0056b3;
-  }
+.create-tasks-button:hover {
+  background-color: #0056b3;
+}
 
-  .tasks-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-  }
+.tasks-container {
+  display: flex;
+  flex-wrap: nowrap; /* Prevent wrapping to maintain columns in a single row */
+  gap: 20px;
+  overflow-x: auto; /* Add horizontal scroll if needed */
+}
 
-  .column {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-    width: 22%;
-    min-height: 600px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
+.column {
+  flex: 1; /* Each column takes equal width */
+  min-width: 18%; /* Minimum width for each column */
+  max-width: 20%; /* Maximum width for each column */
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box; /* Include padding and border in the width and height */
+}
 
-  .column h2 {
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 1.2em;
-    color: #000;
-    border-bottom: 2px solid #000;
-    padding-bottom: 5px;
-    width: 100%;
-  }
+.column h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  color: #000;
+  border-bottom: 2px solid #000;
+  padding-bottom: 5px;
+  width: 100%;
+}
 
-  .task-card {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 0;
-    margin-bottom: 10px;
-    cursor: pointer;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-    outline: none;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-  }
+.task-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 0;
+  margin-bottom: 10px;
+  cursor: pointer;
+  width: 100%;
+  height: 150px; /* Increased height to accommodate header and content */
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Hide any overflow content */
+}
 
-  .task-card h3 {
-    margin: 0;
-    font-size: 1.1em;
-    color: white;
-    background-color: rgb(87, 87, 87);
-    padding: 10px;
-    border-radius: 10px 10px 0 0;
-    width: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
-  }
+.task-card h3 {
+  margin: 0;
+  font-size: 1.1em;
+  color: white;
+  background-color: rgb(87, 87, 87);
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Adds ellipsis if text overflows */
+}
 
-  .description-container {
-    max-height: 100px;
-    overflow-y: auto;
-    text-align: left;
-    padding: 10px;
-  }
+.description-container {
+  max-height: 80px;
+  overflow-y: auto;
+  text-align: left;
+  padding: 10px;
+}
 
-  .task-card p {
-    margin: 10px 0;
-    color: #555;
-    text-align: center;
-  }
+.task-card p {
+  margin: 10px 0;
+  color: #555;
+  text-align: center;
+}
 
-  .plan-text {
-    text-align: center;
-    padding: 10px;
-    margin: 10px 0; /* Adjust this as needed */
-    border-top: 1px solid #ddd;
-    box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
-  }
+.plan-text {
+  text-align: center;
+  padding: 10px;
+  margin: 10px 0; /* Adjust this as needed */
+  border-top: 1px solid #ddd;
+  box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+}
 
-  .task-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-  }
+.task-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
 
-  .task-card:focus {
-    outline: 2px solid #007bff;
-  }
+.task-card:focus {
+  outline: 2px solid #007bff;
+}
+
+
 </style>
