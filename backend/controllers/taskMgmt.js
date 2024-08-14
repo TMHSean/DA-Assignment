@@ -13,6 +13,14 @@ const createApplication = async (req, res) => {
     return res.status(400).json({ errors });
   }
 
+  if (rnumber < 0) {
+    return res.status(400).json({ errors: "Rnumber cannot be a negative number" });
+  }
+
+  if (startDate > endDate) {
+    return res.status(400).json({ errors: "End Date cannot be earlier than Start Date" });
+  }
+
   const connection = await db.getConnection(); // Get a connection from the pool
   try {
     await connection.beginTransaction();
@@ -62,6 +70,10 @@ const updateApplication = async (req, res) => {
   const { acronym } = req.params;
   const lowerAcronym = acronym.toLowerCase();
   const { description, rnumber, startDate, endDate, permitCreate, permitOpen, permitToDo, permitDoing, permitDone } = req.body;
+
+  if (startDate > endDate) {
+    return res.status(400).json({ errors: "End Date cannot be earlier than Start Date" });
+  }
 
   const connection = await db.getConnection(); // Get a connection from the pool
   try {
@@ -144,6 +156,11 @@ const getPlan = async (req, res) => {
 const updatePlan = async (req, res) => {
   const { plan_app_acronym, plan_mvp_name } = req.params;
   const { startDate, endDate } = req.body;
+
+  if (startDate > endDate) {
+    console.log("HELLLOOOO")
+    return res.status(400).json({ errors: "End Date cannot be earlier than Start Date" });
+  }
 
   const connection = await db.getConnection(); // Get a connection from the pool
   try {

@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { getApplicationDetails, getAllGroups, updateApplication } from '$lib/api';
-  import { goto } from '$app/navigation';
 
   let acronym = '';
   let description = '';
@@ -19,14 +18,25 @@
   let feedbackMessage = '';
   let feedbackType = '';
 
+  // Helper function to adjust date for local timezone
+  function adjustForLocalTime(dateStr) {
+    const date = new Date(dateStr);
+    // Adding one day to match the MySQL date
+    date.setDate(date.getDate() + 1);
+    return date.toISOString().slice(0, 10); // Return in YYYY-MM-DD format
+  }
+
   onMount(async () => {
     try {
       acronym = $page.params.acronym;
       const result = await getApplicationDetails(acronym);
       description = result.app_description;
       rnumber = result.app_rnumber;
-      startDate = result.app_startDate;
-      endDate = result.app_endDate;
+
+      // Adjust dates for local display
+      startDate = adjustForLocalTime(result.app_startDate); // Adjust as needed
+      endDate = adjustForLocalTime(result.app_endDate);   // Adjust as needed
+
       permitCreate = result.app_permit_create;
       permitOpen = result.app_permit_open;
       permitToDo = result.app_permit_toDoList;
@@ -37,17 +47,23 @@
       groups = groupResult; // Assign the fetched groups to the variable
     } catch (error) {
       console.error("Error fetching application details or groups:", error);
-      errorMessage = 'Failed to load application details';
+      feedbackMessage = 'Failed to load application details';
+      feedbackType = 'error';
     }
   });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Convert dates to UTC format (YYYY-MM-DD)
+    const startDateUTC = new Date(startDate).toISOString().slice(0, 10);
+    const endDateUTC = new Date(endDate).toISOString().slice(0, 10);
+
     const applicationData = {
       description,
       rnumber,
-      startDate: startDate ? new Date(startDate).toISOString().split('T')[0] : '',
-      endDate: endDate ? new Date(endDate).toISOString().split('T')[0] : '',
+      startDate: startDateUTC, // Use UTC format
+      endDate: endDateUTC,     // Use UTC format
       permitCreate,
       permitOpen,
       permitToDo,
@@ -55,19 +71,17 @@
       permitDone
     };
 
-    console.log(applicationData)
+    console.log('Submitting data:', applicationData); // Log to check data
 
     try {
       const result = await updateApplication(acronym, applicationData);
 
       if (result.errors) {
-        feedbackMessage = result.errors.join('\n');
+        feedbackMessage = Array.isArray(result.errors) ? result.errors.join('\n') : result.errors;
         feedbackType = 'error';
       } else {
         feedbackMessage = 'Application updated successfully!';
         feedbackType = 'success';
-        // Optionally, redirect or clear form fields
-        // goto('/applications'); // Example redirect
       }
     } catch (error) {
       feedbackMessage = 'An unexpected error occurred. Please try again later.';
@@ -237,15 +251,14 @@
   }
 
   .feedback-message {
-  margin: 1rem 0;
-  padding: 1rem;
-  border-radius: 4px;
-  text-align: center;
-  font-weight: bold;
-  width: 100%; /* Add this line to make the feedback message take the full width */
-  box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
-}
-
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    width: 100%; /* Add this line to make the feedback message take the full width */
+    box-sizing: border-box; /* Ensures padding is included in the element's total width and height */
+  }
 
   .feedback-message.success {
     background-color: #d4edda;
@@ -256,6 +269,4 @@
     background-color: #f8d7da;
     color: #721c24;
   }
-
-
 </style>

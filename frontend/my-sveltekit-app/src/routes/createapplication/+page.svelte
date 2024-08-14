@@ -61,7 +61,8 @@
               goto('/logout'); // Example redirect
           } else {
               // Display all error messages
-              feedbackMessage = result.errors.join('\n');
+              console.log(result.errors)
+              feedbackMessage = Array.isArray(result.errors) ? result.errors.join('\n') : result.errors;
               feedbackType = 'error';
           }
       } else {
