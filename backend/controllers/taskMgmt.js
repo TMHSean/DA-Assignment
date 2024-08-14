@@ -93,6 +93,10 @@ const createPlan = async (req, res) => {
     return res.status(400).json({ errors });
   }
 
+  if (startDate > endDate) {
+    return res.status(400).json({ errors: "End Date cannot be earlier than Start Date" });
+  }
+
   const connection = await db.getConnection(); // Get a connection from the pool
   try {
     await connection.beginTransaction();

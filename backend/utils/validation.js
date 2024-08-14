@@ -117,7 +117,7 @@ const validateCreatePlan = async (planAppAcronym, planMvpName) => {
     errors.push("MVP name cannot be empty.");
   } else if (!isLength(planMvpName, { min: 4, max: 20 })) {
     errors.push("MVP name length must be between 4 and 20 characters.");
-  } else if (!/^[a-zA-Z0-9_]+$/.test(planMvpName)) {
+  } else if (!/^[a-zA-Z0-9_ ]+$/.test(planMvpName)) {
     errors.push("MVP name can only contain alphanumeric characters and underscores.");
   } else if (await checkPlan(planAppAcronym, planMvpName)) {
     errors.push("MVP name already exists for this application.");
