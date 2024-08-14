@@ -149,7 +149,8 @@
   async function handleUpdateTaskState(newState) {
     try {
       await handleUpdateTask();
-      const result = await updateTaskState(taskDetails.task_id, newState, permitGroup);
+      const updateStateObject = {newState, permitGroup}
+      const result = await updateTaskState(taskDetails.task_id, updateStateObject, permitGroup);
       if (result) {
         window.location.reload();
         taskDetails.task_state = newState;

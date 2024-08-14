@@ -1,5 +1,6 @@
 const db = require("../config/db"); // Assuming you have a db module to handle SQL queries
 const { validateCreateApplication, validateCreatePlan } = require('../utils/validation');
+const { sendTaskNotification } = require("../middleware/email")
 
 // Create a new application
 const createApplication = async (req, res) => {
@@ -332,7 +333,7 @@ const updateTaskNote = async (req, res) => {
 
 const updateTaskState = async (req, res) => {
   const { taskId } = req.params;
-  const { newState } = req.body;
+  const { newState, groupName } = req.body;
 
   const validStates = ['todo', 'doing', 'done', 'closed'];
   if (!validStates.includes(newState)) {
@@ -372,6 +373,14 @@ const updateTaskState = async (req, res) => {
     );
 
     await connection.commit();
+
+    // Send notification if the new state is 'done'
+    if (newState === 'done') {
+      const taskName = task[0].task_name; // Assuming task_name is a field in your task tabl
+      await sendTaskNotification(taskId, taskName, req.user.username, groupName);
+    }
+
+
     res.status(200).json({ message: 'Task state updated successfully' });
   } catch (error) {
     console.error('Error updating task state:', error);
@@ -438,7 +447,6 @@ const getTasksByAcronym = async (req, res) => {
   try {
     const [results] = await db.query(`
       SELECT task_id, task_name, task_description, task_plan, task_state FROM task WHERE task_app_acronym = ?`, [acronym]);
-    console.log(results)
     res.status(200).json(results);
   } catch (error) {
     console.error("Error fetching tasks:", error);

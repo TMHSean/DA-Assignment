@@ -479,9 +479,9 @@ export const updateTask = async (taskId, taskObjects, groupName) => {
 	}
 };
 
-export const updateTaskState = async (taskId, newState, groupName) => {
+export const updateTaskState = async (taskId, updateStateObject, groupName) => {
 	try {
-		const response = await taskAPI.put(`/update/taskState/${taskId}`, { newState, groupName }, { withCredentials: true });
+		const response = await taskAPI.put(`/update/taskState/${taskId}`, { ...updateStateObject, groupName }, { withCredentials: true });
 		return response.data;
 	} catch (error) {
 		if (error.response) {
@@ -521,4 +521,3 @@ export const updateTaskNote = async (taskId, note, state = 'open', type = 'syste
 		}
 	}
 };
-
