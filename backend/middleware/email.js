@@ -59,7 +59,7 @@ const sendTaskNotification = async (taskId, taskName, username, groupName) => {
           <br><br> 
           The task "<strong>${taskName}</strong>" has been marked as done. Please review the task.
           <br><br>
-          Click <a href="http://localhost:5173/">here</a> to login.
+          Click <a href="http://localhost:${process.env.LOCALHOST_PORT}/">here</a> to login.
           <br><br>
           Best regards,
           <br>

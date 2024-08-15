@@ -8,10 +8,10 @@ const { authenticateToken } = require("./middleware/authMiddleware");
 
 // Initialize Express app
 const app = express();
-
+console.log(process.env.LOCALHOST_PORT)
 // CORS configuration
 const corsOptions = {
-  origin: "http://localhost:4173", // Replace with your SvelteKit frontend URL
+  origin: `http://localhost:${process.env.LOCALHOST_PORT}`, // Replace with your SvelteKit frontend URL
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: "Content-Type,Authorization",
   credentials: true, // Allow cookies to be sent with requests

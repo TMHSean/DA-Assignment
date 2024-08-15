@@ -355,9 +355,9 @@ const updateTaskNote = async (req, res) => {
 const updateTaskState = async (req, res) => {
   const { taskId } = req.params;
   const { newState, groupName, approval, release } = req.body;
-  const validStates = ['todo', 'doing', 'done', 'closed'];
+  const validStates = ['open', 'todo', 'doing', 'done', 'closed'];
   if (!validStates.includes(newState)) {
-    return res.status(400).json({ errors: 'Invalid state' });
+    return res.status(400).json({ errors: 'Invalid new state' });
   }
 
   const connection = await db.getConnection();
@@ -370,63 +370,75 @@ const updateTaskState = async (req, res) => {
       return res.status(404).json({ errors: 'Task not found' });
     }
 
-    // Update task state
-    await connection.query('UPDATE task SET task_state = ?, task_owner = ? WHERE task_id = ?', [newState, req.user.username, taskId]);
+    const currentTaskState = task[0].task_state;
 
-    // Get the current date and time in local format
-    const currentDate = new Date();
-    currentDate.setSeconds(currentDate.getSeconds() + 1);
-    const formattedDate = currentDate.getFullYear() + '-' +
-      ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
-      ('0' + currentDate.getDate()).slice(-2) + ' ' +
-      ('0' + currentDate.getHours()).slice(-2) + ':' +
-      ('0' + currentDate.getMinutes()).slice(-2) + ':' +
-      ('0' + currentDate.getSeconds()).slice(-2);
+    if (
+      ((currentTaskState === "open" || currentTaskState == "doing") && newState === "todo") ||
+      ((currentTaskState === "todo" || currentTaskState === "done") && newState === "doing") ||
+      (currentTaskState === "doing" && newState === "done") ||
+      (currentTaskState === "done" && newState === "closed")
+    ) {
+      // Update task state
+      await connection.query('UPDATE task SET task_state = ?, task_owner = ? WHERE task_id = ?', [newState, req.user.username, taskId]);
 
-    // Determine the state change message
-    const stateChangeMessage = (() => {
-      switch (newState) {
-        case 'doing':
-          if (approval) {
-            return `Task rejected by ${req.user.username}`;
-          }
-          return `Task taken on by ${req.user.username}`;
+      // Get the current date and time in local format
+      const currentDate = new Date();
+      currentDate.setSeconds(currentDate.getSeconds() + 1);
+      const formattedDate = currentDate.getFullYear() + '-' +
+        ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
+        ('0' + currentDate.getDate()).slice(-2) + ' ' +
+        ('0' + currentDate.getHours()).slice(-2) + ':' +
+        ('0' + currentDate.getMinutes()).slice(-2) + ':' +
+        ('0' + currentDate.getSeconds()).slice(-2);
 
-        case 'todo':
-          if (release) {
-            return `Task released by ${req.user.username}`;
-          }
-          return `Task given up by ${req.user.username}`;
+      // Determine the state change message
+      const stateChangeMessage = (() => {
+        switch (newState) {
+          case 'doing':
+            if (approval) {
+              return `Task rejected by ${req.user.username}`;
+            }
+            return `Task taken on by ${req.user.username}`;
 
-        case 'done':
-          return `Task submitted by ${req.user.username}`;
+          case 'todo':
+            if (release) {
+              return `Task released by ${req.user.username}`;
+            }
+            return `Task given up by ${req.user.username}`;
 
-        case 'closed':
-          return `Task closed by ${req.user.username}`;
+          case 'done':
+            return `Task submitted by ${req.user.username}`;
 
-        default:
-          return `Task state changed to ${newState} by ${req.user.username}`;
+          case 'closed':
+            return `Task closed by ${req.user.username}`;
+
+          default:
+            return `Task state changed to ${newState} by ${req.user.username}`;
+        }
+      })();
+
+      const messageInitiator = 'system'; // Use 'user' if needed based on who initiates the action
+
+      // Insert the new note
+      await connection.query(
+        'INSERT INTO tasknote (task_id, tasknote_created, notes) VALUES (?, ?, ?)',
+        [taskId, formattedDate, JSON.stringify([{ user: req.user.username, state: newState, date: formattedDate, message: stateChangeMessage, type: messageInitiator }])]
+      );
+
+      // Commit the transaction
+      await connection.commit();
+
+      // Send notification if the new state is 'done'
+      if (newState === 'done') {
+        const taskName = task[0].task_name; // Assuming task_name is a field in your task table
+        await sendTaskNotification(taskId, taskName, req.user.username, groupName);
       }
-    })();
 
-    const messageInitiator = 'system'; // Use 'user' if needed based on who initiates the action
-
-    // Insert the new note
-    await connection.query(
-      'INSERT INTO tasknote (task_id, tasknote_created, notes) VALUES (?, ?, ?)',
-      [taskId, formattedDate, JSON.stringify([{ user: req.user.username, state: newState, date: formattedDate, message: stateChangeMessage, type: messageInitiator }])]
-    );
-
-    // Commit the transaction
-    await connection.commit();
-
-    // Send notification if the new state is 'done'
-    if (newState === 'done') {
-      const taskName = task[0].task_name; // Assuming task_name is a field in your task table
-      await sendTaskNotification(taskId, taskName, req.user.username, groupName);
+      res.status(200).json({ errors: 'Task state updated successfully' });
+    } else {
+      res.status(400).json({ errors: 'Invalid task state.' });
     }
 
-    res.status(200).json({ message: 'Task state updated successfully' });
   } catch (error) {
     console.error('Error updating task state:', error);
     await connection.rollback();
