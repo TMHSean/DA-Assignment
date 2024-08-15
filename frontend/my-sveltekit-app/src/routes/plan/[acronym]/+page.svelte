@@ -114,8 +114,8 @@
       </p>
       {#if editingPlan && editingPlan.plan_mvp_name === plan.plan_mvp_name}
         <div class="button-group">
-          <button class="save-button" on:click={savePlan}>Save</button>
           <button class="cancel-button" on:click={cancelEditing}>Cancel</button>
+          <button class="save-button" on:click={savePlan}>Save</button>
         </div>
       {:else}
         <button class="edit-plan-button" on:click={() => startEditing(plan)}>Edit</button>
@@ -222,41 +222,58 @@
   }
 
   .button-group {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-  }
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: flex-end; /* Align buttons to the right */
+}
 
-  .save-button, .cancel-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    font-size: 1em;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    width: 80px;
-  }
+.save-button {
+  background-color: #28a745; /* Green for save */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 1em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 80px;
+}
 
-  .save-button:hover, .cancel-button:hover {
-    background-color: #0056b3;
-  }
+.save-button:hover {
+  background-color: #218838; /* Darker green for hover */
+}
 
-  .edit-plan-button {
-    align-self: flex-end;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
+.cancel-button {
+  background-color: #007bff; /* Blue for cancel */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 1em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 80px;
+}
 
-  .edit-plan-button:hover {
-    background-color: #0056b3;
-  }
+.cancel-button:hover {
+  background-color: #0056b3; /* Darker blue for hover */
+}
+
+.edit-plan-button {
+  align-self: flex-end;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-plan-button:hover {
+  background-color: #0056b3;
+}
 
   .feedback-message {
     margin: 1rem 0;
