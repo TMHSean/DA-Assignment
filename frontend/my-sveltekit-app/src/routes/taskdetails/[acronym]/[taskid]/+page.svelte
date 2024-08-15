@@ -5,6 +5,7 @@
   import { getTaskDetails, getTaskNotesDetails, updateTask, getAllPlans, checkUserStatus, getApplicationDetails, checkUserGroup, updateTaskState, updateTaskNote } from '$lib/api';
 
   let taskDetails = {};
+  let taskState = "";
   let auditTrail = [];
   let permitGroup = "";
   let acronym = '';
@@ -21,6 +22,7 @@
   let selectedPlan = '';
   let feedbackMessage = '';
   let feedbackType = '';
+  let requestForExtension = false; // New state variable
 
   onMount(async () => {
   const taskId = $page.params.taskid;
@@ -31,7 +33,7 @@
       const applicationDetails = await getApplicationDetails(acronym);
       // Fetch current task details
       taskDetails = await getTaskDetails(taskId);
-      const taskState = taskDetails.task_state;
+      taskState = taskDetails.task_state;
       if (taskState !== "closed") {
         // Retrieve the relevant permit group for the current task state
         permitGroupKey = `app_permit_${taskState}`;
@@ -152,12 +154,7 @@
       const updateStateObject = {newState, permitGroup, approval, release}
       const result = await updateTaskState(taskDetails.task_id, updateStateObject, permitGroup);
       if (result) {
-        window.location.reload();
-        taskDetails.task_state = newState;
-        auditTrail = result.data.auditTrail;
-        feedbackMessage = 'Task updated successfully!';
-        feedbackType = 'success';
-        
+        goto(`/taskpage/${acronym}`);
       }
       
     } catch (error) {
@@ -190,7 +187,6 @@
 <button class="back-button" on:click={goBack}>← Back</button>
 
 <div class="task-container">
-  <h1> {taskDetails.task_name}</h1>
   {#if feedbackMessage}
     <p class="feedback-message {feedbackType}">{feedbackMessage}</p>
   {/if}
@@ -198,6 +194,7 @@
   <!-- Unified container for task-info and audit-trail -->
   <div class="task-content">
     <div class="task-info">
+      <p><strong>Task Name:</strong> {taskDetails.task_name}</p>
       <p><strong>Description:</strong> {#if (taskDetails.task_state === 'open' || taskDetails.task_state === 'done') && canUpdateTask}<textarea bind:value={taskDetails.task_description} />{:else}{taskDetails.task_description}{/if}</p>
       <p><strong>Task ID:</strong> {taskDetails.task_id}</p>
       <p><strong>State:</strong> {taskDetails.task_state}</p>
@@ -206,13 +203,13 @@
       <p><strong>Create Date:</strong> {formatDate(taskDetails.task_createDate)}</p>
       <p><strong>Plan:</strong> {#if (taskDetails.task_state === 'open' || taskDetails.task_state === 'done') && canUpdateTask}
         <select bind:value={selectedPlan}>
-          <option value="null">Select Plan</option>
+          <option value="No Plan selected">Select Plan</option>
           {#each availablePlans as plan}
             <option value={plan.plan_mvp_name}>{plan.plan_mvp_name}</option>
           {/each}
         </select>
         {:else}
-        {taskDetails.task_plan}
+        {(taskDetails.task_plan) ? (taskDetails.task_plan) : "No Plan selected"}
         {/if}
       </p>
     </div>
@@ -240,9 +237,17 @@
         {/each}
       </div>
       {#if canUpdateTask}
-        <br>
-        <b>Enter New Note:</b>
-        <textarea bind:value={newNote} placeholder="Enter New Note"></textarea>
+        <div class="notes-container">
+          <div class="note-header-container">
+            <b>Enter New Note:</b>
+            {#if taskState === "doing"}
+              <div>
+                <input type="checkbox" bind:checked={requestForExtension} /> Request for Time Extension
+              </div>
+            {/if}
+          </div>
+          <textarea bind:value={newNote} placeholder="Enter New Note"></textarea>
+        </div>
       {:else}
         <br>
         <b>Note Entry Disabled:</b>
@@ -254,28 +259,36 @@
   <!-- Right-aligned buttons -->
   <div class="actions">
     <div class="action-buttons">
-      <button class="cancel-btn" on:click={() => window.history.back()}>Cancel</button>
-      {#if canUpdateTask}
-        <button class="update-task-btn" on:click={handleUpdateTask}>Update Details</button>
+      {#if requestForExtension}
+        <button class="cancel-btn" on:click={() => window.history.back()}>Cancel</button>
+        {#if canCompleteTask}
+          <button class="rte-task-btn" on:click={() => handleUpdateTaskState('done')}>Request for Time Extension</button>
+        {/if}
+      {:else}
+        <button class="cancel-btn" on:click={() => window.history.back()}>Cancel</button>
+        {#if canUpdateTask}
+          <button class="update-task-btn" on:click={handleUpdateTask}>Update Details</button>
+        {/if}
+        {#if canTakeOnTask}
+          <button class="take-task-btn" on:click={() => handleUpdateTaskState('doing')}>Take On Task</button>
+        {/if}
+        {#if canReleaseTask}
+          <button class="release-task-btn" on:click={() => handleUpdateTaskState('todo', false, true)}>Release Task</button>
+        {/if}
+        {#if canGiveUpTask}
+          <button class="give-up-task-btn" on:click={() => handleUpdateTaskState('todo')}>Give Up Task</button>
+        {/if}
+        {#if canCompleteTask}
+          <button class="complete-task-btn" on:click={() => handleUpdateTaskState('done')}>Complete Task</button>
+        {/if}
+        {#if canRejectTask}
+          <button class="reject-task-btn" on:click={() => handleUpdateTaskState('doing', true)}>Reject Task</button>
+        {/if}
+        {#if canApproveTask}
+          <button class="approve-task-btn" on:click={() => handleUpdateTaskState('closed')}>Approve Task</button>
+        {/if}
       {/if}
-      {#if canTakeOnTask}
-        <button class="take-task-btn" on:click={() => handleUpdateTaskState('doing')}>Take On Task</button>
-      {/if}
-      {#if canReleaseTask}
-        <button class="release-task-btn" on:click={() => handleUpdateTaskState('todo', false, true)}>Release Task</button>
-      {/if}
-      {#if canGiveUpTask}
-        <button class="give-up-task-btn" on:click={() => handleUpdateTaskState('todo')}>Give Up Task</button>
-      {/if}
-      {#if canCompleteTask}
-        <button class="complete-task-btn" on:click={() => handleUpdateTaskState('done')}>Complete Task</button>
-      {/if}
-      {#if canRejectTask}
-        <button class="reject-task-btn" on:click={() => handleUpdateTaskState('doing', true)}>Reject Task</button>
-      {/if}
-      {#if canApproveTask}
-        <button class="approve-task-btn" on:click={() => handleUpdateTaskState('closed')}>Approve Task</button>
-      {/if}
+      
     </div>
   </div>
 </div>
@@ -285,14 +298,6 @@
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto; /* Center align */
-  }
-
-  h1 {
-    font-size: 2.5em;
-    color: #333;
-    text-align: center; /* Centered title */
-    margin-bottom: 20px; /* Extra space below the title */
-    margin-top: -20px;
   }
 
   .task-content {
@@ -311,19 +316,23 @@
   .task-info p {
     margin-bottom: 5%; /* Increase space below each paragraph */
     line-height: 1.6; /* Increase line height for better readability */
+    font-size: 1.2em; /* Increase font size (adjust as needed) */
   }
 
   .task-info textarea {
     margin-bottom: 15px; /* Add space below the textarea if present */
+    font-size: 1em; /* Increase font size for textarea */
   }
 
 
   .audit-trail {
     width: 48%;
+    padding-bottom: 20px; /* Add space below the notes log */
   }
 
+
   .notes {
-    max-height: 250px; /* Increased height */
+    max-height: 350px; /* Increased height */
     overflow-y: auto;
     padding: 10px;
     border: 1px solid #ccc;
@@ -381,7 +390,6 @@
     margin: 10px 0;
   }
 
-  /* Right-aligned buttons */
   .actions {
     display: flex;
     justify-content: flex-end;
@@ -390,6 +398,7 @@
 
   .action-buttons {
     display: flex;
+    gap: 10px; /* Adds space between buttons */
   }
 
   /* General button styles */
@@ -415,6 +424,14 @@
 
   button.take-task-btn:hover {
     background-color: #218838; /* Darker green for hover effect */
+  }
+
+  button.rte-task-btn {
+    background-color: #007bff;
+  }
+
+  button.rte-task-btn:hover {
+    background-color: #0056b3; /* Darker blue for hover effect */
   }
 
   button.update-task-btn {
@@ -513,5 +530,23 @@
   .feedback-message.error {
     background-color: #f8d7da;
     color: #721c24;
+  }
+
+  .notes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between rows */
+    margin-top: 20px; /* Add space above the notes container */
+  }
+
+
+  .note-header-container {
+    display: flex;
+    align-items: center; /* Aligns items vertically centered */
+    justify-content: space-between; /* Pushes items to the ends */
+  }
+
+  .note-header-container input[type="checkbox"] {
+    margin-right: 10px; /* Space between checkbox and label */
   }
 </style>

@@ -126,6 +126,12 @@
             for (const user of users) {
                 userGroups[user.username] = await getUserGroups(user.username);
             }
+
+            newUsername = '';
+            newEmail = '';
+            newPassword = '';
+            newGroups = [];
+            newStatus = 0; // Reset status to default value (enabled)
         }
     } catch (error) {
         // Handle unexpected errors

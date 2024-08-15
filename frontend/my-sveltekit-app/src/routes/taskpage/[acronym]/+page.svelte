@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { checkUserGroup, checkUserStatus, getApplicationDetails, getTasksForApplication } from '$lib/api'; // Make sure you have an API function to get tasks
+  import { checkUserGroup, checkUserStatus, getApplicationDetails, getTasksForApplication } from '$lib/api'; 
 
   let tasks = {
     open: [],
@@ -27,10 +27,8 @@
         const result = await checkUserGroup(taskCreatorGroup);
         isTaskCreator = result.data.isInGroup;
 
-        // Fetch tasks for the application
         const fetchedTasks = await getTasksForApplication(acronym);
 
-        // Populate the tasks object based on task state
         tasks.open = fetchedTasks.filter(task => task.task_state === 'open');
         tasks.toDo = fetchedTasks.filter(task => task.task_state === 'todo');
         tasks.doing = fetchedTasks.filter(task => task.task_state === 'doing');
@@ -38,7 +36,6 @@
         tasks.closed = fetchedTasks.filter(task => task.task_state === 'closed');
         
       } else {
-        // Redirect to login if not authenticated
         goto('/deny');
       }
     } catch (error) {
@@ -48,7 +45,6 @@
   });
 
   function viewTask(taskId) {
-    // Handle view task logic
     console.log(`View task with ID: ${taskId}`);
     goto(`/taskdetails/${acronym}/${taskId}`);
   }
@@ -89,11 +85,11 @@
       <h2>Open</h2>
       {#each tasks.open as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
-          <h3>{task.task_name}</h3>
-          <div class="description-container">
-            <p>{task.task_description}</p>
+          <div class="task-details">
+            <p class="task-name"><strong>Task Name:</strong> {task.task_name}</p>
+            <p class="task-description"><strong>Description:</strong> {task.task_description}</p>
+            <p><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
           </div>
-          <p class="plan-text"><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
         </div>
       {/each}
     </div>
@@ -102,11 +98,11 @@
       <h2>To Do</h2>
       {#each tasks.toDo as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
-          <h3>{task.task_name}</h3>
-          <div class="description-container">
-            <p>{task.task_description}</p>
+          <div class="task-details">
+            <p class="task-name"><strong>Task Name:</strong> {task.task_name}</p>
+            <p class="task-description"><strong>Description:</strong> {task.task_description}</p>
+            <p><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
           </div>
-          <p class="plan-text"><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
         </div>
       {/each}
     </div>
@@ -115,11 +111,11 @@
       <h2>Doing</h2>
       {#each tasks.doing as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
-          <h3>{task.task_name}</h3>
-          <div class="description-container">
-            <p>{task.task_description}</p>
+          <div class="task-details">
+            <p class="task-name"><strong>Task Name:</strong> {task.task_name}</p>
+            <p class="task-description"><strong>Description:</strong> {task.task_description}</p>
+            <p><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
           </div>
-          <p class="plan-text"><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
         </div>
       {/each}
     </div>
@@ -128,11 +124,11 @@
       <h2>Done</h2>
       {#each tasks.done as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
-          <h3>{task.task_name}</h3>
-          <div class="description-container">
-            <p>{task.task_description}</p>
+          <div class="task-details">
+            <p class="task-name"><strong>Task Name:</strong> {task.task_name}</p>
+            <p class="task-description"><strong>Description:</strong> {task.task_description}</p>
+            <p><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
           </div>
-          <p class="plan-text"><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
         </div>
       {/each}
     </div>
@@ -141,11 +137,11 @@
       <h2>Closed</h2>
       {#each tasks.closed as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
-          <h3>{task.task_name}</h3>
-          <div class="description-container">
-            <p>{task.task_description}</p>
+          <div class="task-details">
+            <p class="task-name"><strong>Task Name:</strong> {task.task_name}</p>
+            <p class="task-description"><strong>Description:</strong> {task.task_description}</p>
+            <p><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
           </div>
-          <p class="plan-text"><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
         </div>
       {/each}
     </div>
@@ -204,24 +200,23 @@ h1 {
 
 .tasks-container {
   display: flex;
-  flex-wrap: nowrap; /* Prevent wrapping to maintain columns in a single row */
+  flex-wrap: nowrap;
   gap: 20px;
-  overflow-x: auto; /* Add horizontal scroll if needed */
+  overflow-x: auto; /* Keep horizontal scroll */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .column {
-  flex: 1; /* Each column takes equal width */
-  min-width: 18%; /* Minimum width for each column */
-  max-width: 20%; /* Maximum width for each column */
+  flex: 1;
+  min-width: 18%;
+  max-width: 20%;
   border: 1px solid #ddd;
   border-radius: 10px;
   background-color: #f9f9f9;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   padding: 15px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box; /* Include padding and border in the width and height */
+  box-sizing: border-box;
 }
 
 .column h2 {
@@ -238,52 +233,33 @@ h1 {
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 10px;
-  padding: 0;
+  padding: 10px;
   margin-bottom: 10px;
   cursor: pointer;
-  width: 100%;
-  height: 150px; /* Increased height to accommodate header and content */
-  text-align: center;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
   outline: none;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Hide any overflow content */
 }
 
-.task-card h3 {
+.task-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-name, .task-description {
+  max-height: 50px; /* Restrict the height */
+  overflow-y: auto; /* Add vertical scroll if content exceeds height */
+}
+
+.task-details p {
   margin: 0;
-  font-size: 1.1em;
-  color: white;
-  background-color: rgb(87, 87, 87);
-  padding: 10px;
-  border-radius: 10px 10px 0 0;
-  width: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
-  text-overflow: ellipsis; /* Adds ellipsis if text overflows */
 }
 
-.description-container {
-  max-height: 80px;
-  overflow-y: auto;
-  text-align: left;
-  padding: 10px;
-}
-
-.task-card p {
-  margin: 10px 0;
-  color: #555;
-  text-align: center;
-}
-
-.plan-text {
-  text-align: center;
-  padding: 10px;
-  margin: 10px 0; /* Adjust this as needed */
-  border-top: 1px solid #ddd;
-  box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+.task-details p strong {
+  color: #0e0e0e;
 }
 
 .task-card:hover {
@@ -294,6 +270,4 @@ h1 {
 .task-card:focus {
   outline: 2px solid #007bff;
 }
-
-
 </style>

@@ -112,12 +112,12 @@
     
     <div class="form-group">
       <label>Start Date:</label>
-      <input type="date" bind:value={startDate} />
+      <input type="date" bind:value={startDate} required/>
     </div>
     
     <div class="form-group">
       <label>End Date:</label>
-      <input type="date" bind:value={endDate} />
+      <input type="date" bind:value={endDate} required/>
     </div>
   </div>
   

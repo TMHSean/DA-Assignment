@@ -6,8 +6,6 @@ const { sendTaskNotification } = require("../middleware/email")
 
 // Check if a user belongs to a specific group
 const checkGroup = async (username, groupName) => {
-  console.log(username)
-  console.log(groupName)
   try {
     // Query to get all group names for the user
     const [results] = await db.query(
@@ -35,6 +33,11 @@ const createApplication = async (req, res) => {
   const errors = await validateCreateApplication(acronym);
   if (errors.length > 0) {
     return res.status(400).json({ errors });
+  }
+
+  // Validate description length
+  if (description.length > 500) {
+    return res.status(400).json({ errors: "Description cannot exceed 500 characters" });
   }
 
   if (rnumber < 0) {
@@ -182,7 +185,6 @@ const updatePlan = async (req, res) => {
   const { startDate, endDate } = req.body;
 
   if (startDate > endDate) {
-    console.log("HELLLOOOO")
     return res.status(400).json({ errors: "End Date cannot be earlier than Start Date" });
   }
 
