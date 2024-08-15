@@ -267,7 +267,7 @@
       {:else}
         <button class="cancel-btn" on:click={() => window.history.back()}>Cancel</button>
         {#if canUpdateTask}
-          <button class="update-task-btn" on:click={handleUpdateTask}>Update Details</button>
+          <button class="update-task-btn" on:click={handleUpdateTask} disabled={taskState === 'done' && selectedPlan !== taskDetails.task_plan}>Update Details</button>
         {/if}
         {#if canTakeOnTask}
           <button class="take-task-btn" on:click={() => handleUpdateTaskState('doing')}>Take On Task</button>
@@ -285,7 +285,7 @@
           <button class="reject-task-btn" on:click={() => handleUpdateTaskState('doing', true)}>Reject Task</button>
         {/if}
         {#if canApproveTask}
-          <button class="approve-task-btn" on:click={() => handleUpdateTaskState('closed')}>Approve Task</button>
+        <button class="approve-task-btn" on:click={() => handleUpdateTaskState('closed')} disabled={selectedPlan !== taskDetails.task_plan}> Approve Task </button>
         {/if}
       {/if}
       

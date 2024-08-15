@@ -45,7 +45,6 @@
   });
 
   function viewTask(taskId) {
-    console.log(`View task with ID: ${taskId}`);
     goto(`/taskdetails/${acronym}/${taskId}`);
   }
 
@@ -63,7 +62,19 @@
   function goToTasks() {
     goto(`/createtask/${acronym}`);
   }
+
+  function getPlanColor(plan) {
+    switch (plan) {
+      case 'sprint 1':
+        return '#007bff'; // Blue for 'sprint 1'
+      case 'sprint 2':
+        return '#28a745'; // Green for 'sprint 2'
+      default:
+        return '#6c757d'; // Grey for default or no plan
+    }
+  }
 </script>
+
 
 <div class="container">
   <div class="header-container">
@@ -86,6 +97,7 @@
       {#each tasks.open as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
           <div class="task-details">
+            <div class="task-color-bar" style="background-color: {getPlanColor(task.task_plan)};"></div>
             <p class="task-name"><strong>Task Name:</strong> {task.task_name}</p>
             <p class="task-description"><strong>Description:</strong> {task.task_description}</p>
             <p><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
@@ -99,6 +111,7 @@
       {#each tasks.toDo as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
           <div class="task-details">
+            <div class="task-color-bar" style="background-color: {getPlanColor(task.task_plan)};"></div>
             <p class="task-name"><strong>Task Name:</strong> {task.task_name}</p>
             <p class="task-description"><strong>Description:</strong> {task.task_description}</p>
             <p><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
@@ -112,6 +125,7 @@
       {#each tasks.doing as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
           <div class="task-details">
+            <div class="task-color-bar" style="background-color: {getPlanColor(task.task_plan)};"></div>
             <p class="task-name"><strong>Task Name:</strong> {task.task_name}</p>
             <p class="task-description"><strong>Description:</strong> {task.task_description}</p>
             <p><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
@@ -125,6 +139,7 @@
       {#each tasks.done as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
           <div class="task-details">
+            <div class="task-color-bar" style="background-color: {getPlanColor(task.task_plan)};"></div>
             <p class="task-name"><strong>Task Name:</strong> {task.task_name}</p>
             <p class="task-description"><strong>Description:</strong> {task.task_description}</p>
             <p><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
@@ -138,6 +153,7 @@
       {#each tasks.closed as task}
         <div class="task-card" role="button" tabindex="0" on:click={() => viewTask(task.task_id)} on:keypress={(event) => handleKeyPress(event, task.task_id)}>
           <div class="task-details">
+            <div class="task-color-bar" style="background-color: {getPlanColor(task.task_plan)};"></div>
             <p class="task-name"><strong>Task Name:</strong> {task.task_name}</p>
             <p class="task-description"><strong>Description:</strong> {task.task_description}</p>
             <p><strong>Plan:</strong> {task.task_plan ? task.task_plan : 'No plan selected'}</p>
@@ -151,6 +167,8 @@
 <style>
 .container {
   padding: 20px;
+  width:100%;
+
 }
 
 .header-container {
@@ -230,6 +248,7 @@ h1 {
 }
 
 .task-card {
+  position: relative;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -247,6 +266,16 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  position: relative;
+}
+
+.task-color-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;  /* Small width for the colored bar */
+  height: 100%;
+  border-radius: 0 10px 10px 0; /* Rounded edge to match the card */
 }
 
 .task-name, .task-description {

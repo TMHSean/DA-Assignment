@@ -55,7 +55,10 @@
       } else {
         feedbackMessage = 'Task created successfully!';
         feedbackType = 'success';
-        goto(`/taskpage/${acronym}`);
+         // Clear form fields after successful creation
+        taskName = '';
+        taskDescription = '';
+        selectedPlan = '';
       }
     } catch (error) {
       console.error('Error creating task:', error);
@@ -78,7 +81,7 @@
   
   <div class="form-group">
     <label for="taskDescription">Description:</label>
-    <textarea id="taskDescription" class="description-textarea" bind:value={taskDescription} required></textarea>
+    <textarea id="taskDescription" class="description-textarea" bind:value={taskDescription}></textarea>
   </div>
   
   <div class="form-group">
