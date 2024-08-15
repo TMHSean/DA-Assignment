@@ -1,6 +1,30 @@
 const db = require("../config/db"); // Assuming you have a db module to handle SQL queries
 const { validateCreateApplication, validateCreatePlan } = require('../utils/validation');
 const { sendTaskNotification } = require("../middleware/email")
+// const { checkGroup } = require("../middleware/authMiddleware")
+
+
+// Check if a user belongs to a specific group
+const checkGroup = async (username, groupName) => {
+  console.log(username)
+  console.log(groupName)
+  try {
+    // Query to get all group names for the user
+    const [results] = await db.query(
+      "SELECT group_name FROM usergroup WHERE username = ?",
+      [username]
+    )
+
+    // Extract group names from the results
+    const groups = results.map((row) => row.group_name)
+
+    // Check if the specified group name exists in the list of groups
+    return groups.includes(groupName)
+  } catch (err) {
+    console.error("Error checking user group:", err)
+    throw new Error("Server error")
+  }
+}
 
 // Create a new application
 const createApplication = async (req, res) => {
@@ -272,35 +296,47 @@ const updateTask = async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    // Create an array to hold values for the query
-    const values = [];
-    let query = "UPDATE task SET";
-
-    if (description !== undefined) {
-      query += " task_description = ?";
-      values.push(description);
+    // Check if task exists
+    const [task] = await connection.query('SELECT * FROM task WHERE task_id = ?', [taskId]);
+    if (task.length === 0) {
+      return res.status(404).json({ errors: 'Task not found' });
     }
 
-    if (plan !== undefined) {
-      // Append a comma if there are already values in the array
-      if (values.length > 0) {
-        query += ",";
+    const currentTaskState = task[0].task_state;
+
+    if (currentTaskState === "open" || currentTaskState === "done") {
+      // Create an array to hold values for the query
+      const values = [];
+      let query = "UPDATE task SET";
+
+      if (description !== undefined) {
+        query += " task_description = ?";
+        values.push(description);
       }
-      query += " task_plan = ?";
-      values.push(plan);
+
+      if (plan !== undefined) {
+        // Append a comma if there are already values in the array
+        if (values.length > 0) {
+          query += ",";
+        }
+        query += " task_plan = ?";
+        values.push(plan);
+      }
+
+      // Add the WHERE clause to the query
+      query += " WHERE task_id = ?";
+      values.push(taskId);
+
+      const [result] = await connection.query(query, values);
+      await connection.commit();
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ errors: "Task not found" });
+      }
+      res.status(200).json({ errors: "Task updated successfully" });
+    } else {
+      res.status(200).json({ errors: "Not allowed to update at current task state" });
     }
-
-    // Add the WHERE clause to the query
-    query += " WHERE task_id = ?";
-    values.push(taskId);
-
-    const [result] = await connection.query(query, values);
-    await connection.commit();
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ errors: "Task not found" });
-    }
-    res.status(200).json({ message: "Task updated successfully" });
   } catch (error) {
     console.error("Error updating task:", error);
     await connection.rollback();
@@ -313,42 +349,51 @@ const updateTask = async (req, res) => {
 // Update task note
 const updateTaskNote = async (req, res) => {
   const { taskId } = req.params;
-  const { note, state = 'open', type = 'system' } = req.body;
+  const user = req.user.username;
+  const { note, state = 'open', type = 'system', groupName } = req.body;
+
+  const isPermitted = checkGroup(user, groupName)
 
   if (!note) {
     return res.status(400).json({ errors: 'Note content is required.' });
   }
 
-  const connection = await db.getConnection();
-  try {
-    await connection.beginTransaction();
 
-    // Get the current date and time in local format
-    const currentDate = new Date();
-    const formattedDate = currentDate.getFullYear() + '-' +
-      ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
-      ('0' + currentDate.getDate()).slice(-2) + ' ' +
-      ('0' + currentDate.getHours()).slice(-2) + ':' +
-      ('0' + currentDate.getMinutes()).slice(-2) + ':' +
-      ('0' + currentDate.getSeconds()).slice(-2);
+  if (isPermitted) {
+    const connection = await db.getConnection();
+    try {
+      await connection.beginTransaction();
 
-    // Create a new note entry
-    const auditTrail = JSON.stringify([{ user: req.user.username, state, date: formattedDate, message: note, type }]);
+      // Get the current date and time in local format
+      const currentDate = new Date();
+      const formattedDate = currentDate.getFullYear() + '-' +
+        ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
+        ('0' + currentDate.getDate()).slice(-2) + ' ' +
+        ('0' + currentDate.getHours()).slice(-2) + ':' +
+        ('0' + currentDate.getMinutes()).slice(-2) + ':' +
+        ('0' + currentDate.getSeconds()).slice(-2);
 
-    await connection.query(
-      "INSERT INTO tasknote (task_id, tasknote_created, notes) VALUES (?, ?, ?)",
-      [taskId, formattedDate, auditTrail]
-    );
+      // Create a new note entry
+      const auditTrail = JSON.stringify([{ user: req.user.username, state, date: formattedDate, message: note, type }]);
 
-    await connection.commit();
-    res.status(201).json({ message: "Note added successfully" });
-  } catch (error) {
-    console.error("Error updating task note:", error);
-    await connection.rollback();
-    res.status(500).json({ errors: "Database error occurred while adding note" });
-  } finally {
-    connection.release();
+      await connection.query(
+        "INSERT INTO tasknote (task_id, tasknote_created, notes) VALUES (?, ?, ?)",
+        [taskId, formattedDate, auditTrail]
+      );
+
+      await connection.commit();
+      res.status(201).json({ message: "Note added successfully" });
+    } catch (error) {
+      console.error("Error updating task note:", error);
+      await connection.rollback();
+      res.status(500).json({ errors: "Database error occurred while adding note" });
+    } finally {
+      connection.release();
+    }
+  } else {
+    res.status(400).json({ errors: "You do not have the right to add notes" });
   }
+
 };
 
 
