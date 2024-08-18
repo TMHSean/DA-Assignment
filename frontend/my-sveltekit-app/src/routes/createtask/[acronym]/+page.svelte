@@ -36,10 +36,11 @@
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     const taskData = {
       name: taskName,
       description: taskDescription,
-      plan: selectedPlan,
+      plan: selectedPlan || null,
       acronym: acronym
     };
 

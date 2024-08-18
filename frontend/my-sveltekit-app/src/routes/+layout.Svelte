@@ -82,17 +82,23 @@
     align-items: center;
   }
 
-  /* Main Content Styles */
-  .with-navbar {
-    padding-top: 60px; 
-    margin: 0 auto;
-    max-width: 1200px;
-  }
+/* Main Content Styles */
+.with-navbar {
+  padding-top: 60px; /* Account for the navbar's height */
+  width: 97%; /* Ensure the content takes up the full width */
+  padding-left: 100px;
+  padding-right: 100px;
+  box-sizing: border-box; /* Include padding in the element's width */
+}
 
-  .no-navbar {
-    padding-top: 0;
-    margin: 0;
-    height: 100vh;
-  }
+.no-navbar {
+  padding-top: 0;
+  margin: 0;
+  height: 100vh;
+  width: 100%; /* Ensure the content takes up the full width */
+  padding-left: 20px;
+  padding-right: 20px;
+  box-sizing: border-box; /* Include padding in the element's width */
+}
 
 </style>

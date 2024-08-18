@@ -64,15 +64,26 @@
   }
 
   function getPlanColor(plan) {
-    switch (plan) {
+    if (plan === null) {
+      plan = "default"
+    }
+    const lowerPlan = plan.toLowerCase();
+    switch (lowerPlan) {
       case 'sprint 1':
         return '#007bff'; // Blue for 'sprint 1'
       case 'sprint 2':
         return '#28a745'; // Green for 'sprint 2'
+      case 'sprint 3':
+        return '#ffc107'; // Yellow for 'sprint 3'
+      case 'sprint 4':
+        return '#fd7e14'; // Orange for 'sprint 4'
+      case 'sprint 5':
+        return '#dc3545'; // Red for 'sprint 5'
       default:
         return '#6c757d'; // Grey for default or no plan
     }
   }
+
 </script>
 
 
@@ -220,9 +231,10 @@ h1 {
   display: flex;
   flex-wrap: nowrap;
   gap: 20px;
-  overflow-x: auto; /* Keep horizontal scroll */
   width: 100%;
+  overflow-x: auto;
   box-sizing: border-box;
+  justify-content: space-between; /* Distribute columns evenly */
 }
 
 .column {

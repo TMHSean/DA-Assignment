@@ -23,6 +23,7 @@
   let feedbackMessage = '';
   let feedbackType = '';
   let requestForExtension = false; // New state variable
+  let requestForExtensionMsg = "Request for Time Extension: ";
 
   onMount(async () => {
   const taskId = $page.params.taskid;
@@ -96,7 +97,7 @@
       };
 
       // Check if the task state is 'open' or 'doing'
-      if (taskState === 'open' || taskState === 'doing') {
+      if (taskState === 'open' || taskState === 'done') {
         // Update task description and plan if there are changes
         if (taskUpdate.description.trim() || taskUpdate.plan !== taskDetails.task_plan) {
           const taskUpdateResult = await updateTask(taskDetails.task_id, taskUpdate, permitGroup);
@@ -111,7 +112,13 @@
 
       // Update task note if there is any new note
       if (newNote.trim()) {
-        const tasknoteUpdateResult = await updateTaskNote(taskDetails.task_id, newNote, taskState, "user", permitGroup );
+        let noteMsg = "";
+        if (requestForExtension) {
+          noteMsg = requestForExtensionMsg + newNote;
+        } else {
+          noteMsg = newNote;
+        }
+        const tasknoteUpdateResult = await updateTaskNote(taskDetails.task_id, noteMsg, taskState, "user", permitGroup );
         if (tasknoteUpdateResult) {
             taskNoteUpdateSuccessful = true; // Mark task note update as successful
         } else {
@@ -296,7 +303,7 @@
 <style>
   .task-container {
     padding: 20px;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto; /* Center align */
   }
 
@@ -311,6 +318,7 @@
 
   .task-info {
     width: 45%; /* Slightly reduce width to allow spacing */
+    margin: auto;
   }
 
   .task-info p {
@@ -337,6 +345,7 @@
     padding: 10px;
     border: 1px solid #ccc;
     background-color: #f9f9f9;
+    border-radius: 3px;
   }
 
   textarea {
